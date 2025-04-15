@@ -14,15 +14,9 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import CreateOutlinedIcon from "@mui/icons-material/CreateOutlined";
 
-import { productApi } from "~/services/axios.product";
-import Product from "~/types/product";
-function ListProducts() {
-  const [products, setProducts] = useState<Product[]>([]);
 
   useEffect(() => {
     const fetchProducts = async () => {
-      try {
-        const productsData = await productApi.getAll()
         setProducts(productsData);
       } catch (error) {
         console.error("Failed to fetch products:", error);
@@ -32,7 +26,7 @@ function ListProducts() {
     fetchProducts();
   }, []);
 
-  const formatPrice = (price : number) => {
+
     return new Intl.NumberFormat('vi-VN', {
       style: 'currency',
       currency: 'VND'
