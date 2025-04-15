@@ -13,26 +13,10 @@ import { Box, Chip } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import CreateOutlinedIcon from "@mui/icons-material/CreateOutlined";
-import { getProducts } from "~/services/productService";
 
-interface product {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
-  isActive: boolean;
-  categoryName: string | null;
-  manufacturerName: string | null;
-  discountName: string | null;
-}
-
-function ListProducts() {
-  const [products, setProducts] = useState<product[]>([]);
 
   useEffect(() => {
     const fetchProducts = async () => {
-      try {
-        const productsData = await getProducts();
         setProducts(productsData);
       } catch (error) {
         console.error("Failed to fetch products:", error);
@@ -42,7 +26,7 @@ function ListProducts() {
     fetchProducts();
   }, []);
 
-  const formatPrice = (price: number): string => {
+
     return new Intl.NumberFormat('vi-VN', {
       style: 'currency',
       currency: 'VND'
