@@ -14,9 +14,11 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import CreateOutlinedIcon from "@mui/icons-material/CreateOutlined";
 import { productApi } from "~/services/axios.product";
+
 import Product from "~/types/product";
 
 function ListProducts() {
+  
   const [products, setProducts] = useState<Product[]>([]);
 
   useEffect(() => {

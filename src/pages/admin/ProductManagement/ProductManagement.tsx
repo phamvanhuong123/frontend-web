@@ -6,10 +6,11 @@ import AddIcon from '@mui/icons-material/Add';
 import ListProducts from './ListProducts/ListProducts.tsx';
 import { useState } from "react";
 
+import { useNavigate } from "react-router-dom";
 
 function ProductManagement(){
     const [status, setStatus] = useState('allStatus');
-
+    const navigate = useNavigate();
   const handleChange = (event: SelectChangeEvent) => {
 
     setStatus(event.target.value);
@@ -87,7 +88,7 @@ function ProductManagement(){
                   <MenuItem value={'inactive'}>Inactive</MenuItem>
                 </Select>
               </FormControl>
-              <Button startIcon={<AddIcon/>} variant="contained">Add User</Button>
+              <Button startIcon={<AddIcon/>} variant="contained" onClick={()=>{navigate('create')}}>Add Product</Button>
               <Button  variant="outlined">Reload</Button>
             </Box>
           </Box>

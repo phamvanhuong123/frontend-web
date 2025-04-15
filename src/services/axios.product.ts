@@ -1,9 +1,15 @@
 import axios from "./axios.customize";
 import Product from '~/types/product'
+const url = "api/v1/ecommerce/products"
 export const productApi = {
-    // Danh sách người dùng
+    
+    // Danh sách product
+
     getAll(){
-        const url = "api/v1/ecommerce/products"
+        
         return axios.get<Product[]>(url).then(res => res.data);
+    },
+    CreateProduct(product: any){
+        return axios.post(url, product  )
     }
 }

@@ -7,6 +7,7 @@ import Dashboard from "~/pages/admin/Dashboard/Dashboard";
 import Order from "~/pages/admin/OrderManagement/OrderManagement";
 import Products from "~/pages/admin/ProductManagement/ProductManagement";
 import Users from "~/pages/admin/UserManagement/UserManagement";
+import CreateProduct from "~/pages/admin/ProductManagement/CreateProduct/CreateProduct";
 
 export default function Router() {
   const routes = useRoutes([
@@ -25,6 +26,7 @@ export default function Router() {
         { path: "users", element: <Users /> },
         { path: "orders", element: <Order /> },
         { path: "products", element: <Products /> },
+        { path: "products/create", element: <CreateProduct /> },
         { path: "categories", element: <Categories /> },
       ],
     },
