@@ -30,7 +30,7 @@ function ListOrder() {
       const fetchOrder = async () => {
         try {
           const orderData = await orderApi.getAll();
-          setOrders(orderData.data);
+          setOrders(orderData);
         } catch (error) {
           console.error("Failed to fetch categories:", error);
         }

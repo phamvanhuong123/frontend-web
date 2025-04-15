@@ -4,6 +4,6 @@ export const productApi = {
     // Danh sách người dùng
     getAll(){
         const url = "api/v1/ecommerce/products"
-        return axios.get<Product[]>(url);
+        return axios.get<Product[]>(url).then(res => res.data);
     }
 }

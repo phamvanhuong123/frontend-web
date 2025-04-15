@@ -22,8 +22,8 @@ function ListProducts() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const productsData = await productApi.getAll();
-        setProducts(productsData.data);
+        const productsData: Product[] = await productApi.getAll();
+        setProducts(productsData);
       } catch (error) {
         console.error("Failed to fetch products:", error);
       }

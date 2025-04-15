@@ -27,8 +27,8 @@ function ListUsers() {
     const fetchUsers = async () => {
       try {
         const response = await userApi.getAll();
-        console.log("Response data:", response.data);
-        setUsers(response.data); 
+        console.log("Response data:", response);
+        setUsers(response); 
       } catch (error) {
         console.error("Failed to fetch users:", error);
       }

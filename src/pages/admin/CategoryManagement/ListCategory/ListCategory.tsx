@@ -33,7 +33,7 @@ function ListCategory() {
         setLoading(true);
         const response = await categoryApi.getAll();
         
-        const categoriesData: Category[] = response.data || []; 
+        const categoriesData: Category[] = response || []; 
         
         // Kiểm tra nếu không phải mảng
         if (!Array.isArray(categoriesData)) {
