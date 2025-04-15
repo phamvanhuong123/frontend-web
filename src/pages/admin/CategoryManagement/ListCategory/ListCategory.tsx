@@ -31,21 +31,31 @@ function ListCategory() {
     const fetchCategories = async () => {
       try {
         setLoading(true);
-        const categoriesData: Category[] = await categoryApi.getAll();
-        // Tạo cấu trúc phân cấp
+        const response = await categoryApi.getAll();
+        
+        const categoriesData: Category[] = response.data || []; 
+        
+        // Kiểm tra nếu không phải mảng
+        if (!Array.isArray(categoriesData)) {
+          throw new Error("Expected array but got: " + typeof categoriesData);
+        }
+  
         const categoryMap = new Map<string, Category>();
         const rootCategories: Category[] = [];
         
-        // Đầu tiên, tạo map và xác định danh mục gốc
+        // Tạo map và xác định danh mục gốc
         categoriesData.forEach(category => {
-          categoryMap.set(category.id, { ...category, subCategories: [] });
+          categoryMap.set(category.id, { 
+            ...category, 
+            subCategories: [] 
+          });
           
           if (!category.parentCategoryId) {
             rootCategories.push(categoryMap.get(category.id)!);
           }
         });
         
-        // Sau đó, thêm danh mục con vào danh mục cha
+        // Thêm danh mục con vào danh mục cha
         categoriesData.forEach(category => {
           if (category.parentCategoryId && categoryMap.has(category.parentCategoryId)) {
             categoryMap.get(category.parentCategoryId)!.subCategories!.push(
@@ -61,7 +71,7 @@ function ListCategory() {
         setLoading(false);
       }
     };
-
+  
     fetchCategories();
   }, []);
 

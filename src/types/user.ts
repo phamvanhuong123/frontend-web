@@ -9,11 +9,11 @@
 //     discountName: Number
 // }
 interface User  {
-    id: string;
     email: string;
-    name: string;
-    phoneNumber: string;
-    role: string;
+    id: string;
     isActive: boolean;
+    name: string;
+    role: string;
+    phoneNumber: string;  
 }
 export default User

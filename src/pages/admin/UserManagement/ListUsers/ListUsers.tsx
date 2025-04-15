@@ -26,16 +26,14 @@ function ListUsers() {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        debugger
-        const usersData  = await userApi.getAll();
-        console.log(usersData)
-        setUsers(usersData);
-
+        const response = await userApi.getAll();
+        console.log("Response data:", response.data);
+        setUsers(response.data); 
       } catch (error) {
         console.error("Failed to fetch users:", error);
       }
     };
-
+    
     fetchUsers();
   }, []);
 

@@ -5,7 +5,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import AddIcon from '@mui/icons-material/Add';
 import ListUsers from './ListUsers/ListUsers'
 import { useState } from "react";
-function Users() {
+function UserManagement() {
     const [status, setStatus] = useState('allStatus');
 
   const handleChange = (event: SelectChangeEvent) => {
@@ -98,4 +98,4 @@ function Users() {
     </>
   );
 }
-export default Users;
+export default UserManagement;

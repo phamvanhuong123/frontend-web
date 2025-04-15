@@ -23,7 +23,7 @@ function ListProducts() {
     const fetchProducts = async () => {
       try {
         const productsData = await productApi.getAll();
-        setProducts(productsData);
+        setProducts(productsData.data);
       } catch (error) {
         console.error("Failed to fetch products:", error);
       }
