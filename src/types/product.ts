@@ -6,6 +6,6 @@
     isActive: boolean,
     categoryName: string,
     manufacturerName: string,
-    discountName: Number
+    discountName: string,
 }
 export default Product

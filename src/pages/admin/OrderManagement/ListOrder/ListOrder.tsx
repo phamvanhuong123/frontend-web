@@ -14,28 +14,12 @@ import {
   LocalShippingOutlined,
   ReceiptOutlined
 } from "@mui/icons-material";
-import { getOrder } from "~/services/orderService";
+import { orderApi } from "~/services/axios.order";
+import Order from "~/types/order";
 
-interface OrderItem {
-  id: string;
-  productId: string;
-  quantity: number;
-  priceAtOrder: number;
-  totalItemPrice: number;
-}
 
-interface Order {
-  orderCode: string;
-  id: string;
-  userId: string;
-  shippingAddressId: string;
-  billingAddressId: string | null;
-  couponId: string | null;
-  paymentId: string | null;
-  notes: string;
-  totalAmount: number;
-  orderItems: OrderItem[];
-}
+
+
 
 
 function ListOrder() {
@@ -45,7 +29,7 @@ function ListOrder() {
    useEffect(() => {
       const fetchOrder = async () => {
         try {
-          const orderData = await getOrder();
+          const orderData = await orderApi.getAll();
           setOrders(orderData);
         } catch (error) {
           console.error("Failed to fetch categories:", error);

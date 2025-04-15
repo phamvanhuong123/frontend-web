@@ -17,18 +17,10 @@ import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import SubdirectoryArrowRightIcon from "@mui/icons-material/SubdirectoryArrowRight";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
-import { getCategory } from "~/services/category.service";
+import { categoryApi } from "~/services/axious.category";
+import Category from "~/types/category";
 
-interface Category {
-  id: string;
-  name: string;
-  description: string;
-  parentCategoryId: string | null;
-  parentCategoryName: string | null;
-  productCount: number;
-  subCategoryCount: number;
-  subCategories?: Category[];
-}
+
 
 function ListCategory() {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -39,7 +31,7 @@ function ListCategory() {
     const fetchCategories = async () => {
       try {
         setLoading(true);
-        const categoriesData: Category[] = await getCategory();
+        const categoriesData: Category[] = await categoryApi.getAll();
         // Tạo cấu trúc phân cấp
         const categoryMap = new Map<string, Category>();
         const rootCategories: Category[] = [];
