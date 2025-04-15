@@ -13,7 +13,7 @@ import { Box, Chip } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import CreateOutlinedIcon from "@mui/icons-material/CreateOutlined";
-import { getUsers } from "../../../../services/axios.customize";
+import { getUsers } from "../../../../services/userService";
 
 interface User {
   id: string;
