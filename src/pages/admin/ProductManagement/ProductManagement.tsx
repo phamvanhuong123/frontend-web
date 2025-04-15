@@ -3,7 +3,7 @@ import Box from "@mui/material/Box";
 import Button from '@mui/material/Button';
 import SearchIcon from "@mui/icons-material/Search";
 import AddIcon from '@mui/icons-material/Add';
-import ListProducts from './ListProducts/ListProducts';
+import ListProducts from './ListProducts/ListProducts.tsx';
 import { useState } from "react";
 
 

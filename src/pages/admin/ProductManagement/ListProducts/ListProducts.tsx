@@ -13,26 +13,16 @@ import { Box, Chip } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import CreateOutlinedIcon from "@mui/icons-material/CreateOutlined";
-import { getProducts } from "~/services/axios.customize";
 
-// interface product {
-//   id: string;
-//   name: string;
-//   description: string;
-//   price: number;
-//   isActive: boolean;
-//   categoryName: string | null;
-//   manufacturerName: string | null;
-//   discountName: string | null;
-// }
-
+import { productApi } from "~/services/axios.product";
+import Product from "~/types/product";
 function ListProducts() {
-  const [products, setProducts] = useState([]);
+  const [products, setProducts] = useState<Product[]>([]);
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const productsData = await getProducts();
+        const productsData = await productApi.getAll()
         setProducts(productsData);
       } catch (error) {
         console.error("Failed to fetch products:", error);
@@ -42,7 +32,7 @@ function ListProducts() {
     fetchProducts();
   }, []);
 
-  const formatPrice = (price) => {
+  const formatPrice = (price : number) => {
     return new Intl.NumberFormat('vi-VN', {
       style: 'currency',
       currency: 'VND'

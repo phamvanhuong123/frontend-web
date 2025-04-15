@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
@@ -13,16 +13,11 @@ import { Box, Chip } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import CreateOutlinedIcon from "@mui/icons-material/CreateOutlined";
-import { getUsers } from "../../../../services/axios.customize";
 
-interface User {
-  id: string;
-  email: string;
-  name: string;
-  phoneNumber: string;
-  role: string;
-  isActive: boolean;
-}
+import { userApi } from "~/services/axios.user";
+import User from "~/types/user";
+
+
 
 function ListUsers() {
   const [users, setUsers] = useState<User[]>([]);
@@ -31,8 +26,10 @@ function ListUsers() {
     const fetchUsers = async () => {
       try {
         debugger
-        const usersData = await getUsers();
+        const usersData  = await userApi.getAll();
+        console.log(usersData)
         setUsers(usersData);
+
       } catch (error) {
         console.error("Failed to fetch users:", error);
       }
