@@ -17,12 +17,14 @@ import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import SubdirectoryArrowRightIcon from "@mui/icons-material/SubdirectoryArrowRight";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
-import { categoryApi } from "~/services/axious.category";
+import { categoryApi } from "~/services/axios.category";
 import Category from "~/types/category";
+import { useNavigate } from "react-router-dom";
 
 
 
 function ListCategory() {
+  const navigate = useNavigate();
   const [categories, setCategories] = useState<Category[]>([]);
   const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({});
   const [loading, setLoading] = useState<boolean>(true);
@@ -168,7 +170,7 @@ function ListCategory() {
                 </IconButton>
               </Tooltip>
               <Tooltip title="Chỉnh sửa">
-                <IconButton color="primary">
+                <IconButton color="primary" onClick={() => { navigate(`edit/${category.id}`); }}>
                   <CreateOutlinedIcon />
                 </IconButton>
               </Tooltip>

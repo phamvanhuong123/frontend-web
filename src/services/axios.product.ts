@@ -10,6 +10,6 @@ export const productApi = {
         return axios.get<Product[]>(url).then(res => res.data);
     },
     CreateProduct(product: any){
-        return axios.post(url, product  )
+        return axios.post(url, product)
     }
 }

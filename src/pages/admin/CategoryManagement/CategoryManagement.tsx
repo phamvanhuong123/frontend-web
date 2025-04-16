@@ -5,8 +5,10 @@ import SearchIcon from "@mui/icons-material/Search";
 import AddIcon from '@mui/icons-material/Add';
 import { useState } from "react";
 import ListCategory from "./ListCategory/ListCategory";
+import { useNavigate } from "react-router-dom";
 function CategoryManagement() {
-    const [status, setStatus] = useState('allStatus');
+  const navigate = useNavigate();
+  const [status, setStatus] = useState('allStatus');
 
   const handleChange = (event: SelectChangeEvent) => {
 
@@ -85,7 +87,7 @@ function CategoryManagement() {
                   <MenuItem value={'inactive'}>Inactive</MenuItem>
                 </Select>
               </FormControl>
-              <Button startIcon={<AddIcon/>} variant="contained">Add User</Button>
+              <Button startIcon={<AddIcon/>} variant="contained" onClick={()=>{navigate('create')}}>Thêm danh mục</Button>
               <Button  variant="outlined">Reload</Button>
             </Box>
           </Box>
