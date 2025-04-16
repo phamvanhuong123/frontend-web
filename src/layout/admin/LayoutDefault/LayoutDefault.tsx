@@ -1,6 +1,4 @@
 import DashboardIcon from "@mui/icons-material/Dashboard";
-import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
-
 import { ReactRouterAppProvider } from '@toolpad/core/react-router';
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
 import ProductionQuantityLimitsIcon from '@mui/icons-material/ProductionQuantityLimits';

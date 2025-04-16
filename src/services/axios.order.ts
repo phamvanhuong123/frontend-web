@@ -8,3 +8,13 @@ export const orderApi = {
         return axios.get<Order[]>(url).then(res => res.data);
     }
 }
+
+export const callPlaceOrder = (data: Record<string, any>) => {
+    return axios.post('/api/v1/order', {
+        ...data
+    })
+}
+
+export const callOrderHistory = () => {
+    return axios.get('/api/v1/history');
+}
