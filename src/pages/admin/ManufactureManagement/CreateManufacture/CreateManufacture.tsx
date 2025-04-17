@@ -17,7 +17,8 @@ function CreateManufacture() {
     const navigate = useNavigate();
     const [manufacture, setManufacture] = useState<CreateAManufacture>({
         name: "",
-        description: "",
+        phoneNumber: "",
+        address: "",
         isActive: true,
     });
 
@@ -46,7 +47,7 @@ function CreateManufacture() {
     };
 
     return (
-        <Card sx={{ maxWidth: 800, ml: 10, mt: 4, p: 2 }}>
+        <Card sx={{ maxWidth: 600, margin: "auto", mt: 4, p: 2 }}>
             <CardContent>
                 <Typography variant="h5" gutterBottom>
                     Thêm nhà sản xuất mới
@@ -59,33 +60,33 @@ function CreateManufacture() {
                     Quay lại
                 </Button>
                 <form onSubmit={handleSubmit}>
-                    <Grid container spacing={2} direction="column">
+                    <Grid container spacing={2}>
                         <TextField
                             fullWidth
-                            label="Tên nhà sản xuất*"
+                            label="Tên nhà sản xuất"
                             name="name"
                             value={manufacture.name}
                             onChange={handleChange}
                             required
-                            margin="normal"
                         />
                         <TextField
                             fullWidth
-                            label="Mô tả"
-                            name="description"
-                            value={manufacture.description}
+                            label="Số điện thoại"
+                            name="phoneNumber"
+                            value={manufacture.phoneNumber}
+                            onChange={handleChange}
+                        />
+                        <TextField
+                            fullWidth
+                            label="Địa chỉ"
+                            name="address"
+                            value={manufacture.address}
                             onChange={handleChange}
                             multiline
                             rows={3}
-                            margin="normal"
                         />
-                        <Button
-                            type="submit"
-                            variant="contained"
-                            color="primary"
-                            sx={{ mt: 2 }}
-                        >
-                            Thêm nhà sản xuất
+                        <Button type="submit" variant="contained" color="primary">
+                            Thêm
                         </Button>
                     </Grid>
                 </form>

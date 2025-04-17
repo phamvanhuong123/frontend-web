@@ -50,7 +50,7 @@ export default function PostManagement() {
     };
 
     const handleEdit = (id: string) => {
-        navigate(`/admin/posts/${id}/edit`);
+        navigate(`/admin/posts/edit/${id}`);
     };
 
     const handleDelete = (id: string) => {

@@ -1,14 +1,14 @@
 interface Manufacturer {
     id: string;
     name: string;
-    description: string;
-    isActive: boolean;
+    phoneNumber: string | null;
+    address: string | null;
 }
 
 export interface CreateAManufacture {
     name: string;
-    description: string;
-    isActive: boolean;
+    phoneNumber?: string;
+    address?: string;
 }
 
 export default Manufacturer;

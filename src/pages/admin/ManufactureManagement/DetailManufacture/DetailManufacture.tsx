@@ -106,40 +106,30 @@ function DetailManufacture() {
                     <Divider component="li" />
                     <ListItem>
                         <ListItemText
-                            primary="Mô tả"
-                            secondary={manufacture.description}
+                            primary="Địa chỉ"
+                            secondary={manufacture.address}
                         />
                     </ListItem>
                     <Divider component="li" />
                     <ListItem>
                         <ListItemText
-                            primary="Trạng thái"
-                            secondary={
-                                <Chip
-                                    label={manufacture.isActive ? "Active" : "Inactive"}
-                                    color={manufacture.isActive ? "success" : "error"}
-                                    size="small"
-                                />
-                            }
+                            primary="Số điện thoại"
+                            secondary={manufacture.phoneNumber}
                         />
                     </ListItem>
+                    <Divider component="li" />
+
                 </List>
 
                 <Box sx={{ mt: 3, display: 'flex', gap: 2 }}>
                     <Button
                         variant="contained"
                         color="primary"
-                        onClick={() => navigate(`edit/${manufacture.id}`)}
+                        onClick={() => navigate(`/admin/manufactures/edit/${manufacture.id}`)}
                     >
                         Chỉnh sửa
                     </Button>
-                    <Button
-                        variant="outlined"
-                        color="error"
-                        onClick={() => navigate(`delete/${manufacture.id}`)}
-                    >
-                        Xóa
-                    </Button>
+
                 </Box>
             </Paper>
         </Box>

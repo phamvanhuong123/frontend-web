@@ -52,7 +52,7 @@ const NAVIGATION: Navigation = [
     icon: <FactoryIcon />,
   },
   {
-    segment: "admin/post",
+    segment: "admin/posts",
     title: "Post",
     icon: <PostAddIcon />,
   }

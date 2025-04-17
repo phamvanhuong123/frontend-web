@@ -21,8 +21,8 @@ function EditManufacture() {
     const [manufacture, setManufacture] = useState<Manufacturer>({
         id: "",
         name: "",
-        description: "",
-        isActive: true,
+        phoneNumber: "",
+        address: ""
     });
     const [loading, setLoading] = useState(true);
 
@@ -48,10 +48,10 @@ function EditManufacture() {
     }, [id, navigate]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value, type, checked } = e.target;
+        const { name, value } = e.target;
         setManufacture({
             ...manufacture,
-            [name]: type === 'checkbox' ? checked : value,
+            [name]: value
         });
     };
 
@@ -59,7 +59,7 @@ function EditManufacture() {
         e.preventDefault();
 
         try {
-            await manufactureApi.update(manufacture);
+            await manufactureApi.update(id!, manufacture);
             toast.success("Cập nhật nhà sản xuất thành công", {
                 autoClose: 1000,
                 transition: Flip,
@@ -101,23 +101,23 @@ function EditManufacture() {
                         />
                         <TextField
                             fullWidth
-                            label="Mô tả"
-                            name="description"
-                            value={manufacture.description}
+                            label="Số điện thoại"
+                            name="phoneNumber"
+                            value={manufacture.phoneNumber}
+                            onChange={handleChange}
+                            required
+                            margin="normal"
+                        />
+                        <TextField
+                            fullWidth
+                            label="Địa chỉ"
+                            name="address"
+                            value={manufacture.address}
                             onChange={handleChange}
                             multiline
                             rows={3}
+                            required
                             margin="normal"
-                        />
-                        <FormControlLabel
-                            control={
-                                <Switch
-                                    checked={manufacture.isActive}
-                                    onChange={handleChange}
-                                    name="isActive"
-                                />
-                            }
-                            label="Active"
                         />
                         <Button
                             type="submit"

@@ -10,24 +10,23 @@ import Users from "~/pages/admin/UserManagement/UserManagement";
 import CreateProduct from "~/pages/admin/ProductManagement/CreateProduct/CreateProduct";
 import CreateCategory from "~/pages/admin/CategoryManagement/CreateCategory/CreateCategory";
 import EditCategory from "~/pages/admin/CategoryManagement/EditCategory/EditCategory";
-import DeleteCategory from "~/pages/admin/CategoryManagement/DeleteCategory/DeleteCategory";
 import DetailCategory from "~/pages/admin/CategoryManagement/DetailCategory/DetailCategory";
 import CreateUser from "~/pages/admin/UserManagement/CreateUser/CreateUser";
 import EditUser from "~/pages/admin/UserManagement/EditUser/EditUser";
 import DetailUser from "~/pages/admin/UserManagement/DetailUser/DetailUser";
 import ChatPage from "~/pages/admin/ChatManagement/ChatPage";
-import ManufactureList from "~/pages/admin/ManufactureManagement/ManufactureList/ManufactureList";
 import CreateManufacture from "~/pages/admin/ManufactureManagement/CreateManufacture/CreateManufacture";
 import EditManufacture from "~/pages/admin/ManufactureManagement/EditManufacture/EditManufacture";
 import DetailManufacture from "~/pages/admin/ManufactureManagement/DetailManufacture/DetailManufacture";
 import DeleteManufacture from "~/pages/admin/ManufactureManagement/DeleteManufacture/DeleteManufacture";
-import PostManagement from "~/pages/admin/PostManagement/PostManagement";
 import CreatePostForm from "~/pages/admin/PostManagement/CreatePost/CreatePost";
 import EditPost from "~/pages/admin/PostManagement/EditPost/EditPost";
 import DetailPost from "~/pages/admin/PostManagement/DetailPost/DetailPost";
 import DeletePost from "~/pages/admin/PostManagement/DeletePost/DeletePost";
 import PostList from "~/pages/admin/PostManagement/PostList/PostList";
 import EditOrder from "~/pages/admin/OrderManagement/EditOrder/EditOrder";
+import ListManufacture from "~/pages/admin/ManufactureManagement/ListManufacture/ListManufacture";
+import ManufactureManagement from "~/pages/admin/ManufactureManagement/ManufactureManagement";
 
 export default function Router() {
   const routes = useRoutes([
@@ -55,11 +54,12 @@ export default function Router() {
         { path: "users/edit/:id", element: <EditUser /> },
         { path: "users/detail/:id", element: <DetailUser /> },
         { path: "chat", element: <ChatPage /> },
-        { path: "manufactures", element: <ManufactureList /> },
+        { path: "manufactures", element: <ManufactureManagement /> },
         { path: "manufactures/create", element: <CreateManufacture /> },
         { path: "manufactures/:id", element: <DetailManufacture /> },
-        { path: "manufactures/:id/edit", element: <EditManufacture /> },
-        { path: "manufactures/:id/delete", element: <DeleteManufacture /> },
+        { path: "manufactures/edit/:id", element: <EditManufacture /> },
+        { path: "manufactures/delete/:id", element: <DeleteManufacture /> },
+        { path: "manufactures/detail/:id", element: <DetailManufacture /> },
         { path: "posts", element: <PostList /> },
         { path: "posts/create", element: <CreatePostForm /> },
         { path: "posts/:id", element: <DetailPost /> },
