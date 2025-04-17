@@ -8,6 +8,8 @@ import Order from "~/pages/admin/OrderManagement/OrderManagement";
 import Products from "~/pages/admin/ProductManagement/ProductManagement";
 import Users from "~/pages/admin/UserManagement/UserManagement";
 import CreateProduct from "~/pages/admin/ProductManagement/CreateProduct/CreateProduct";
+import CreateCategory from "~/pages/admin/CategoryManagement/CreateCategory/CreateCategory";
+import EditCategory from "~/pages/admin/CategoryManagement/EditCategory/EditCategory";
 import EditOrder from "~/pages/admin/OrderManagement/EditOrder/EditOrder";
 
 export default function Router() {
@@ -28,6 +30,8 @@ export default function Router() {
         { path: "products/create", element: <CreateProduct /> },
         { path: "categories", element: <Categories /> },
         { path: "orders/edit/:id", element: <EditOrder /> },
+        { path: "categories/create", element: <CreateCategory /> },
+        { path: "categories/edit/:id", element: <EditCategory /> },
       ],
     },
   ]);

@@ -9,4 +9,9 @@ interface Category {
   subCategories?: Category[];
 }
 
+export interface ParentCategory {
+  id: string;
+  name: string;
+}
+
 export default Category;
