@@ -8,15 +8,14 @@ import Order from "~/pages/admin/OrderManagement/OrderManagement";
 import Products from "~/pages/admin/ProductManagement/ProductManagement";
 import Users from "~/pages/admin/UserManagement/UserManagement";
 import CreateProduct from "~/pages/admin/ProductManagement/CreateProduct/CreateProduct";
+import EditOrder from "~/pages/admin/OrderManagement/EditOrder/EditOrder";
 
 export default function Router() {
   const routes = useRoutes([
     {
       path: "/",
       element: <LayoutClient />,
-      children: [
-        { path: "", element: <Home /> },
-      ],
+      children: [{ path: "", element: <Home /> }],
     },
     {
       path: "/admin",
@@ -28,6 +27,7 @@ export default function Router() {
         { path: "products", element: <Products /> },
         { path: "products/create", element: <CreateProduct /> },
         { path: "categories", element: <Categories /> },
+        { path: "orders/edit/:id", element: <EditOrder /> },
       ],
     },
   ]);
