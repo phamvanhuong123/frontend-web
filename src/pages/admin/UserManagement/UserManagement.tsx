@@ -5,7 +5,9 @@ import SearchIcon from "@mui/icons-material/Search";
 import AddIcon from '@mui/icons-material/Add';
 import ListUsers from './ListUsers/ListUsers'
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 function UserManagement() {
+  const navigate = useNavigate();
     const [status, setStatus] = useState('allStatus');
 
   const handleChange = (event: SelectChangeEvent) => {
@@ -85,7 +87,7 @@ function UserManagement() {
                   <MenuItem value={'inactive'}>Inactive</MenuItem>
                 </Select>
               </FormControl>
-              <Button startIcon={<AddIcon/>} variant="contained">Add User</Button>
+              <Button startIcon={<AddIcon/>} variant="contained"  onClick={()=>{navigate('create')}}>Thêm người dùng</Button>
               <Button  variant="outlined">Reload</Button>
             </Box>
           </Box>

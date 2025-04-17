@@ -11,17 +11,8 @@ import {
 } from "@mui/material";
 import { Flip, toast } from "react-toastify";
 import { categoryApi } from "~/services/axios.category";
-
-interface Category {
-  id: string;
-  name: string;
-  description: string;
-  parentCategoryId: string | null;
-  parentCategoryName: string | null;
-  productCount: number;
-  subCategoryCount: number;
-  subCategories?: Category[];
-}
+import Category from "~/types/category";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
 function EditCategory() {
   const { id } = useParams<{ id: string }>();
@@ -111,11 +102,20 @@ function EditCategory() {
   }
 
   return (
-    <Card sx={{ maxWidth: 600, margin: "auto", mt: 4, p: 2 }}>
+    <Card sx={{ maxWidth: 800, ml: 10, mt: 4, p: 2,
+      
+     }}>
       <CardContent>
         <Typography variant="h5" gutterBottom>
           Chỉnh sửa danh mục
         </Typography>
+        <Button 
+            variant="outlined"
+            startIcon={<ArrowBackIcon />}
+            onClick={() => navigate(-1)}
+        >
+            Quay lại
+        </Button>
         <form onSubmit={handleSubmit}>
           <Grid container spacing={2} direction="column">
             <TextField
@@ -147,9 +147,6 @@ function EditCategory() {
               margin="normal"
               disabled={category.subCategoryCount > 0} // Disable if has subcategories
             >
-              <MenuItem value="">
-                <em>Không có danh mục cha</em>
-              </MenuItem>
               {parentCategories.map((parent) => (
                 <MenuItem key={parent.id} value={parent.id}>
                   {parent.name}

@@ -17,97 +17,127 @@ import CreateOutlinedIcon from "@mui/icons-material/CreateOutlined";
 
 import { userApi } from "~/services/axios.user";
 import User from "~/types/user";
-
-
+import { useNavigate } from "react-router-dom";
+import DeleteUser from "../DeleteUser/DeleteUser";
 
 function ListUsers() {
+  const navigate = useNavigate();
   const [users, setUsers] = useState<User[]>([]);
+  //dialog delete user
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [userToDelete, setUserToDelete] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
 
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const response = await userApi.getAll();
-        console.log("Response data:", response);
-        setUsers(response); 
-      } catch (error) {
-        console.error("Failed to fetch users:", error);
-      }
-    };
+  const fetchUsers = async () => {
+    try {
+      const response = await userApi.getAll();
+      console.log("Response data:", response);
+      setUsers(response); 
+    } catch (error) {
+      console.error("Failed to fetch users:", error);
+    }
+  };
+
+    useEffect(() => {
     
-    fetchUsers();
-  }, []);
+      
+      fetchUsers();
+    }, []);
 
   const formatRole = (role: string) => {
     return role.charAt(0) + role.slice(1).toLowerCase();
   };
 
   return (
-    <TableContainer component={Paper}>
-      <Table sx={{ minWidth: 650 }} aria-label="user table">
-        <TableHead>
-          <TableRow>
-            <TableCell sx={{ fontWeight: 600 }}>
-              <TableSortLabel>Name</TableSortLabel>
-            </TableCell>
-            <TableCell sx={{ fontWeight: 600 }}>Email</TableCell>
-            <TableCell sx={{ fontWeight: 600 }} align="center">
-              Phone Number
-            </TableCell>
-            <TableCell sx={{ fontWeight: 600 }} align="center">
-              Role
-            </TableCell>
-            <TableCell sx={{ fontWeight: 600 }} align="center">
-              Status
-            </TableCell>
-            <TableCell sx={{ fontWeight: 600 }} align="center">
-              Actions
-            </TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {users.map((user) => (
-            <TableRow key={user.id}>
-              <TableCell>{user.name}</TableCell>
-              <TableCell>{user.email}</TableCell>
-              <TableCell align="center">{user.phoneNumber}</TableCell>
-              <TableCell align="center">{formatRole(user.role)}</TableCell>
-              <TableCell align="center">
-                <Chip
-                  label={user.isActive ? "Active" : "Inactive"}
-                  color={user.isActive ? "success" : "error"}
-                  variant="outlined"
-                />
+    <>
+      <TableContainer component={Paper}>
+        <Table sx={{ minWidth: 650 }} aria-label="user table">
+          <TableHead>
+            <TableRow>
+              <TableCell sx={{ fontWeight: 600 }}>
+                <TableSortLabel>Name</TableSortLabel>
               </TableCell>
-              <TableCell align="center">
-                <Box
-                  sx={{
-                    "& .MuiIconButton-root": {
-                      borderRadius: 2,
-                    },
-                  }}
-                >
-                  <Tooltip title="View details">
-                    <IconButton>
-                      <VisibilityOutlinedIcon />
-                    </IconButton>
-                  </Tooltip>
-                  <Tooltip title="Edit">
-                    <IconButton color="primary">
-                      <CreateOutlinedIcon />
-                    </IconButton>
-                  </Tooltip>
-                  <Tooltip title="Delete">
-                    <IconButton color="error">
-                      <DeleteIcon />
-                    </IconButton>
-                  </Tooltip>
-                </Box>
+              <TableCell sx={{ fontWeight: 600 }}>Email</TableCell>
+              <TableCell sx={{ fontWeight: 600 }} align="center">
+                Phone Number
+              </TableCell>
+              <TableCell sx={{ fontWeight: 600 }} align="center">
+                Role
+              </TableCell>
+              <TableCell sx={{ fontWeight: 600 }} align="center">
+                Status
+              </TableCell>
+              <TableCell sx={{ fontWeight: 600 }} align="center">
+                Actions
               </TableCell>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
+          </TableHead>
+          <TableBody>
+            {users.map((user) => (
+              <TableRow key={user.id}>
+                <TableCell>{user.name}</TableCell>
+                <TableCell>{user.email}</TableCell>
+                <TableCell align="center">{user.phoneNumber}</TableCell>
+                <TableCell align="center">{formatRole(user.role)}</TableCell>
+                <TableCell align="center">
+                  <Chip
+                    label={user.isActive ? "Active" : "Inactive"}
+                    color={user.isActive ? "success" : "error"}
+                    variant="outlined"
+                  />
+                </TableCell>
+                <TableCell align="center">
+                  <Box
+                    sx={{
+                      "& .MuiIconButton-root": {
+                        borderRadius: 2,
+                      },
+                    }}
+                  >
+                    <Tooltip title="View details">
+                      <IconButton  onClick={() => { navigate(`detail/${user.id}`); }}>
+                        <VisibilityOutlinedIcon />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip title="Edit">
+                      <IconButton color="primary" onClick={() => { navigate(`edit/${user.id}`); }}>
+                        <CreateOutlinedIcon />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip title="Delete">
+                      <IconButton color="error" 
+                        onClick={() => {
+                          setUserToDelete({
+                            id: user.id,
+                            name: user.name
+                          });
+                          setDeleteDialogOpen(true);
+                        }}>
+                        <DeleteIcon />
+                      </IconButton>
+                    </Tooltip>
+                  </Box>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+
+      {userToDelete && (
+        <DeleteUser
+          open={deleteDialogOpen}
+          onClose={() => setDeleteDialogOpen(false)}
+          userId={userToDelete.id}
+          userName={userToDelete.name}
+          onDeleteSuccess={() => {
+            fetchUsers(); 
+          }}
+        />
+      )}
+    </>
   );
 }
 
