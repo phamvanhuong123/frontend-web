@@ -42,7 +42,15 @@
 .footer-bottom {
     text-align: center;
     color: #9ca3af;
-    /* tương đương text-gray-400 */
     font-size: 0.8rem;
     margin-top: 2rem;
+}
+
+.footer-column ul li {
+    display: flex;
+    align-items: center;
+}
+
+.footer-column ul li svg {
+    margin-right: 8px;
 }

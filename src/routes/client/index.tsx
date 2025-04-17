@@ -1,17 +1,22 @@
 import { useRoutes } from "react-router-dom";
 import Home from "~/pages/client/Home/Home";
 import LayoutDefault from "~/layout/client/LayoutDefault/LayoutDefault";
+import CheckOut from '~/pages/client/Home/CheckOut';
 
 
-function RouterClient(){
+function RouterClient() {
     const element = useRoutes([
         {
-            path  : '/',
-            element : <LayoutDefault/>,
-            children : [
+            path: '/',
+            element: <LayoutDefault />,
+            children: [
                 {
-                    path : '',
-                    element : <Home/>
+                    path: '',
+                    element: <Home />
+                },
+                {
+                    path: 'checkout',
+                    element: <CheckOut />
                 }
             ]
         }
