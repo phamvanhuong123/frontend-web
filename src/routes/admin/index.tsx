@@ -6,37 +6,35 @@ import Order from "~/pages/admin/OrderManagement/OrderManagement";
 import Products from "~/pages/admin/ProductManagement/ProductManagement";
 import Users from "~/pages/admin/UserManagement/UserManagement";
 
-
-
-function RouterAdmin(){
-    const element = useRoutes([
+function RouterAdmin() {
+  const element = useRoutes([
+    {
+      path: "/admin",
+      element: <LayoutDefault />,
+      children: [
         {
-            path  : '/admin',
-            element : <LayoutDefault/>,
-            children : [
-                {
-                    path : '',
-                    element : <Dashboard/>,
-                },
-                {
-                    path : 'users',
-                    element : <Users/>
-                },
-                {
-                    path : 'orders',
-                    element : <Order/>
-                },
-                {
-                    path : 'products',
-                    element : <Products/>
-                },
-                {
-                    path : 'categories',
-                    element : <Categories/>
-                }
-            ]
-        }
-    ]);
-    return element;
+          path: "",
+          element: <Dashboard />,
+        },
+        {
+          path: "users",
+          element: <Users />,
+        },
+        {
+          path: "orders",
+          element: <Order />,
+        },
+        {
+          path: "products",
+          element: <Products />,
+        },
+        {
+          path: "categories",
+          element: <Categories />,
+        },
+      ],
+    },
+  ]);
+  return element;
 }
-export default RouterAdmin
+export default RouterAdmin;

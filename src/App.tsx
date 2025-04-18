@@ -21,6 +21,7 @@ import './styles/global.scss';
 import OrderPage from './pages/client/order';
 import HistoryPage from './pages/client/history';
 import ProductPage from './pages/client/product';
+import LayoutDefault from './layout/admin/LayoutDefault/LayoutDefault';
 
 const Layout = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -92,45 +93,11 @@ export default function App() {
         },
       ],
     },
-    // {
-    //   path: "/admin",
-    //   element: <LayoutAdmin />,
-    //   errorElement: <NotFound />,
-    //   children: [
-    //     {
-    //       index: true,
-    //       element: (
-    //         <ProtectedRoute>
-    //           <AdminPage />
-    //         </ProtectedRoute>
-    //       ),
-    //     },
-    //     {
-    //       path: "user",
-    //       element: (
-    //         <ProtectedRoute>
-    //           <ManageUserPage />
-    //         </ProtectedRoute>
-    //       ),
-    //     },
-    //     {
-    //       path: "Product",
-    //       element: (
-    //         <ProtectedRoute>
-    //           <ManageProductPage />
-    //         </ProtectedRoute>
-    //       ),
-    //     },
-    //     {
-    //       path: "order",
-    //       element: (
-    //         <ProtectedRoute>
-    //           <AdminOrderPage />
-    //         </ProtectedRoute>
-    //       ),
-    //     },
-    //   ],
-    // },
+    {
+      path: "/admin",
+      element: <LayoutDefault />,
+      errorElement: <NotFound />,
+    },
     {
       path: "/login",
       element: <LoginPage />,

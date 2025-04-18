@@ -10,7 +10,7 @@ const Home = () => {
     const [searchTerm, setSearchTerm] = useOutletContext<[string, React.Dispatch<React.SetStateAction<string>>]>();
 
     const [listCategory, setListCategory] = useState<{ label: string; value: string }[]>([]);
-    const [listProduct, setListProduct] = useState([]);
+    const [listProduct, setListProduct] = useState<{ price: number; [key: string]: any }[]>([]);
     const [current, setCurrent] = useState(1);
     const [pageSize, setPageSize] = useState(5);
     const [total, setTotal] = useState(0);
@@ -204,19 +204,19 @@ const Home = () => {
                                                             alt="thumbnail product"
                                                         />
                                                     </div> */}
-                                                    <div className="text" title={item.mainText}>
+                                                    {/* <div className="text" title={item.mainText}>
                                                         {item.mainText}
-                                                    </div>
+                                                    </div> */}
                                                     <div className="price">
                                                         {new Intl.NumberFormat('vi-VN', {
                                                             style: 'currency',
                                                             currency: 'VND',
                                                         }).format(item.price ?? 0)}
                                                     </div>
-                                                    <div className="rating">
+                                                    {/* <div className="rating">
                                                         <Rate value={5} disabled style={{ fontSize: 10 }} />
                                                         <span>Đã bán {item.sold}</span>
-                                                    </div>
+                                                    </div> */}
                                                 </div>
                                             </div>
                                         ))}

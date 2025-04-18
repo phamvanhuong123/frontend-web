@@ -9,7 +9,7 @@ import Paper from "@mui/material/Paper";
 import TableSortLabel from "@mui/material/TableSortLabel";
 import Tooltip from "@mui/material/Tooltip";
 import IconButton from "@mui/material/IconButton";
-import { Box, Chip, Collapse } from "@mui/material";
+import { Box, Chip, Collapse, Dialog } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import CreateOutlinedIcon from "@mui/icons-material/CreateOutlined";
@@ -20,6 +20,7 @@ import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import { categoryApi } from "~/services/axios.category";
 import Category from "~/types/category";
 import { useNavigate } from "react-router-dom";
+import DeleteCategory from "../DeleteCategory/DeleteCategory";
 
 
 
@@ -28,52 +29,58 @@ function ListCategory() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({});
   const [loading, setLoading] = useState<boolean>(true);
+  //diaglog delete category
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [categoryToDelete, setCategoryToDelete] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
+
+  const fetchCategories = async () => {
+    try {
+      setLoading(true);
+      const response = await categoryApi.getAll();
+      
+      const categoriesData: Category[] = response || []; 
+      
+      // Kiểm tra nếu không phải mảng
+      if (!Array.isArray(categoriesData)) {
+        throw new Error("Expected array but got: " + typeof categoriesData);
+      }
+
+      const categoryMap = new Map<string, Category>();
+      const rootCategories: Category[] = [];
+      
+      // Tạo map và xác định danh mục gốc
+      categoriesData.forEach(category => {
+        categoryMap.set(category.id, { 
+          ...category, 
+          subCategories: [] 
+        });
+        
+        if (!category.parentCategoryId) {
+          rootCategories.push(categoryMap.get(category.id)!);
+        }
+      });
+      
+      // Thêm danh mục con vào danh mục cha
+      categoriesData.forEach(category => {
+        if (category.parentCategoryId && categoryMap.has(category.parentCategoryId)) {
+          categoryMap.get(category.parentCategoryId)!.subCategories!.push(
+            categoryMap.get(category.id)!
+          );
+        }
+      });
+      
+      setCategories(rootCategories);
+    } catch (error) {
+      console.error("Failed to fetch categories:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        setLoading(true);
-        const response = await categoryApi.getAll();
-        
-        const categoriesData: Category[] = response || []; 
-        
-        // Kiểm tra nếu không phải mảng
-        if (!Array.isArray(categoriesData)) {
-          throw new Error("Expected array but got: " + typeof categoriesData);
-        }
-  
-        const categoryMap = new Map<string, Category>();
-        const rootCategories: Category[] = [];
-        
-        // Tạo map và xác định danh mục gốc
-        categoriesData.forEach(category => {
-          categoryMap.set(category.id, { 
-            ...category, 
-            subCategories: [] 
-          });
-          
-          if (!category.parentCategoryId) {
-            rootCategories.push(categoryMap.get(category.id)!);
-          }
-        });
-        
-        // Thêm danh mục con vào danh mục cha
-        categoriesData.forEach(category => {
-          if (category.parentCategoryId && categoryMap.has(category.parentCategoryId)) {
-            categoryMap.get(category.parentCategoryId)!.subCategories!.push(
-              categoryMap.get(category.id)!
-            );
-          }
-        });
-        
-        setCategories(rootCategories);
-      } catch (error) {
-        console.error("Failed to fetch categories:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-  
     fetchCategories();
   }, []);
 
@@ -124,7 +131,7 @@ function ListCategory() {
               </span>
             </Tooltip>
           </TableCell>
-          <TableCell align="center">
+          {/* <TableCell align="center">
             {category.parentCategoryName ? (
               <Chip 
                 label={category.parentCategoryName} 
@@ -146,14 +153,14 @@ function ListCategory() {
               color={category.productCount > 0 ? "success" : "default"}
               size="small" 
             />
-          </TableCell>
-          <TableCell align="center">
+          </TableCell> */}
+          {/* <TableCell align="center">
             <Chip 
               label={category.subCategoryCount} 
               color={category.subCategoryCount > 0 ? "info" : "default"}
               size="small" 
             />
-          </TableCell>
+          </TableCell> */}
           <TableCell align="center">
             <Box
               sx={{
@@ -165,7 +172,7 @@ function ListCategory() {
               }}
             >
               <Tooltip title="Xem chi tiết">
-                <IconButton>
+                <IconButton onClick={() => { navigate(`detail/${category.id}`); }}>
                   <VisibilityOutlinedIcon />
                 </IconButton>
               </Tooltip>
@@ -175,15 +182,24 @@ function ListCategory() {
                 </IconButton>
               </Tooltip>
               <Tooltip title="Thêm danh mục con">
-                <IconButton color="success">
+                <IconButton color="success" onClick={()=>{navigate('create')}}>
                   <AddCircleOutlineIcon />
                 </IconButton>
               </Tooltip>
-              <Tooltip title="Xóa">
-                <IconButton color="error">
-                  <DeleteIcon />
-                </IconButton>
-              </Tooltip>
+             <Tooltip title="Xóa">
+              <IconButton 
+                color="error" 
+                onClick={() => {
+                  setCategoryToDelete({
+                    id: category.id,
+                    name: category.name
+                  });
+                  setDeleteDialogOpen(true);
+                }}
+              >
+                <DeleteIcon />
+              </IconButton>
+            </Tooltip>
             </Box>
           </TableCell>
         </TableRow>
@@ -212,33 +228,48 @@ function ListCategory() {
   }
 
   return (
-    <TableContainer component={Paper}>
-      <Table sx={{ minWidth: 650 }} aria-label="category table">
-        <TableHead>
-          <TableRow>
-            <TableCell sx={{ fontWeight: 600, width: '30%' }}>
-              <TableSortLabel>Tên danh mục</TableSortLabel>
-            </TableCell>
-            <TableCell sx={{ fontWeight: 600, width: '25%' }}>Mô tả</TableCell>
-            <TableCell sx={{ fontWeight: 600, width: '15%' }} align="center">Danh mục cha</TableCell>
-            <TableCell sx={{ fontWeight: 600, width: '10%' }} align="center">Số sản phẩm</TableCell>
-            <TableCell sx={{ fontWeight: 600, width: '10%' }} align="center">Số danh mục con</TableCell>
-            <TableCell sx={{ fontWeight: 600, width: '10%' }} align="center">Thao tác</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {categories.length > 0 ? (
-            categories.map(category => renderCategoryRow(category))
-          ) : (
+    <>
+      <TableContainer component={Paper}>
+        <Table sx={{ minWidth: 800 }} aria-label="category table">
+          <TableHead>
             <TableRow>
-              <TableCell colSpan={6} align="center">
-                Không có danh mục nào
+              <TableCell sx={{ fontWeight: 600, width: '30%' }}>
+                <TableSortLabel>Tên danh mục</TableSortLabel>
               </TableCell>
+              <TableCell sx={{ fontWeight: 600, width: '25%' }}>Mô tả</TableCell>
+              {/*<TableCell sx={{ fontWeight: 600, width: '15%' }} align="center">Danh mục cha</TableCell>
+               <TableCell sx={{ fontWeight: 600, width: '10%' }} align="center">Số sản phẩm</TableCell>
+              <TableCell sx={{ fontWeight: 600, width: '10%' }} align="center">Số danh mục con</TableCell> */}
+              <TableCell sx={{ fontWeight: 600, width: '10%' }} align="center">Thao tác</TableCell>
             </TableRow>
-          )}
-        </TableBody>
-      </Table>
-    </TableContainer>
+          </TableHead>
+          <TableBody>
+            {categories.length > 0 ? (
+              categories.map(category => renderCategoryRow(category))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={3} align="center">
+                  Không có danh mục nào
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </TableContainer>
+  
+      {/* Dialog delete category */}
+      {categoryToDelete && (
+        <DeleteCategory
+          open={deleteDialogOpen}
+          onClose={() => setDeleteDialogOpen(false)}
+          categoryId={categoryToDelete.id}
+          categoryName={categoryToDelete.name}
+          onDeleteSuccess={() => {
+            fetchCategories(); 
+          }}
+        />
+      )}
+    </>
   );
 }
 

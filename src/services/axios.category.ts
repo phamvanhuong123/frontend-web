@@ -41,4 +41,16 @@ export const categoryApi = {
     updateCategory(id: string, category: any) {
         return axios.put<Category>(`${url}/${id}`, category).then(res => res.data);
     },
+    // Xóa danh mục
+    deleteCategory(id: string) {
+        return axios.delete(`${url}/${id}`).then(res => res.data);
+    },
+    // Tìm kiếm danh mục theo tên
+    searchCategoryByName(name: string) {
+        return axios.get<Category[]>(`${url}/search?name=${name}`).then(res => res.data);
+    },
+    //Xem chi tiết danh mục
+    getCategoryDetails(id: string) {
+        return axios.get<Category>(`${url}/${id}`).then(res => res.data);
+    },
 }

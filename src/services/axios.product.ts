@@ -8,6 +8,7 @@ export const productApi = {
     getAll() {
         return axios.get<Product[]>(`${BASE_URL}/products`).then(res => res.data);
     },
+<<<<<<< HEAD
 
     // Tạo sản phẩm mới
     createProduct(product: Product) {
@@ -29,3 +30,9 @@ export const callFetchListProduct = (query: string) => {
 export const callFetchProductById = (id: string) => {
     return axios.get(`${BASE_URL}/products/${id}`);
 };
+=======
+    CreateProduct(formData: FormData){
+        return axios.post(url, formData)
+    }
+}
+>>>>>>> origin

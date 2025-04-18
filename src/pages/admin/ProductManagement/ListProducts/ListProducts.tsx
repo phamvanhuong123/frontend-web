@@ -9,22 +9,23 @@ import Paper from "@mui/material/Paper";
 import TableSortLabel from "@mui/material/TableSortLabel";
 import Tooltip from "@mui/material/Tooltip";
 import IconButton from "@mui/material/IconButton";
-import { Box, Chip } from "@mui/material";
+import { Box, Chip, Avatar } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import CreateOutlinedIcon from "@mui/icons-material/CreateOutlined";
 import { productApi } from "~/services/axios.product";
-
 import Product from "~/types/product";
+import { getImageUrl } from "../../../../config/config";
 
 function ListProducts() {
-  
+
   const [products, setProducts] = useState<Product[]>([]);
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         const productsData: Product[] = await productApi.getAll();
+        console.log("Products data:", productsData);
         setProducts(productsData);
       } catch (error) {
         console.error("Failed to fetch products:", error);
@@ -54,6 +55,7 @@ function ListProducts() {
             <TableCell sx={{ fontWeight: 600 }} align="center">Danh mục</TableCell>
             <TableCell sx={{ fontWeight: 600 }} align="center">Nhà sản xuất</TableCell>
             <TableCell sx={{ fontWeight: 600 }} align="center">Khuyến mãi</TableCell>
+            <TableCell sx={{ fontWeight: 600 }} align="center">Ảnh</TableCell>
             <TableCell sx={{ fontWeight: 600 }} align="center">Trạng thái</TableCell>
             <TableCell sx={{ fontWeight: 600 }} align="center">Thao tác</TableCell>
           </TableRow>
@@ -65,8 +67,8 @@ function ListProducts() {
               <TableCell>
                 <Tooltip title={product.description}>
                   <span>
-                    {product.description.length > 30 
-                      ? `${product.description.substring(0, 30)}...` 
+                    {product.description.length > 30
+                      ? `${product.description.substring(0, 30)}...`
                       : product.description}
                   </span>
                 </Tooltip>
@@ -75,6 +77,20 @@ function ListProducts() {
               <TableCell align="center">{product.categoryName || "-"}</TableCell>
               <TableCell align="center">{product.manufacturerName || "-"}</TableCell>
               <TableCell align="center">{product.discountName || "-"}</TableCell>
+              <TableCell align="center">
+                <Box sx={{ display: 'flex', gap: 1 }}>
+                  {product.images?.map((image) => (
+                    <Avatar
+                      key={image.id}
+                      src={getImageUrl(image.url)}
+                      alt={`${product.name}-${image.id}`}
+                      sx={{ width: 56, height: 56 }}
+                      variant="rounded"
+                    />
+                  ))}
+                  {(!product.images || product.images.length === 0) && "-"}
+                </Box>
+              </TableCell>
               <TableCell align="center">
                 <Chip
                   label={product.isActive ? "Đang bán" : "Ngừng bán"}

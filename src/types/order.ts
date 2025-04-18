@@ -11,5 +11,6 @@ interface Order {
   notes: string;
   totalAmount: number;
   orderItems: OrderItem[];
+  status: string;
 }
 export default Order;

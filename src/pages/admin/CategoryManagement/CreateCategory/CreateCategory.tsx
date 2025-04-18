@@ -7,12 +7,13 @@ import {
   Typography,
   Grid,
   MenuItem,
+  Box,
 } from "@mui/material";
 import { Flip, toast } from 'react-toastify';
 import { useNavigate } from "react-router-dom";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
 import { categoryApi } from "~/services/axios.category";
-import Category from "~/types/category";
 
 function CreateCategory() {
     const [category, setCategory] = useState({
@@ -24,22 +25,19 @@ function CreateCategory() {
     const [parentCategories, setParentCategories] = useState<{ id: string | null, name: string | null}[]>([]);
     
     const navigate = useNavigate();
-
-    // Fetch parent categories when component mounts
+    const fetchParentCategories = async () => {
+        try {
+            const parentNames = await categoryApi.getAllCategoryParentNames();
+            setParentCategories(parentNames);
+        } catch (error) {
+            console.log(error);
+            toast.error("Không thể tải danh sách danh mục cha", {
+                autoClose: 1000,
+                transition: Flip,
+            });
+        }
+    };
     useEffect(() => {
-        debugger
-        const fetchParentCategories = async () => {
-            try {
-                const parentNames = await categoryApi.getAllCategoryParentNames();
-                setParentCategories(parentNames);
-            } catch (error) {
-                console.log(error);
-                toast.error("Không thể tải danh sách danh mục cha", {
-                    autoClose: 1000,
-                    transition: Flip,
-                });
-            }
-        };
         fetchParentCategories();
     }, []);
 
@@ -78,63 +76,70 @@ function CreateCategory() {
     };
 
     return (
-        <Card sx={{ maxWidth: 600, margin: "auto", mt: 4, p: 2 }}>
-            <CardContent>
-                <Typography variant="h5" gutterBottom>
-                    Tạo mới danh mục
-                </Typography>
-                <form onSubmit={handleSubmit}>
-                    <Grid container spacing={2} direction="column">
-                        <TextField
-                            fullWidth
-                            label="Tên danh mục"
-                            name="name"
-                            value={category.name}
-                            onChange={handleChange}
-                            required
-                            margin="normal"
-                        />
-                        <TextField
-                            fullWidth
-                            label="Mô tả"
-                            name="description"
-                            value={category.description}
-                            onChange={handleChange}
-                            multiline
-                            rows={3}
-                            margin="normal"
-                        />
-                        <TextField
-                            select
-                            fullWidth
-                            label="Danh mục cha (nếu có)"
-                            name="parentCategoryId"
-                            value={category.parentCategoryId || ""}
-                            onChange={handleChange}
-                            margin="normal"
-                        >
-                            <MenuItem value="">
-                                <em>Không có danh mục cha</em>
-                            </MenuItem>
-                            {parentCategories.map((parent, index) => (
-                                <MenuItem key={parent.id ? parent.id : `${parent.name}-${index}`} value={parent.id || ""}>
-                                    {parent.name}
-                                </MenuItem>
-                            ))}
+        <>
+            <Card sx={{ maxWidth: 800, ml: 10, mt: 4, p: 2 }}>
+                <CardContent>
+                    <Typography variant="h5" gutterBottom>
+                        Tạo mới danh mục
+                    </Typography>
+                    <Button 
+                        variant="outlined"
+                        startIcon={<ArrowBackIcon />}
+                        onClick={() => navigate(-1)}
+                    >
+                        Quay lại
+                    </Button>
+                    <form onSubmit={handleSubmit}>
+                        <Grid container spacing={2} direction="column">
+                            <TextField
+                                fullWidth
+                                label="Tên danh mục"
+                                name="name"
+                                value={category.name}
+                                onChange={handleChange}
+                                required
+                                margin="normal"
+                            />
+                            <TextField
+                                fullWidth
+                                label="Mô tả"
+                                name="description"
+                                value={category.description}
+                                onChange={handleChange}
+                                multiline
+                                rows={3}
+                                margin="normal"
+                            />
+                            <TextField
+                                select
+                                fullWidth
+                                label="Danh mục cha (nếu có)"
+                                name="parentCategoryId"
+                                value={category.parentCategoryId || ""}
+                                onChange={handleChange}
+                                margin="normal"
+                            >
+                                
+                                {parentCategories.map((parent, index) => (
+                                    <MenuItem key={parent.id ? parent.id : `${parent.name}-${index}`} value={parent.id || ""}>
+                                        {parent.name}
+                                    </MenuItem>
+                                ))}
 
-                        </TextField>
-                        <Button 
-                            type="submit" 
-                            variant="contained" 
-                            color="primary"
-                            sx={{ mt: 2 }}
-                        >
-                            Tạo danh mục
-                        </Button>
-                    </Grid>
-                </form>
-            </CardContent>
-        </Card>
+                            </TextField>
+                            <Button 
+                                type="submit" 
+                                variant="contained" 
+                                color="primary"
+                                sx={{ mt: 2 }}
+                            >
+                                Tạo danh mục
+                            </Button>
+                        </Grid>
+                    </form>
+                </CardContent>
+            </Card>
+        </>
     );
 }
 
