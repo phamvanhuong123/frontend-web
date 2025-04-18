@@ -1,5 +1,5 @@
 import { useRoutes } from "react-router-dom";
-import Home from "~/pages/client/Home/Home";
+import Home from "../layout/client/Home";
 import LayoutClient from "~/layout/client/LayoutDefault/LayoutDefault";
 import LayoutDefault from "~/layout/admin/LayoutDefault/LayoutDefault";
 import Categories from "~/pages/admin/CategoryManagement/CategoryManagement";
