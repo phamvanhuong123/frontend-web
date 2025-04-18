@@ -25,7 +25,6 @@ import DetailPost from "~/pages/admin/PostManagement/DetailPost/DetailPost";
 import DeletePost from "~/pages/admin/PostManagement/DeletePost/DeletePost";
 import PostList from "~/pages/admin/PostManagement/PostList/PostList";
 import EditOrder from "~/pages/admin/OrderManagement/EditOrder/EditOrder";
-import ListManufacture from "~/pages/admin/ManufactureManagement/ListManufacture/ListManufacture";
 import ManufactureManagement from "~/pages/admin/ManufactureManagement/ManufactureManagement";
 import AddOrder from "~/pages/admin/OrderManagement/AddOrder/AddOrder";
 
