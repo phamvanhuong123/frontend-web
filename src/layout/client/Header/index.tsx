@@ -115,7 +115,7 @@ const Header = (props: { searchTerm: string; setSearchTerm: (value: string) => v
                             <span className="logo">
                                 <span onClick={() => navigate('/')}>
                                     <FaReact className="rotate icon-react" />
-                                    Hỏi Dân !T
+                                    Hoàng gia Quy Nhơn
                                 </span>
                                 <VscSearchFuzzy className="icon-search" />
                             </span>
