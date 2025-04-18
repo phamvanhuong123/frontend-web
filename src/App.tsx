@@ -48,8 +48,8 @@ export default function App() {
 
     try {
       const res = await callFetchAccount();
-      if (res && res.data) {
-        dispatch(doGetAccountAction(res.data));
+      if (res && res) {
+        dispatch(doGetAccountAction(res));
       }
     } catch (error) {
       console.error("Failed to fetch account:", error);
