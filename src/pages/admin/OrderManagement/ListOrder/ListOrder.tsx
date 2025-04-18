@@ -31,17 +31,27 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { orderApi } from "~/services/axios.order";
 import Order from "~/types/order";
+import Product from "~/types/product";
+import { productApi } from "~/services/axios.product";
 
-function ListOrder() {
+type ListOrderProps = {
+  statusFilter: string; // "all", "PENDING", "SHIPPED", etc.
+  paymentStatusFilter: string; // "all", "paid", "unpaid"
+};
+
+function ListOrder({ statusFilter, paymentStatusFilter }: ListOrderProps) {
   const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
   const [Orders, setOrders] = useState<Order[]>([]);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [orderToDelete, setOrderToDelete] = useState<string | null>(null);
+  const [products, setProducts] = useState<Product[]>([]);
   const navigate = useNavigate();
 
   const fetchOrders = async () => {
     try {
       const orderData = await orderApi.getAll();
+      const productData = await productApi.getAll();
+      setProducts(productData);
       setOrders(orderData);
     } catch (error) {
       console.error("Failed to fetch orders:", error);
@@ -51,6 +61,11 @@ function ListOrder() {
   useEffect(() => {
     fetchOrders();
   }, []);
+
+  const getProductName = (id: any) => {
+    const product = products.find((p) => p.id === id);
+    return product ? product.name : `ID: ${id}`;
+  };
 
   const toggleExpand = (orderId: string) => {
     setExpandedOrderId(expandedOrderId === orderId ? null : orderId);
@@ -81,6 +96,7 @@ function ListOrder() {
     setOrderToDelete(id);
     setDeleteDialogOpen(true);
   };
+
   const handleDeleteConfirm = async () => {
     if (!orderToDelete) return;
 
@@ -95,6 +111,18 @@ function ListOrder() {
       setOrderToDelete(null);
     }
   };
+
+  // 👉 Lọc danh sách đơn hàng theo filter
+  const filteredOrders = Orders.filter((order) => {
+    const matchStatus = statusFilter === "all" || order.status === statusFilter;
+
+    const matchPayment =
+      paymentStatusFilter === "all" ||
+      (paymentStatusFilter === "paid" && order.paymentId) ||
+      (paymentStatusFilter === "unpaid" && !order.paymentId);
+
+    return matchStatus && matchPayment;
+  });
 
   return (
     <>
@@ -122,7 +150,7 @@ function ListOrder() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {Orders.map((order) => (
+            {filteredOrders.map((order) => (
               <React.Fragment key={order.id}>
                 <TableRow hover>
                   <TableCell>
@@ -208,9 +236,6 @@ function ListOrder() {
                       </Tooltip>
                     </Box>
                   </TableCell>
-                  {/* <TableCell align="center">
-                    {getStatusChip(category.status)}
-                  </TableCell> */}
                 </TableRow>
                 <TableRow>
                   <TableCell style={{ padding: 0 }} colSpan={7}>
@@ -230,15 +255,15 @@ function ListOrder() {
                                 Sản phẩm
                               </TableCell>
                               <TableCell
-                                sx={{ fontWeight: 600 }}
                                 align="center"
+                                sx={{ fontWeight: 600 }}
                               >
                                 Số lượng
                               </TableCell>
-                              <TableCell sx={{ fontWeight: 600 }} align="right">
+                              <TableCell align="right" sx={{ fontWeight: 600 }}>
                                 Đơn giá
                               </TableCell>
-                              <TableCell sx={{ fontWeight: 600 }} align="right">
+                              <TableCell align="right" sx={{ fontWeight: 600 }}>
                                 Thành tiền
                               </TableCell>
                             </TableRow>
@@ -247,7 +272,7 @@ function ListOrder() {
                             {order.orderItems.map((item) => (
                               <TableRow key={item.id}>
                                 <TableCell>
-                                  Product ID: {item.productId}
+                                  {getProductName(item.productId)}
                                 </TableCell>
                                 <TableCell align="center">
                                   {item.quantity}

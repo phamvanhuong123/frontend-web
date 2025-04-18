@@ -27,6 +27,7 @@ import PostList from "~/pages/admin/PostManagement/PostList/PostList";
 import EditOrder from "~/pages/admin/OrderManagement/EditOrder/EditOrder";
 import ListManufacture from "~/pages/admin/ManufactureManagement/ListManufacture/ListManufacture";
 import ManufactureManagement from "~/pages/admin/ManufactureManagement/ManufactureManagement";
+import AddOrder from "~/pages/admin/OrderManagement/AddOrder/AddOrder";
 
 export default function Router() {
   const routes = useRoutes([
@@ -42,6 +43,7 @@ export default function Router() {
         { path: "", element: <Dashboard /> },
         { path: "users", element: <Users /> },
         { path: "orders", element: <Order /> },
+        { path: "orders/add", element: <AddOrder /> },
         { path: "products", element: <Products /> },
         { path: "products/create", element: <CreateProduct /> },
         { path: "categories", element: <Categories /> },
