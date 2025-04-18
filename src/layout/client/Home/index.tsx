@@ -2,7 +2,8 @@ import { FilterTwoTone, ReloadOutlined, HomeOutlined } from '@ant-design/icons';
 import { Row, Col, Form, Checkbox, Divider, InputNumber, Button, Rate, Tabs, Pagination, Spin, Empty, Breadcrumb } from 'antd';
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useOutletContext } from 'react-router-dom';
-import { callFetchCategory, callFetchListProduct } from '../../../services/axios.product';
+import { callFetchCategory, callFetchListProduct, productApi } from '../../../services/axios.product';
+import { getImageUrl } from '../../../utils/helper';
 import './home.scss';
 import MobileFilter from './MobileFilter';
 
@@ -10,7 +11,7 @@ const Home = () => {
     const [searchTerm, setSearchTerm] = useOutletContext<[string, React.Dispatch<React.SetStateAction<string>>]>();
 
     const [listCategory, setListCategory] = useState<{ label: string; value: string }[]>([]);
-    const [listProduct, setListProduct] = useState<{ price: number; [key: string]: any }[]>([]);
+    const [listProduct, setListProduct] = useState<{ price: number;[key: string]: any }[]>([]);
     const [current, setCurrent] = useState(1);
     const [pageSize, setPageSize] = useState(5);
     const [total, setTotal] = useState(0);
@@ -28,9 +29,9 @@ const Home = () => {
         const initCategory = async () => {
             const res = await callFetchCategory();
             if (res && res.data) {
-                const categories = res.data.map((item: string) => ({
-                    label: item,
-                    value: item,
+                const categories = res.data.map((item: any) => ({
+                    label: item.name || item,
+                    value: item.id || item
                 }));
                 setListCategory(categories);
             }
@@ -42,19 +43,32 @@ const Home = () => {
         fetchProduct();
     }, [current, pageSize, filter, sortQuery, searchTerm]);
 
-    const fetchProduct = async () => {
-        setIsLoading(true);
-        let query = `current=${current}&pageSize=${pageSize}`;
-        if (filter) query += `&${filter}`;
-        if (sortQuery) query += `&${sortQuery}`;
-        if (searchTerm) query += `&mainText=/${searchTerm}/i`;
 
-        const res = await callFetchListProduct(query);
-        if (res && res.data) {
-            setListProduct(res.data.result);
-            setTotal(res.data.meta.total);
+    const fetchProduct = async () => {
+        debugger
+        setIsLoading(true);
+        try {
+
+            let query = `current=${current}&pageSize=${pageSize}`;
+            if (filter) query += `&${filter}`;
+            if (sortQuery) query += `&${sortQuery}`;
+            if (searchTerm) query += `&mainText=/${searchTerm}/i`;
+
+            const res = await productApi.getAll();
+            if (res) {
+                setListProduct(res);
+                setTotal(res?.length);
+            } else {
+                setListProduct([]);
+                setTotal(0);
+            }
+        } catch (error) {
+            console.error("Error fetching products:", error);
+            setListProduct([]);
+            setTotal(0);
+        } finally {
+            setIsLoading(false);
         }
-        setIsLoading(false);
     };
 
     const handleOnChangePage = (pagination: { current: number; pageSize: number }) => {
@@ -197,26 +211,25 @@ const Home = () => {
                                                 onClick={() => handleRedirectProduct(item)}
                                             >
                                                 <div className="wrapper">
-                                                    {/* Tạm thời comment phần hình ảnh */}
-                                                    {/* <div className="thumbnail">
+                                                    <div className="thumbnail">
                                                         <img
-                                                            src={`${import.meta.env.VITE_BACKEND_URL}/images/product/${item.thumbnail}`}
+                                                            src={getImageUrl(item.thumbnail)}
                                                             alt="thumbnail product"
                                                         />
-                                                    </div> */}
-                                                    {/* <div className="text" title={item.mainText}>
+                                                    </div>
+                                                    <div className="text" title={item.mainText}>
                                                         {item.mainText}
-                                                    </div> */}
+                                                    </div>
                                                     <div className="price">
                                                         {new Intl.NumberFormat('vi-VN', {
                                                             style: 'currency',
                                                             currency: 'VND',
                                                         }).format(item.price ?? 0)}
                                                     </div>
-                                                    {/* <div className="rating">
+                                                    <div className="rating">
                                                         <Rate value={5} disabled style={{ fontSize: 10 }} />
                                                         <span>Đã bán {item.sold}</span>
-                                                    </div> */}
+                                                    </div>
                                                 </div>
                                             </div>
                                         ))}

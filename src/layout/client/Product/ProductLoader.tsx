@@ -12,9 +12,9 @@ const BookLoader = () => {
                     style={{ width: '100%', height: 350 }}
                 />
                 <div style={{ display: "flex", gap: 20, marginTop: 20, overflow: 'hidden', justifyContent: 'center' }}>
-                    <Skeleton.Image active={true} size={10} />
-                    <Skeleton.Image active={true} />
-                    <Skeleton.Image active={true} />
+                    <Skeleton.Image active={true} style={{ width: 100, height: 100 }} />
+                    <Skeleton.Image active={true} style={{ width: 100, height: 100 }} />
+                    <Skeleton.Image active={true} style={{ width: 100, height: 100 }} />
                 </div>
 
             </Col>

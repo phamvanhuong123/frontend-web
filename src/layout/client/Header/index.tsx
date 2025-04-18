@@ -23,7 +23,7 @@ const Header = (props: { searchTerm: string; setSearchTerm: (value: string) => v
     const handleLogout = async () => {
         const res = await callLogout();
         if (res && res.data) {
-            dispatch(doLogoutAction({}));
+            dispatch(doLogoutAction());
             message.success('Đăng xuất thành công');
             navigate('/');
         } else {

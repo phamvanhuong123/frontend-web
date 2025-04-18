@@ -1,37 +1,31 @@
 import { Button, Divider, Form, Input, message, notification } from 'antd';
 import { Link, useNavigate } from 'react-router-dom';
-import { callLogin } from '../../../services/axios.user';
 import './login.scss';
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { doLoginAction } from '../../../redux/account/accountSlice';
+import { userApi } from '../../../services/axios.user';
 
 const LoginPage: React.FC = () => {
     const navigate = useNavigate();
     const [isSubmit, setIsSubmit] = useState(false);
     const dispatch = useDispatch();
 
-    const onFinish = async (values: { username: string; password: string }) => {
-        const { username, password } = values;
+    const onFinish = async (values: { email: string; password: string }) => {
+        const { email, password } = values;
         setIsSubmit(true);
         try {
-            const res = await callLogin(username, password);
+            const res = await userApi.callLogin(email, password);
             if (res?.data) {
                 localStorage.setItem('access_token', res.data.access_token);
                 dispatch(doLoginAction(res.data.user));
-                message.success('Đăng nhập tài khoản thành công!');
+                message.success('Đăng nhập thành công!');
                 navigate('/');
-            } else {
-                notification.error({
-                    message: "Có lỗi xảy ra",
-                    description: Array.isArray(res?.message) ? res.message[0] : res?.message || "Đăng nhập thất bại",
-                    duration: 5,
-                });
             }
-        } catch (error) {
+        } catch (error: any) {
             notification.error({
-                message: "Có lỗi xảy ra",
-                description: "Không thể kết nối đến máy chủ",
+                message: "Đăng nhập thất bại",
+                description: error.response?.data?.message || "Email hoặc mật khẩu không đúng",
                 duration: 5,
             });
         } finally {
@@ -56,7 +50,7 @@ const LoginPage: React.FC = () => {
                             <Form.Item
                                 labelCol={{ span: 24 }}
                                 label="Email"
-                                name="username"
+                                name="email"
                                 rules={[
                                     { required: true, message: 'Email không được để trống!' },
                                     { type: 'email', message: 'Email không hợp lệ!' },
@@ -88,7 +82,7 @@ const LoginPage: React.FC = () => {
                             </p>
                             <br />
                             <p className="text" style={{ color: "#9d9d9d" }}>
-                                p/s: Để test, sử dụng tài khoản <strong>guest@gmail.com</strong> / <strong>123456</strong>
+                                p/s: Để test, sử dụng tài khoản <strong>dinhkhang@gmail.com</strong> / <strong>abc</strong>
                             </p>
                         </Form>
                     </section>
