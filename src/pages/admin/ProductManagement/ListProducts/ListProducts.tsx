@@ -18,7 +18,6 @@ import Product from "~/types/product";
 import { getImageUrl } from "../../../../config/config";
 
 function ListProducts() {
-
   const [products, setProducts] = useState<Product[]>([]);
 
   useEffect(() => {
@@ -36,9 +35,9 @@ function ListProducts() {
   }, []);
 
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('vi-VN', {
-      style: 'currency',
-      currency: 'VND'
+    return new Intl.NumberFormat("vi-VN", {
+      style: "currency",
+      currency: "VND",
     }).format(price * 1000); // Nhân 1000 nếu price tính bằng nghìn VND
   };
 
@@ -51,13 +50,27 @@ function ListProducts() {
               <TableSortLabel>Tên sản phẩm</TableSortLabel>
             </TableCell>
             <TableCell sx={{ fontWeight: 600 }}>Mô tả</TableCell>
-            <TableCell sx={{ fontWeight: 600 }} align="right">Giá</TableCell>
-            <TableCell sx={{ fontWeight: 600 }} align="center">Danh mục</TableCell>
-            <TableCell sx={{ fontWeight: 600 }} align="center">Nhà sản xuất</TableCell>
-            <TableCell sx={{ fontWeight: 600 }} align="center">Khuyến mãi</TableCell>
-            <TableCell sx={{ fontWeight: 600 }} align="center">Ảnh</TableCell>
-            <TableCell sx={{ fontWeight: 600 }} align="center">Trạng thái</TableCell>
-            <TableCell sx={{ fontWeight: 600 }} align="center">Thao tác</TableCell>
+            <TableCell sx={{ fontWeight: 600 }} align="right">
+              Giá
+            </TableCell>
+            <TableCell sx={{ fontWeight: 600 }} align="center">
+              Danh mục
+            </TableCell>
+            <TableCell sx={{ fontWeight: 600 }} align="center">
+              Nhà sản xuất
+            </TableCell>
+            <TableCell sx={{ fontWeight: 600 }} align="center">
+              Khuyến mãi
+            </TableCell>
+            <TableCell sx={{ fontWeight: 600 }} align="center">
+              Ảnh
+            </TableCell>
+            <TableCell sx={{ fontWeight: 600 }} align="center">
+              Trạng thái
+            </TableCell>
+            <TableCell sx={{ fontWeight: 600 }} align="center">
+              Thao tác
+            </TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -74,11 +87,17 @@ function ListProducts() {
                 </Tooltip>
               </TableCell>
               <TableCell align="right">{formatPrice(product.price)}</TableCell>
-              <TableCell align="center">{product.categoryName || "-"}</TableCell>
-              <TableCell align="center">{product.manufacturerName || "-"}</TableCell>
-              <TableCell align="center">{product.discountName || "-"}</TableCell>
               <TableCell align="center">
-                <Box sx={{ display: 'flex', gap: 1 }}>
+                {product.categoryName || "-"}
+              </TableCell>
+              <TableCell align="center">
+                {product.manufacturerName || "-"}
+              </TableCell>
+              <TableCell align="center">
+                {product.discountName || "-"}
+              </TableCell>
+              <TableCell align="center">
+                <Box sx={{ display: "flex", gap: 1 }}>
                   {product.images?.map((image) => (
                     <Avatar
                       key={image.id}
