@@ -45,7 +45,6 @@ const Home = () => {
 
 
     const fetchProduct = async () => {
-        debugger
         setIsLoading(true);
         try {
 
