@@ -30,6 +30,7 @@ import AddOrder from "~/pages/admin/OrderManagement/AddOrder/AddOrder";
 import ViewDetail from "~/layout/client/Product/ViewDetail";
 import ProtectedRoute from "~/layout/client/ProtectedRoute";
 
+import Product from "~/pages/client/product";
 export default function Router() {
   const routes = useRoutes([
     {
@@ -38,6 +39,8 @@ export default function Router() {
       children: [
         { path: "", element: <Home /> }
         
+        { path: "", element: <Home /> },
+        { path: "product/:id", element: <Product /> },
       ],
     },
     {
@@ -77,5 +80,6 @@ export default function Router() {
       ],
     },
   ]);
+  console.log("ROUTES: ", routes);
   return routes;
 }

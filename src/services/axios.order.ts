@@ -31,12 +31,11 @@ export const orderApi = {
     const url = `api/v1/ecommerce/order/${id}/status`;
     return axios.put(url, { status });
   },
-};
-
-export const callPlaceOrder = (data: Record<string, any>) => {
-  return axios.post("/api/v1/order", {
-    ...data,
-  });
+  callPlaceOrder(data: Record<string, any>) {
+    return axios.post("/api/v1/order", {
+      ...data,
+    });
+  },
 };
 
 export const callOrderHistory = () => {
