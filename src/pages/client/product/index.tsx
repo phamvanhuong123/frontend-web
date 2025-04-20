@@ -5,49 +5,60 @@ import { productApi } from "../../../services/axios.product";
 
 const ProductPage = () => {
   const [dataProduct, setDataProduct] = useState<any>(null);
-  const { slug } = useParams();
+  const [loading, setLoading] = useState<boolean>(true);
+  const { slug } = useParams(); // slug có thể là ID hoặc slug SEO-friendly
   const location = useLocation();
-
   const params = new URLSearchParams(location.search);
-  //   const id = params?.get("id");
 
-  const id = slug?.split("=")[1];
-
+  // Lấy ID từ query parameter hoặc từ slug
+  const queryId = params.get("id");
+  
   useEffect(() => {
-    if (id) {
-      fetchProduct(id);
-    }
-  }, [id]);
-
-  const fetchProduct = async (id: string) => {
-    try {
-      const res = await productApi.callFetchProductById(id);
-      if (res && res.data) {
-        const raw = res.data;
-        // Process data
-        raw.items = getImages(raw);
-        setDataProduct(raw);
+    const fetchProduct = async () => {
+      try {
+        setLoading(true);
+        
+        if (!slug) {
+          console.error("Không tìm thấy slug sản phẩm");
+          setLoading(false);
+          return;
+        }
+        
+        console.log("Fetching product with slug:", slug);
+        const res = await productApi.callFetchProductBySlug(slug);
+        
+        if (res && res.data) {
+          const raw = res.data;
+          raw.items = getImages(raw);
+          setDataProduct(raw);
+        } else {
+          console.error("Không tìm thấy sản phẩm với slug:", slug);
+        }
+      } catch (error) {
+        console.error("Failed to fetch product:", error);
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error("Failed to fetch product:", error);
-    }
-  };
+    };
+    
+    fetchProduct();
+  }, [slug]); // Chỉ phụ thuộc vào slug
 
   const getImages = (raw: any) => {
     const images = [];
     if (raw.thumbnail) {
       images.push({
-        original: `${import.meta.env.VITE_BACKEND_URL}/images/product/${raw.thumbnail}`,
-        thumbnail: `${import.meta.env.VITE_BACKEND_URL}/images/product/${raw.thumbnail}`,
+        original: `getImageUrl/${raw.thumbnail}`,
+        thumbnail: `getImageUrl/${raw.thumbnail}`,
         originalClass: "original-image",
         thumbnailClass: "thumbnail-image",
       });
     }
-    if (raw.slider) {
+    if (raw.slider && Array.isArray(raw.slider)) {
       raw.slider.forEach((item: string) => {
         images.push({
-          original: `${import.meta.env.VITE_BACKEND_URL}/images/product/${item}`,
-          thumbnail: `${import.meta.env.VITE_BACKEND_URL}/images/product/${item}`,
+          original: `getImageUrl/${item}`,
+          thumbnail: `getImageUrl/${item}`,
           originalClass: "original-image",
           thumbnailClass: "thumbnail-image",
         });
@@ -58,11 +69,15 @@ const ProductPage = () => {
 
   return (
     <>
-      {dataProduct ? (
+      {loading ? (
+        <div style={{ textAlign: "center", padding: "20px" }}>
+          <p>Đang tải sản phẩm...</p>
+        </div>
+      ) : dataProduct ? (
         <ViewDetail dataProduct={dataProduct} />
       ) : (
         <div style={{ textAlign: "center", padding: "20px" }}>
-          <p>Đang tải sản phẩm...</p>
+          <p>Không tìm thấy sản phẩm</p>
         </div>
       )}
     </>

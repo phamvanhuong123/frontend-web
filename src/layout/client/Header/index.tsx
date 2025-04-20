@@ -40,32 +40,34 @@ const Header = (props: {
     message.success("Đăng xuất thành công");
     navigate("/");
   };
+  const isAdminOrStaff = () => {
+    return user?.role === "ADMIN" || user?.role === "STAFF";
+  };
+  // Tạo items cho dropdown dựa trên vai trò người dùng
+  const generateMenuItems = () => {
+    const adminItem = isAdminOrStaff() 
+      ? [{ key: "admin", label: <Link to="/admin">Quản trị hệ thống</Link> }] 
+      : [];
+  
+    return [
+      ...adminItem,
+      {
+        key: "account",
+        label: <div onClick={() => setShowManageAccount(true)}>Quản lý tài khoản</div>,
+      },
+      {
+        key: "history",
+        label: <Link to="/history">Lịch sử mua hàng</Link>,
+      },
+      {
+        key: "logout",
+        label: <div onClick={handleLogout}>Đăng xuất</div>,
+      },
+    ];
+  };
 
-  const items = [
-    {
-      key: "account",
-      label: (
-        <div onClick={() => setShowManageAccount(true)}>Quản lý tài khoản</div>
-      ),
-    },
-    {
-      key: "history",
-      label: <Link to="/history">Lịch sử mua hàng</Link>,
-    },
-    {
-      key: "logout",
-      label: (
-        <div
-          onClick={() => {
-            handleLogout();
-            message.loading("Đang đăng xuất...", 0.5);
-          }}
-        >
-          Đăng xuất
-        </div>
-      ),
-    },
-  ];
+  // Sử dụng hàm tạo menu items
+  const items = generateMenuItems();
 
   const contentPopover = carts?.length > 0 ? (
     <div>

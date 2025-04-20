@@ -50,7 +50,10 @@ export const userApi = {
       avatar,
     });
   },
-
+  //lấy thông tin tài khoản người dùng
+  callFetchAccount(){
+    return axios.get(`${url}`);
+  },
 };
 
 
@@ -73,8 +76,6 @@ export const callUpdateAvatar = (fileImg: File) => {
 };
 
 // Lấy thông tin tài khoản người dùng
-export const callFetchAccount = () => {
-  return axios.get(`${url}`);
-};
+
 
 // Đăng ký tài khoản

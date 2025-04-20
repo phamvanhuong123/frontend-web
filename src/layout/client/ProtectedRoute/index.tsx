@@ -9,30 +9,28 @@ interface Props {
 
 const ProtectedRoute = ({ children }: Props) => {
   const location = useLocation();
-  const user = useSelector((state: RootState) => state.account.user);
-  const isAuthenticated = useSelector(
-    (state: RootState) => state.account.isAuthenticated
-  );
-
+  const { user, isAuthenticated } = useSelector((state: RootState) => state.account);
   const isAdminRoute = location.pathname.startsWith("/admin");
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
 
-  // ADMIN: toàn quyền
-  if (user?.role === "ADMIN" || user?.role === "STAFF") {
-    return <>{children}</>;
+  if (!user?.role) {
+    return <NotPermitted />;
   }
 
-  // USER: chỉ được vào route client, cấm /admin
-  if (user?.role === "CUSTOMER") {
-    if (isAdminRoute) return <NotPermitted />;
-    return <>{children}</>;
-  }
+  switch (user.role) {
+    case "ADMIN":
+    case "STAFF":
+      return <>{children}</>;
 
-  // Nếu role không hợp lệ
-  return <NotPermitted />;
+    case "CUSTOMER":
+      return isAdminRoute ? <NotPermitted /> : <>{children}</>;
+
+    default:
+      return <NotPermitted />;
+  }
 };
 
 export default ProtectedRoute;

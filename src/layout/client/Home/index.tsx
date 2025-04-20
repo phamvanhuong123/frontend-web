@@ -1,3 +1,4 @@
+import "./home.scss";
 import { FilterTwoTone, ReloadOutlined, HomeOutlined } from "@ant-design/icons";
 import {
   Row,
@@ -18,7 +19,6 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate, useOutletContext } from "react-router-dom";
 import { callFetchCategory, productApi } from "../../../services/axios.product";
 import { getImageUrl } from "../../../config/config";
-import "./home.scss";
 import MobileFilter from "./MobileFilter";
 import { ProductQueryParameters } from "~/types/product";
 
@@ -150,8 +150,16 @@ const Home = () => {
   ];
 
   const handleRedirectProduct = (product: any) => {
-    // const slug = product.mainText?.toLowerCase().replace(/\s+/g, "-") ?? "";
-    navigate(`/product/id=${product.id}`);
+    const slug = product.name
+      ? product.name
+          .toLowerCase()
+          .replace(/[^\w\s-]/g, '') 
+          .replace(/\s+/g, '-')     
+          .replace(/-+/g, '-')      
+      : '';
+    
+    // URL format: /product/ID-SLUG
+    navigate(`/product/${slug}`);
   };
 
   return (

@@ -2,7 +2,7 @@ import axios from "./axios.customize";
 import Product, { ProductQueryParameters } from '~/types/product';
 
 const BASE_URL = "/api/v1/ecommerce";
-
+const BASE_URLv2 = "/api/v2/ecommerce";
 export const productApi = {
     // Lấy danh sách tất cả sản phẩm
     getAll() {
@@ -18,7 +18,11 @@ export const productApi = {
     getAllPage: async (params: ProductQueryParameters) => {
         const response = await axios.get(`${BASE_URL}/products/page`, { params });
         return response.data;
-    }
+    },
+    //lây hình ảnh bằng slug
+    callFetchProductBySlug(slug: string) {
+        return axios.get(`${BASE_URLv2}/products/${slug}`);
+    },
 };
 
 
