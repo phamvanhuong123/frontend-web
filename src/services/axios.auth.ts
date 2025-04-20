@@ -18,4 +18,13 @@ export const authApi = {
       localStorage.removeItem('access_token');
     });
   },
+  callRegister (data: {
+    Email: string;
+    Password: string;
+    Name: string;
+    Phone: string;
+  }) {
+    return axios.post(`${url}/register`, data);
+  },
+  
 }

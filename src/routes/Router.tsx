@@ -28,6 +28,7 @@ import EditOrder from "~/pages/admin/OrderManagement/EditOrder/EditOrder";
 import ManufactureManagement from "~/pages/admin/ManufactureManagement/ManufactureManagement";
 import AddOrder from "~/pages/admin/OrderManagement/AddOrder/AddOrder";
 import ViewDetail from "~/layout/client/Product/ViewDetail";
+import ProtectedRoute from "~/layout/client/ProtectedRoute";
 
 export default function Router() {
   const routes = useRoutes([
@@ -35,14 +36,16 @@ export default function Router() {
       path: "/",
       element: <LayoutClient />,
       children: [
-        { path: "", element: <Home /> },
-        {path: "/product/:slug", element: < />},
+        { path: "", element: <Home /> }
         
       ],
     },
     {
       path: "/admin",
-      element: <LayoutDefault />,
+      element:  
+        <ProtectedRoute>
+          <LayoutDefault />
+        </ProtectedRoute>,
       children: [
         { path: "", element: <Dashboard /> },
         { path: "users", element: <Users /> },

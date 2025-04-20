@@ -84,10 +84,3 @@ export const callFetchAccount = () => {
 };
 
 // Đăng ký tài khoản
-export const callRegister = (data: {
-  Email: string;
-  Password: string;
-  Name: string;
-}) => {
-  return axios.post("${url}/register", data);
-};

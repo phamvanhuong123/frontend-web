@@ -64,91 +64,6 @@ export default function App() {
     getAccount();
   }, []);
 
-  // const router = createBrowserRouter([
-  //   {
-  //     path: "/",
-  //     element: <Layout />,
-  //     errorElement: <NotFound />,
-  //     children: [
-  //       { index: true, element: <Home /> },
-  //       {
-  //         path: "contact",
-  //         element: <ContactPage />,
-  //       },
-  //       {
-  //         path: "product/:slug",
-  //         element: <ProductPage />,
-  //       },
-  //       {
-  //         path: "order",
-  //         element: (
-  //           <ProtectedRoute>
-  //             <OrderPage />
-  //           </ProtectedRoute>
-  //         ),
-  //       },
-  //       {
-  //         path: "history",
-  //         element: (
-  //           <ProtectedRoute>
-  //             <HistoryPage />
-  //           </ProtectedRoute>
-  //         ),
-  //       },
-  //     ],
-  //   },
-  //   {
-  //     path: "/admin",
-  //     element: (
-  //       <ProtectedRoute>
-  //         <LayoutDefault />
-  //       </ProtectedRoute>
-  //     ),
-  //     errorElement: <NotFound />,
-  //     children: [
-  //       {
-  //         path: "users",
-  //         element: (
-  //           <ProtectedRoute>
-  //             <UserManagement />
-  //           </ProtectedRoute>
-  //         ),
-  //       },
-  //       {
-  //         path: "manufactures",
-  //         element: (
-  //           <ProtectedRoute>
-  //             <ManufactureManagement />
-  //           </ProtectedRoute>
-  //         ),
-  //       },
-  //       {
-  //         path: "products",
-  //         element: (
-  //           <ProtectedRoute>
-  //             <ProductManagement />
-  //           </ProtectedRoute>
-  //         ),
-  //       },
-  //       {
-  //         path: "orders",
-  //         element: (
-  //           <ProtectedRoute>
-  //             <OrderManagement />
-  //           </ProtectedRoute>
-  //         ),
-  //       },
-  //     ],
-  //   },
-  //   {
-  //     path: "/login",
-  //     element: <LoginPage />,
-  //   },
-  //   {
-  //     path: "/register",
-  //     element: <RegisterPage />,
-  //   },
-  // ]);
   const router = createBrowserRouter([
     {
       path: "/",
@@ -156,25 +71,110 @@ export default function App() {
       errorElement: <NotFound />,
       children: [
         { index: true, element: <Home /> },
-        { path: "contact", element: <ContactPage /> },
-        { path: "product/:slug", element: <ProductPage /> },
-        { path: "order", element: <OrderPage /> }, // Bỏ ProtectedRoute
-        { path: "history", element: <HistoryPage /> }, // Bỏ ProtectedRoute
+        {
+          path: "contact",
+          element: <ContactPage />,
+        },
+        {
+          path: "product/:slug",
+          element: <ProductPage />,
+        },
+        {
+          path: "order",
+          element: (
+            <ProtectedRoute>
+              <OrderPage />
+            </ProtectedRoute>
+          ),
+        },
+        {
+          path: "history",
+          element: (
+            <ProtectedRoute>
+              <HistoryPage />
+            </ProtectedRoute>
+          ),
+        },
       ],
     },
     {
       path: "/admin",
-      element: <LayoutDefault />, // Bỏ ProtectedRoute
+      element: (
+        <ProtectedRoute>
+          <LayoutDefault />
+        </ProtectedRoute>
+      ),
+      errorElement: <NotFound />,
       children: [
-        { path: "users", element: <UserManagement /> },
-        { path: "manufactures", element: <ManufactureManagement /> },
-        { path: "products", element: <ProductManagement /> },
-        { path: "orders", element: <OrderManagement /> },
+        {
+          path: "users",
+          element: (
+            <ProtectedRoute>
+              <UserManagement />
+            </ProtectedRoute>
+          ),
+        },
+        {
+          path: "manufactures",
+          element: (
+            <ProtectedRoute>
+              <ManufactureManagement />
+            </ProtectedRoute>
+          ),
+        },
+        {
+          path: "products",
+          element: (
+            <ProtectedRoute>
+              <ProductManagement />
+            </ProtectedRoute>
+          ),
+        },
+        {
+          path: "orders",
+          element: (
+            <ProtectedRoute>
+              <OrderManagement />
+            </ProtectedRoute>
+          ),
+        },
       ],
     },
-    { path: "/login", element: <LoginPage /> },
-    { path: "/register", element: <RegisterPage /> },
+    {
+      path: "/login",
+      element: <LoginPage />,
+    },
+    {
+      path: "/register",
+      element: <RegisterPage />,
+    },
   ]);
+  // const router = createBrowserRouter([
+  //   {
+  //     path: "/",
+  //     element: <Layout />,
+  //     errorElement: <NotFound />,
+  //     children: [
+  //       { index: true, element: <Home /> },
+  //       { path: "contact", element: <ContactPage /> },
+  //       { path: "product/:slug", element: <ProductPage /> },
+  //       { path: "order", element: <OrderPage /> }, // Bỏ ProtectedRoute
+  //       { path: "history", element: <HistoryPage /> }, // Bỏ ProtectedRoute
+  //     ],
+  //   },
+  //   {
+  //     path: "/admin",
+  //     element: <LayoutDefault />, // Bỏ ProtectedRoute
+  //     children: [
+  //       { path: "users", element: <UserManagement /> },
+  //       { path: "manufactures", element: <ManufactureManagement /> },
+  //       { path: "products", element: <ProductManagement /> },
+  //       { path: "orders", element: <OrderManagement /> },
+  //     ],
+  //   },
+  //   { path: "/login", element: <LoginPage /> },
+  //   { path: "/register", element: <RegisterPage /> },
+  // ]);
   return (
     <>
       {isLoading === false

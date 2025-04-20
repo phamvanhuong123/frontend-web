@@ -25,6 +25,9 @@ const initialState: IAccountState = {
   isAuthenticated: false,
   tempAvatar: undefined,
 };
+export interface RootState {
+  account: IAccountState;
+}
 
 export const accountSlice = createSlice({
   name: "account",
