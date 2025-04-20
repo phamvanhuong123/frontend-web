@@ -35,6 +35,7 @@ const ViewDetail: React.FC<ViewDetailProps> = ({ dataProduct }) => {
     const handleOnClickImage = () => {
         setIsOpenModalGallery(true);
         setCurrentIndex(refGallery?.current?.getCurrentIndex() ?? 0);
+        navigate(`/product/${dataProduct._id}`);
     };
 
     const handleChangeButton = (type: 'MINUS' | 'PLUS') => {

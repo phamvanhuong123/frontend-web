@@ -4,7 +4,7 @@ import "./login.scss";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { doLoginAction } from "../../../redux/account/accountSlice";
-import { userApi } from "../../../services/axios.user";
+import { authApi } from "~/services/axios.auth";
 
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
@@ -15,11 +15,16 @@ const LoginPage: React.FC = () => {
     const { email, password } = values;
     setIsSubmit(true);
     try {
-      const res = await userApi.callLogin(email, password);
-      debugger;
+      const res = await authApi.callLogin(email, password);
       if (res?.data) {
-        localStorage.setItem("access_token", res.data.access_token);
-        dispatch(doLoginAction(res.data));
+        localStorage.setItem("access_token", res.data.accessToken);
+        
+        dispatch(doLoginAction({
+          accessToken: res.data.accessToken,
+          refreshToken: res.data.refreshToken,
+          userInfo: res.data.user
+        }));
+        
         message.success("Đăng nhập thành công!");
         navigate("/");
       }

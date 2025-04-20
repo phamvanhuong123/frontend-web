@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import ViewDetail from "../../../layout/client/Product/ViewDetail";
-import { callFetchProductById } from "../../../services/axios.product";
+import {  productApi } from "../../../services/axios.product";
 
 const ProductPage = () => {
     const [dataProduct, setDataProduct] = useState<any>(null);
@@ -18,7 +18,7 @@ const ProductPage = () => {
 
     const fetchProduct = async (id: string) => {
         try {
-            const res = await callFetchProductById(id);
+            const res = await productApi.callFetchProductById(id);
             if (res && res.data) {
                 const raw = res.data;
                 // Process data

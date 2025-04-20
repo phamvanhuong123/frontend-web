@@ -36,15 +36,7 @@ export const userApi = {
     return axios.get<User>(`${url}/${id}`).then((res) => res.data);
   },
   // Đăng nhập
-  callLogin(email: string, password: string) {
-    const fullUrl = `${url}/login`;
-    console.log("Đường dẫn API đang gọi:", fullUrl); // In ra đường dẫn đầy đủ
-    return axios.post(fullUrl, {
-      // Sử dụng biến fullUrl đã tạo
-      Email: email,
-      Password: password,
-    });
-  },
+ 
   callUpdateUserInfo(
     _id: string,
     phone: string,
@@ -59,7 +51,7 @@ export const userApi = {
     });
   },
   callUpdatePassword(email: string, oldpass: string, newpass: string) {
-    return axios.post(`${url}/users/change-password`, {
+    return axios.post(`${url}/auth/change-password`, {
       email,
       oldpass,
       newpass,
@@ -69,9 +61,7 @@ export const userApi = {
 
 // Đăng xuất
 
-export const callLogout = () => {
-  return axios.post(`${url}/logout`);
-};
+
 
 // Cập nhật avatar
 export const callUpdateAvatar = (fileImg: File) => {

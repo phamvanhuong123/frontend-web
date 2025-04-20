@@ -11,7 +11,11 @@ export const productApi = {
 
     CreateProduct(formData: FormData){
         return axios.post(BASE_URL, formData)
-    }
+    },
+    callFetchProductById(id: string) {
+        return axios.get(`${BASE_URL}/products/${id}`);
+    },
+    
 };
 
 
@@ -23,9 +27,4 @@ return axios.get(`${BASE_URL}/categorys`);
 // Lấy danh sách sản phẩm với query
 export const callFetchListProduct = (query: string) => {
 return axios.get(`${BASE_URL}/products?${query}`);
-};
-
-// Lấy thông tin chi tiết sản phẩm theo ID
-export const callFetchProductById = (id: string) => {
-return axios.get(`${BASE_URL}/products/${id}`);
 };

@@ -27,13 +27,18 @@ import PostList from "~/pages/admin/PostManagement/PostList/PostList";
 import EditOrder from "~/pages/admin/OrderManagement/EditOrder/EditOrder";
 import ManufactureManagement from "~/pages/admin/ManufactureManagement/ManufactureManagement";
 import AddOrder from "~/pages/admin/OrderManagement/AddOrder/AddOrder";
+import ViewDetail from "~/layout/client/Product/ViewDetail";
 
 export default function Router() {
   const routes = useRoutes([
     {
       path: "/",
       element: <LayoutClient />,
-      children: [{ path: "", element: <Home /> }],
+      children: [
+        { path: "", element: <Home /> },
+        {path: "/product/:slug", element: < />},
+        
+      ],
     },
     {
       path: "/admin",

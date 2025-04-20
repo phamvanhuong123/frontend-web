@@ -12,10 +12,7 @@ import {
 } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import { callUpdateAvatar, userApi } from "../../../services/axios.user";
-import {
-  doUpdateUserInfoAction,
-  doUploadAvatarAction,
-} from "../../../redux/account/accountSlice";
+import { doUploadAvatarAction, doUpdateUserInfoAction } from "../../../redux/account/accountSlice";
 import { useState } from "react";
 
 const UserInfo: React.FC = () => {
@@ -24,10 +21,11 @@ const UserInfo: React.FC = () => {
   const user = useSelector((state: any) => state.account.user);
   const tempAvatar = useSelector((state: any) => state.account.tempAvatar);
 
-  const [userAvatar, setUserAvatar] = useState(user?.avatar ?? "");
   const [isSubmit, setIsSubmit] = useState(false);
 
-  const urlAvatar = `${import.meta.env.VITE_BACKEND_URL}/images/avatar/${tempAvatar || user?.avatar}`;
+  const urlAvatar = `${import.meta.env.VITE_BACKEND_URL}/images/avatar/${
+    tempAvatar || user?.avatar
+  }`;
 
   const handleUploadAvatar = async ({ file, onSuccess, onError }: any) => {
     try {
@@ -35,7 +33,6 @@ const UserInfo: React.FC = () => {
       if (res && res.data) {
         const newAvatar = res.data.fileUploaded;
         dispatch(doUploadAvatarAction({ avatar: newAvatar }));
-        setUserAvatar(newAvatar);
         onSuccess("ok");
         message.success("Upload avatar thành công");
       } else {
@@ -66,36 +63,27 @@ const UserInfo: React.FC = () => {
     phoneNumber: string;
     _id: string;
   }) => {
-    const { name, phoneNumber, _id } = values;
+    const { name, phoneNumber } = values;
     setIsSubmit(true);
     try {
       const res = await userApi.callUpdateUserInfo(
         user?.id,
-        user?.phoneNumber,
-        user?.name,
-        user?.avatar
+        phoneNumber,
+        name,
+        tempAvatar || user?.avatar
       );
       if (res && res.data) {
         // Update Redux
-        debugger;
         dispatch(
           doUpdateUserInfoAction({
-            avatar: userAvatar,
+            ...user,
+            avatar: tempAvatar || user?.avatar,
             phoneNumber,
             name,
-            _id: res.data._id,
           })
         );
-        // Update localStorage
-        // localStorage.setItem("user", JSON.stringify(res.data));
-        // Update Redux
-        // dispatch(
-        //   doUpdateUserInfoAction({ avatar: userAvatar, phoneNumber, name })
-        // );
+        
         message.success("Cập nhật thông tin user thành công");
-
-        // Force renew token
-        localStorage.removeItem("access_token");
       } else {
         throw new Error(res?.message || "Cập nhật thông tin thất bại");
       }
@@ -130,16 +118,24 @@ const UserInfo: React.FC = () => {
           </Row>
         </Col>
         <Col sm={24} md={12}>
-          <Form onFinish={onFinish} form={form}>
-            <Form.Item hidden name="_id" initialValue={user?.id}>
-              <Input hidden />
+          <Form 
+            onFinish={onFinish} 
+            form={form}
+            initialValues={{
+              _id: user?.id,
+              email: user?.email,
+              name: user?.name,
+              phoneNumber: user?.phoneNumber
+            }}
+          >
+            <Form.Item hidden name="_id">
+              <Input />
             </Form.Item>
 
             <Form.Item
               labelCol={{ span: 24 }}
               label="Email"
               name="email"
-              initialValue={user?.email}
             >
               <Input disabled />
             </Form.Item>
@@ -148,7 +144,6 @@ const UserInfo: React.FC = () => {
               labelCol={{ span: 24 }}
               label="Tên hiển thị"
               name="name"
-              initialValue={user?.name}
               rules={[
                 {
                   required: true,
@@ -163,7 +158,6 @@ const UserInfo: React.FC = () => {
               labelCol={{ span: 24 }}
               label="Số điện thoại"
               name="phoneNumber"
-              initialValue={user?.phoneNumber}
               rules={[
                 {
                   required: true,
@@ -177,7 +171,7 @@ const UserInfo: React.FC = () => {
             <Button
               loading={isSubmit}
               type="primary"
-              onClick={() => form.submit()}
+              htmlType="submit"
             >
               Cập nhật
             </Button>

@@ -5,7 +5,7 @@ import { VscSearchFuzzy } from 'react-icons/vsc';
 import { Divider, Badge, Drawer, message, Avatar, Popover, Empty, Dropdown, Space } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { callLogout } from '../../../services/axios.user';
+import { authApi } from '../../../services/axios.auth';
 import './header.scss';
 import { doLogoutAction } from '../../../redux/account/accountSlice';
 import { Link } from 'react-router-dom';
@@ -21,44 +21,37 @@ const Header = (props: { searchTerm: string; setSearchTerm: (value: string) => v
     const [showManageAccount, setShowManageAccount] = useState(false);
 
     const handleLogout = async () => {
-        const res = await callLogout();
-        if (res && res.data) {
-            dispatch(doLogoutAction());
-            message.success('Đăng xuất thành công');
-            navigate('/');
-        } else {
-            message.error('Đăng xuất thất bại');
-        }
+        await authApi.callLogout();
+        dispatch(doLogoutAction());
+        message.success('Đăng xuất thành công');
+        navigate('/');
     };
 
     const items = [
         {
-            label: (
-                <label
-                    style={{ cursor: 'pointer' }}
-                    onClick={() => setShowManageAccount(true)}
-                >
-                    Quản lý tài khoản
-                </label>
-            ),
-            key: 'account',
+          key: 'account',
+          label: (
+            <div onClick={() => setShowManageAccount(true)}>
+              Quản lý tài khoản
+            </div>
+          ),
         },
         {
-            label: <Link to="/history">Lịch sử mua hàng</Link>,
-            key: 'history',
+          key: 'history',
+          label: <Link to="/history">Lịch sử mua hàng</Link>,
         },
         {
-            label: (
-                <label
-                    style={{ cursor: 'pointer' }}
-                    onClick={handleLogout}
-                >
-                    Đăng xuất
-                </label>
-            ),
-            key: 'logout',
-        },
-    ];
+          key: 'logout',
+          label: (
+            <div onClick={() => {
+              handleLogout();
+              message.loading('Đang đăng xuất...', 0.5);
+            }}>
+              Đăng xuất
+            </div>
+          ),
+        }
+      ];
 
     if (user?.role === 'ADMIN') {
         items.unshift({
@@ -115,7 +108,7 @@ const Header = (props: { searchTerm: string; setSearchTerm: (value: string) => v
                             <span className="logo">
                                 <span onClick={() => navigate('/')}>
                                     <FaReact className="rotate icon-react" />
-                                    Hoàng gia Quy Nhơn
+                                    Hoàng Gia Quy Nhơn
                                 </span>
                                 <VscSearchFuzzy className="icon-search" />
                             </span>
@@ -152,10 +145,10 @@ const Header = (props: { searchTerm: string; setSearchTerm: (value: string) => v
                                 <Divider type="vertical" />
                             </li>
                             <li className="navigation__item mobile">
-                                {!isAuthenticated ? (
-                                    <span onClick={() => navigate('/login')}>Tài Khoản</span>
+                                {!isAuthenticated ? (                                  
+                                    <span onClick={() => navigate('/login')}>Đăng nhập</span>
                                 ) : (
-                                    <Dropdown menu={{ items }} trigger={['click']}>
+                                    <Dropdown  key={isAuthenticated} menu={{ items }} trigger={['click']}>
                                         <Space>
                                             <Avatar src={urlAvatar} />
                                             {user?.fullName}

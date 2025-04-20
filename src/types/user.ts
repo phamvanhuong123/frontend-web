@@ -15,7 +15,10 @@ interface User  {
     name: string;
     role: string;
     phoneNumber: string;  
+    accessToken?: string;
+    refreshToken?: string;
 }
+
 
 export interface CreateAUser {
     email: string;
