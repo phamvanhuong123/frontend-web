@@ -16,6 +16,7 @@ import {
   doPlaceOrderAction,
 } from "../../../redux/order/orderSlice";
 import { orderApi } from "~/services/axios.order";
+import { getImageUrl } from "~/config/config";
 
 const { TextArea } = Input;
 
@@ -94,7 +95,7 @@ const Payment: React.FC<PaymentProps> = ({ setCurrentStep }) => {
             <div className="order-product" key={`index-${index}`}>
               <div className="product-content">
                 <img
-                  src={`${import.meta.env.VITE_BACKEND_URL}/images/product/${product?.detail?.thumbnail}`}
+                  src={getImageUrl(product?.detail?.thumbnail)}
                   alt="product Thumbnail"
                 />
                 <div className="title">{product?.detail?.mainText}</div>

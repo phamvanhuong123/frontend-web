@@ -36,9 +36,7 @@ export default function Router() {
     {
       path: "/",
       element: <LayoutClient />,
-      children: [
-        { path: "", element: <Home /> }
-        
+      children: [   
         { path: "", element: <Home /> },
         { path: "product/:id", element: <Product /> },
       ],

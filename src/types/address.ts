@@ -13,3 +13,20 @@ interface Address {
   isDefaultBilling: boolean;
 }
 export default Address;
+
+export interface Province {
+  code: string;
+  name: string;
+}
+
+export interface District {
+  code: string;
+  name: string;
+  province_code: string;
+}
+
+export interface Ward {
+  code: string;
+  name: string;
+  district_code: string;
+}

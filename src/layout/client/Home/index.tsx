@@ -16,14 +16,11 @@ import {
 } from "antd";
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useOutletContext } from "react-router-dom";
-import {
-  callFetchCategory,
-  callFetchListProduct,
-  productApi,
-} from "../../../services/axios.product";
-import { getImageUrl } from "../../../utils/helper";
+import { callFetchCategory, productApi } from "../../../services/axios.product";
+import { getImageUrl } from "../../../config/config";
 import "./home.scss";
 import MobileFilter from "./MobileFilter";
+import { ProductQueryParameters } from "~/types/product";
 
 const Home = () => {
   const [searchTerm, setSearchTerm] =
@@ -36,7 +33,7 @@ const Home = () => {
     { price: number; [key: string]: any }[]
   >([]);
   const [current, setCurrent] = useState(1);
-  const [pageSize, setPageSize] = useState(5);
+  const [pageSize, setPageSize] = useState(10);
   const [total, setTotal] = useState(0);
 
   const [isLoading, setIsLoading] = useState(false);
@@ -48,36 +45,42 @@ const Home = () => {
   const [form] = Form.useForm();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const initCategory = async () => {
-      const res = await callFetchCategory();
-      if (res && res.data) {
-        const categories = res.data.map((item: any) => ({
-          label: item.name || item,
-          value: item.id || item,
-        }));
-        setListCategory(categories);
-      }
-    };
-    initCategory();
-  }, []);
-
-  useEffect(() => {
-    fetchProduct();
-  }, [current, pageSize, filter, sortQuery, searchTerm]);
-
   const fetchProduct = async () => {
     setIsLoading(true);
     try {
-      let query = `current=${current}&pageSize=${pageSize}`;
-      if (filter) query += `&${filter}`;
-      if (sortQuery) query += `&${sortQuery}`;
-      if (searchTerm) query += `&mainText=/${searchTerm}/i`;
+      const params: ProductQueryParameters = {
+        pageIndex: current,
+        pageSize: pageSize,
+      };
 
-      const res = await productApi.getAll();
+      // Thêm các điều kiện filter
+      if (filter) {
+        const filterParams = new URLSearchParams(filter);
+        if (filterParams.has("category")) {
+            params.category = filterParams.get("category") || "";
+        }
+        if (filter.includes("price>=") && filter.includes("price<=")) {
+          const [from, to] = filter.match(/\d+/g) || [];
+          params.priceFrom = Number(from);
+          params.priceTo = Number(to);
+        }
+      }
+
+      // Thêm sort
+      if (sortQuery) {
+        params.sort = sortQuery.replace("sort=", "");
+      }
+
+      // Thêm search term
+      if (searchTerm) {
+        params.searchTerm = searchTerm;
+      }
+
+      const res = await productApi.getAllPage(params);
+
       if (res) {
-        setListProduct(res);
-        setTotal(res?.length);
+        setListProduct(res.items); // items chứa danh sách sản phẩm
+        setTotal(res.totalCount); // totalCount chứa tổng số bản ghi
       } else {
         setListProduct([]);
         setTotal(0);
@@ -91,26 +94,42 @@ const Home = () => {
     }
   };
 
-  const handleOnChangePage = (pagination: {
-    current: number;
-    pageSize: number;
-  }) => {
-    if (pagination.current !== current) setCurrent(pagination.current);
-    if (pagination.pageSize !== pageSize) {
-      setPageSize(pagination.pageSize);
-      setCurrent(1);
+  //cate
+  const initCategory = async () => {
+    const res = await callFetchCategory();
+    if (res && res.data) {
+      const categories = res.data.map((item: any) => ({
+        label: item.name || item,
+        value: item.id || item,
+      }));
+      setListCategory(categories);
     }
   };
 
+  useEffect(() => {
+    initCategory(); // Chỉ gọi một lần khi component được render
+  }, []);
+  useEffect(() => {
+    fetchProduct();
+    initCategory();
+  }, [current, pageSize, filter, sortQuery, searchTerm]);
+
   const handleChangeFilter = (changedValues: any, values: any) => {
-    if (changedValues.category) {
-      const categories = values.category;
-      if (categories && categories.length > 0) {
-        setFilter(`category=${categories.join(",")}`);
-      } else {
-        setFilter("");
-      }
+    const filters: string[] = [];
+    // Xử lý filter theo danh mục
+    if (values.category && values.category.length > 0) {
+      filters.push(`category=${values.category.join(",")}`);
     }
+
+    // Xử lý filter theo khoảng giá
+    if (values.range?.from !== undefined && values.range?.to !== undefined) {
+      filters.push(`price>=${values.range.from}`);
+
+      filters.push(`price<=${values.range.to}`);
+    }
+
+    // Kết hợp tất cả các filter
+    setFilter(filters.join("&"));
   };
 
   const onFinish = (values: any) => {
@@ -244,21 +263,21 @@ const Home = () => {
                     onChange={(key) => setSortQuery(key)}
                   />
                   <Row className="customize-row">
-                    {listProduct.map((item, index) => (
+                    {listProduct.map((item) => (
                       <div
                         className="column"
-                        key={`product-${index}`}
+                        key={`product-${item.id}`}
                         onClick={() => handleRedirectProduct(item)}
                       >
                         <div className="wrapper">
                           <div className="thumbnail">
                             <img
                               src={getImageUrl(item.thumbnail)}
-                              alt="thumbnail product"
+                              alt={item.name}
                             />
                           </div>
-                          <div className="text" title={item.mainText}>
-                            {item.mainText}
+                          <div className="text" title={item.name}>
+                            {item.name}
                           </div>
                           <div className="price">
                             {new Intl.NumberFormat("vi-VN", {
@@ -267,23 +286,32 @@ const Home = () => {
                             }).format(item.price ?? 0)}
                           </div>
                           <div className="rating">
-                            <Rate value={5} disabled style={{ fontSize: 10 }} />
-                            <span>Đã bán {item.sold}</span>
+                            <Rate
+                              value={item.rating || 5}
+                              disabled
+                              style={{ fontSize: 10 }}
+                            />
+                            <span>Đã bán {item.sold || 0}</span>
                           </div>
                         </div>
                       </div>
                     ))}
-                    {listProduct.length === 0 && (
-                      <Empty description="Không có dữ liệu" />
+                    {listProduct.length === 0 && !isLoading && (
+                      <Empty description="Không có sản phẩm nào" />
                     )}
                   </Row>
                   <Pagination
                     current={current}
                     total={total}
                     pageSize={pageSize}
-                    onChange={(page, size) =>
-                      handleOnChangePage({ current: page, pageSize: size })
-                    }
+                    onChange={(page, size) => {
+                      setCurrent(page);
+                      if (size !== pageSize) {
+                        setPageSize(size);
+                      }
+                    }}
+                    showSizeChanger
+                    pageSizeOptions={["10", "20", "30", "40"]}
                   />
                 </div>
               </Spin>

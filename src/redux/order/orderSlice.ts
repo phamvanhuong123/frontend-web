@@ -27,20 +27,34 @@ export const orderSlice = createSlice({
     reducers: {
         // Thêm sản phẩm vào giỏ hàng
         doAddProductAction: (state, action) => {
-            const carts = state.carts;
-            const item = action.payload;
-
+            const carts = state.carts; // Lấy giỏ hàng hiện tại từ state
+            const item = action.payload; // Lấy payload từ action (thông tin sản phẩm)
+          
+            // Kiểm tra xem sản phẩm đã có trong giỏ hàng chưa
             const isExistIndex = carts.findIndex(c => c._id === item._id);
+          
+            // Nếu sản phẩm đã tồn tại trong giỏ hàng
             if (isExistIndex > -1) {
-                carts[isExistIndex].quantity += item.quantity;
-                if (carts[isExistIndex].quantity > carts[isExistIndex].detail.quantity) {
-                    carts[isExistIndex].quantity = carts[isExistIndex].detail.quantity;
-                }
-            } else {
-                carts.push({ quantity: item.quantity, _id: item._id, detail: item.detail });
+              // Tăng số lượng sản phẩm
+              carts[isExistIndex].quantity += item.quantity;
+          
+              // Kiểm tra nếu số lượng vượt quá số lượng tồn kho
+              if (carts[isExistIndex].quantity > carts[isExistIndex].detail.quantity) {
+                // Đặt lại số lượng = số lượng tồn kho tối đa
+                carts[isExistIndex].quantity = carts[isExistIndex].detail.quantity;
+              }
+            } 
+            // Nếu sản phẩm chưa có trong giỏ hàng
+            else {
+              // Thêm sản phẩm mới vào giỏ hàng
+              carts.push({ 
+                quantity: item.quantity, 
+                _id: item._id, 
+                detail: item.detail 
+              });
             }
-
-            // Cập nhật giỏ hàng
+          
+            // Cập nhật lại state giỏ hàng
             state.carts = carts;
             message.success("Sản phẩm đã được thêm vào Giỏ hàng");
         },

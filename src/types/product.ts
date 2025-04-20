@@ -14,6 +14,16 @@ interface Product {
     }[]
 }
 
+export interface ProductQueryParameters {
+    pageIndex?: number;
+    pageSize?: number;
+    sort?: string;
+    category?: string;
+    priceFrom?: number;
+    priceTo?: number;
+    searchTerm?: string;
+}
+
 export interface CreateAProduct {
     name: string;
     description?: string;

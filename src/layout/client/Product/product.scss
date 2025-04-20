@@ -1,5 +1,14 @@
 @import "react-image-gallery/styles/css/image-gallery.css";
 
+.home-container .view-detail-Product{
+  min-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: #f9f9f9; 
+}
+
 .view-detail-Product {
   .original-image,
   .thumbnail-image {

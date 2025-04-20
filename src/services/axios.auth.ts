@@ -26,5 +26,12 @@ export const authApi = {
   }) {
     return axios.post(`${url}/register`, data);
   },
+  callUpdatePassword(email: string, oldpass: string, newpass: string) {
+    return axios.post(`${url}/change-password`, {
+      email,
+      oldpass,
+      newpass,
+    });
+  },
   
 }

@@ -98,25 +98,24 @@ const Header = (props: { searchTerm: string; setSearchTerm: (value: string) => v
             <div className="header-container">
                 <header className="page-header">
                     <div className="page-header__top">
-                        <div
+                        {/* <div
                             className="page-header__toggle"
-                            onClick={() => setOpenDrawer(true)}
+                           
                         >
-                            ☰
-                        </div>
+                        </div> */}
                         <div className="page-header__logo">
                             <span className="logo">
                                 <span onClick={() => navigate('/')}>
-                                    <FaReact className="rotate icon-react" />
-                                    Hoàng Gia Quy Nhơn
+                                    <img src="/logo-new.webp" alt="Logo" style={{ marginRight: 30 }} height={50}/>                               
                                 </span>
                                 <VscSearchFuzzy className="icon-search" />
                             </span>
                             <input
                                 className="input-search"
                                 type="text"
-                                placeholder="Bạn tìm gì hôm nay"
+                                placeholder="Hôm nay bạn muốn ăn gì?"
                                 value={props.searchTerm}
+                                style={{ width: '600px', borderRadius: '5px', height: '40px', padding: '0 10px' }}
                                 onChange={(e) => props.setSearchTerm(e.target.value)}
                             />
                         </div>

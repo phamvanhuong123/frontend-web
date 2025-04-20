@@ -1,6 +1,11 @@
-.homepage-container {
-    padding: 0 15px;
-}
+.home-container {
+    min-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: #f9f9f9; 
+  }
 
 .customize-row {
     display: flex;

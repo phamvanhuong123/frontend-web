@@ -50,16 +50,10 @@ export const userApi = {
       avatar,
     });
   },
-  callUpdatePassword(email: string, oldpass: string, newpass: string) {
-    return axios.post(`${url}/auth/change-password`, {
-      email,
-      oldpass,
-      newpass,
-    });
-  },
+
 };
 
-// Đăng xuất
+
 
 
 

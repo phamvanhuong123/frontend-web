@@ -1,5 +1,5 @@
-import { Row, Col, Rate, Divider, Breadcrumb } from "antd";
-import "./product.scss";
+import { Row, Col, Rate, Divider, Breadcrumb, message } from "antd";
+import "./ViewDetail.scss";
 import ImageGallery from "react-image-gallery";
 import { useRef, useState } from "react";
 import ModalGallery from "./ModalGallery";
@@ -9,25 +9,45 @@ import ProductLoader from "./ProductLoader";
 import { useDispatch } from "react-redux";
 import { doAddProductAction } from "../../../redux/order/orderSlice";
 import { Link, useNavigate } from "react-router-dom";
+import { getImageUrl } from "../../../config/config";
 
 interface ViewDetailProps {
-  dataProduct: {
-    id: string;
-    name: string;
-    manufacturerName: string;
-    price: number;
-    sold: number;
-    quantity: number;
-    items: { original: string; thumbnail: string }[];
-  };
-}
+    dataProduct: {
+      id: string;
+      name: string;
+      description: string;
+      price: number;
+      isActive: boolean;
+      categoryName: string;
+      manufacturerName: string;
+      discountName: string | null;
+      slug: string;
+      quantity: number | null;
+      sold: number | null;
+      images: {
+        id: string;
+        productId: string;
+        url: string;
+        altText: string;
+        displayOrder: number;
+      }[];
+    };
+  }
+  
 
 const ViewDetail: React.FC<ViewDetailProps> = ({ dataProduct }) => {
   const [isOpenModalGallery, setIsOpenModalGallery] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [currentQuantity, setCurrentQuantity] = useState(1);
   const refGallery = useRef<any>(null);
-  const images = dataProduct?.items ?? [];
+  const images = dataProduct?.images?.map((image) => {
+    console.log("image.url", image.url);
+    return {
+      original: getImageUrl(image.url),
+      thumbnail: getImageUrl(image.url), // Có thể sử dụng hình nhỏ khác nếu có
+      alt: image.altText,
+    };
+  }) ?? [];
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -44,7 +64,7 @@ const ViewDetail: React.FC<ViewDetailProps> = ({ dataProduct }) => {
       setCurrentQuantity(currentQuantity - 1);
     }
     if (type === "PLUS") {
-      if (currentQuantity >= dataProduct.quantity) return;
+      if (dataProduct.quantity !== null && currentQuantity >= dataProduct.quantity) return;
       setCurrentQuantity(currentQuantity + 1);
     }
   };
@@ -54,7 +74,7 @@ const ViewDetail: React.FC<ViewDetailProps> = ({ dataProduct }) => {
     if (
       !isNaN(parsedValue) &&
       parsedValue > 0 &&
-      parsedValue <= dataProduct.quantity
+      (dataProduct.quantity === null || parsedValue <= dataProduct.quantity)
     ) {
       setCurrentQuantity(parsedValue);
     }
@@ -62,6 +82,7 @@ const ViewDetail: React.FC<ViewDetailProps> = ({ dataProduct }) => {
 
   const handleAddToCart = (quantity: number, Product: any) => {
     dispatch(doAddProductAction({ quantity, detail: Product, id: Product.id }));
+    message.success("Sản phẩm đã được thêm vào Giỏ hàng");
   };
 
   const handleBuyNow = (quantity: number, Product: any) => {
@@ -123,7 +144,7 @@ const ViewDetail: React.FC<ViewDetailProps> = ({ dataProduct }) => {
                 </Col>
                 <Col span={24}>
                   <div className="manufacturerName">
-                    Tác giả: <a href="#">{dataProduct?.manufacturerName}</a>
+                    Nhà cung cấp: <a href="#">{dataProduct?.manufacturerName}</a>
                   </div>
                   <div className="title">{dataProduct?.name}</div>
                   <div className="rating">
@@ -199,7 +220,7 @@ const ViewDetail: React.FC<ViewDetailProps> = ({ dataProduct }) => {
         currentIndex={currentIndex}
         items={images}
         title={dataProduct?.name}
-      />
+        />
     </div>
   );
 };
