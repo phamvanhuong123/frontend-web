@@ -30,23 +30,26 @@ import AddOrder from "~/pages/admin/OrderManagement/AddOrder/AddOrder";
 import ViewDetail from "~/layout/client/Product/ViewDetail";
 import ProtectedRoute from "~/layout/client/ProtectedRoute";
 
-import Product from "~/pages/client/product";
+import ProductPage from "~/pages/client/product";
+import OrderPage from "~/pages/client/order";
 export default function Router() {
   const routes = useRoutes([
     {
       path: "/",
       element: <LayoutClient />,
-      children: [   
+      children: [
         { path: "", element: <Home /> },
-        { path: "product/:id", element: <Product /> },
+        { path: "product/:id", element: <ProductPage /> },
+        { path: "orders", element: <OrderPage /> },
       ],
     },
     {
       path: "/admin",
-      element:  
+      element: (
         <ProtectedRoute>
           <LayoutDefault />
-        </ProtectedRoute>,
+        </ProtectedRoute>
+      ),
       children: [
         { path: "", element: <Dashboard /> },
         { path: "users", element: <Users /> },

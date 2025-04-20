@@ -4,33 +4,35 @@ import NotPermitted from "./NotPermitted";
 import { RootState } from "~/redux/account/accountSlice";
 
 interface Props {
-    children: React.ReactNode;
+  children: React.ReactNode;
 }
 
 const ProtectedRoute = ({ children }: Props) => {
-    const location = useLocation();
-    const user = useSelector((state: RootState) => state.account.user);
-    const isAuthenticated = useSelector((state: RootState) => state.account.isAuthenticated);
+  const location = useLocation();
+  const user = useSelector((state: RootState) => state.account.user);
+  const isAuthenticated = useSelector(
+    (state: RootState) => state.account.isAuthenticated
+  );
 
-    const isAdminRoute = location.pathname.startsWith("/admin");
+  const isAdminRoute = location.pathname.startsWith("/admin");
 
-    if (!isAuthenticated) {
-        return <Navigate to="/login" replace />;
-    }
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
 
-    // ADMIN: toàn quyền
-    if (user?.role === "ADMIN") {
-        return <>{children}</>;
-    }
+  // ADMIN: toàn quyền
+  if (user?.role === "ADMIN" || user?.role === "STAFF") {
+    return <>{children}</>;
+  }
 
-    // USER: chỉ được vào route client, cấm /admin
-    if (user?.role === "USER") {
-        if (isAdminRoute) return <NotPermitted />;
-        return <>{children}</>;
-    }
+  // USER: chỉ được vào route client, cấm /admin
+  if (user?.role === "CUSTOMER") {
+    if (isAdminRoute) return <NotPermitted />;
+    return <>{children}</>;
+  }
 
-    // Nếu role không hợp lệ
-    return <NotPermitted />;
+  // Nếu role không hợp lệ
+  return <NotPermitted />;
 };
 
 export default ProtectedRoute;
