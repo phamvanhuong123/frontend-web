@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     Box,
     Paper,
@@ -10,88 +10,73 @@ import {
     Button,
     Divider,
     FormLabel,
+    MenuItem,
+    Select,
+    FormControl
 } from '@mui/material';
-
+import axios from 'axios';
+import { SelectChangeEvent } from '@mui/material/Select';
 function Checkout() {
     const [paymentMethod, setPaymentMethod] = useState('cod');
     const [formData, setFormData] = useState({
         name: '',
         phone: '',
         address: '',
+        province: ''
     });
-    const [errors, setErrors] = useState({
-        name: '',
-        phone: '',
-        address: '',
-    });
+    const [provinces, setProvinces] = useState([]);
 
+    useEffect(() => {
+        axios.get('https://provinces.open-api.vn/api/p/')
+            .then(res => setProvinces(res.data))
+            .catch(err => console.error(err));
+    }, []);
+
+    const handleChange = (
+        e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | { name?: string; value: unknown }>
+    ) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({ ...prev, [name as string]: value }));
+    };
+
+    const validatePhone = (phone: string) => {
+        const trimmed = phone.trim();
+        return /^0\d{10}$/.test(trimmed); // 11 chữ số, bắt đầu bằng 0
+    };
+
+    const handleSubmit = () => {
+        if (!formData.name.trim() || !formData.phone.trim() || !formData.address.trim() || !formData.province) {
+            alert('Vui lòng điền đầy đủ thông tin');
+            return;
+        }
+
+        if (!validatePhone(formData.phone)) {
+            alert('Số điện thoại không hợp lệ. Vui lòng nhập đủ 11 số và bắt đầu bằng 0.');
+            return;
+        }
+
+        alert('Đơn hàng đã được gửi!');
+    };
+    const handleSelectChange = (e: SelectChangeEvent) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({ ...prev, [name]: value }));
+    };
     const totalItems = 4;
     const subtotal = 1029000;
     const total = 1029000;
 
-    const validate = () => {
-        const newErrors = {
-            name: '',
-            phone: '',
-            address: '',
-        };
-        let isValid = true;
-
-        if (formData.name.trim() === '') {
-            newErrors.name = 'Vui lòng nhập họ tên';
-            isValid = false;
-        }
-
-        const trimmedPhone = formData.phone.trim();
-        if (trimmedPhone === '') {
-            newErrors.phone = 'Vui lòng nhập số điện thoại';
-            isValid = false;
-        } else if (!/^\d{11}$/.test(trimmedPhone)) {
-            newErrors.phone = 'Số điện thoại phải có đúng 11 chữ số';
-            isValid = false;
-        }
-
-        if (formData.address.trim() === '') {
-            newErrors.address = 'Vui lòng nhập địa chỉ nhận hàng';
-            isValid = false;
-        }
-
-        setErrors(newErrors);
-        return isValid;
-    };
-
-    const handleChange = (
-        e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-    ) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
-    };
-
-    const handleSubmit = () => {
-        if (validate()) {
-            alert('Đơn hàng đã được gửi!');
-            // Xử lý submit thật ở đây
-        }
-    };
-
     return (
         <Box sx={{ maxWidth: 500, mx: 'auto', p: 3 }}>
             <Paper elevation={3} sx={{ p: 3 }}>
-                <FormLabel component="legend" sx={{ mb: 1 }}>
-                    Hình thức thanh toán
-                </FormLabel>
+                <FormLabel component="legend" sx={{ mb: 1 }}>Hình thức thanh toán</FormLabel>
                 <RadioGroup
                     value={paymentMethod}
-                    onChange={e => setPaymentMethod(e.target.value)}
+                    onChange={(e) => setPaymentMethod(e.target.value)}
                     sx={{ mb: 2 }}
                 >
-                    <FormControlLabel
-                        value="cod"
-                        control={<Radio color="primary" />}
-                        label="Thanh toán khi nhận hàng"
-                    />
+                    <FormControlLabel value="cod" control={<Radio color="primary" />} label="Thanh toán khi nhận hàng" />
                     <FormControlLabel value="bank" control={<Radio />} label="Chuyển khoản ngân hàng" />
-                    <FormControlLabel value="wallet" control={<Radio />} label="Chuyển khoản thông qua ví điện tử" />
+                    <FormControlLabel value="e-wallet" control={<Radio />} label="Chuyển khoản qua ví điện tử" />
                 </RadioGroup>
 
                 <TextField
@@ -100,8 +85,7 @@ function Checkout() {
                     name="name"
                     value={formData.name}
                     onChange={handleChange}
-                    error={!!errors.name}
-                    helperText={errors.name}
+                    required
                     sx={{ mb: 2 }}
                 />
                 <TextField
@@ -110,20 +94,34 @@ function Checkout() {
                     name="phone"
                     value={formData.phone}
                     onChange={handleChange}
-                    error={!!errors.phone}
-                    helperText={errors.phone}
+                    required
                     sx={{ mb: 2 }}
                 />
+                <p>Địa chỉ giao hàng</p>
+                <FormControl fullWidth sx={{ mb: 2 }}>
+                    <p>Tỉnh/Thành phố</p>
+                    <Select
+                        name="province"
+                        value={formData.province}
+                        onChange={handleSelectChange}
+                        required
+                    >
+                        {provinces.map((province: any) => (
+                            <MenuItem key={province.code} value={province.name}>
+                                {province.name}
+                            </MenuItem>
+                        ))}
+                    </Select>
+                </FormControl>
                 <TextField
                     fullWidth
-                    label="* Địa chỉ nhận hàng"
+                    label="* Địa chỉ chi tiết"
                     name="address"
                     value={formData.address}
                     onChange={handleChange}
+                    required
                     multiline
                     rows={3}
-                    error={!!errors.address}
-                    helperText={errors.address}
                     sx={{ mb: 2 }}
                 />
 
@@ -135,9 +133,7 @@ function Checkout() {
                 </Box>
 
                 <Box display="flex" justifyContent="space-between" mb={2}>
-                    <Typography variant="h6" fontWeight="bold">
-                        Tổng tiền
-                    </Typography>
+                    <Typography variant="h6" fontWeight="bold">Tổng tiền</Typography>
                     <Typography variant="h6" fontWeight="bold" color="error">
                         {total.toLocaleString()} đ
                     </Typography>
