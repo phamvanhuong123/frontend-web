@@ -38,4 +38,21 @@ export interface CreateAProduct {
         url: string
     }[]
 }
+
+export interface DetailAProduct {
+    id: string;
+    name: string;
+    description?: string;
+    price: number;
+    isActive: boolean;
+    categoryName: string;         
+    manufacturerName: string;
+    discountName: string;
+    images: {
+        id: string;
+        productId: string;
+        url: string;
+    }[];
+}
+
 export default Product

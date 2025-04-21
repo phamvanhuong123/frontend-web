@@ -24,6 +24,8 @@ import CreatePostForm from "~/pages/admin/PostManagement/CreatePost/CreatePost";
 import EditPost from "~/pages/admin/PostManagement/EditPost/EditPost";
 import DetailPost from "~/pages/admin/PostManagement/DetailPost/DetailPost";
 import DeletePost from "~/pages/admin/PostManagement/DeletePost/DeletePost";
+import DetailProduct from "~/pages/admin/ProductManagement/DetailProduct/DetailProduct";
+import EditProduct from "~/pages/admin/ProductManagement/EditProduct/EditProduct";
 
 const adminRoutes = {
   path: "/admin",
@@ -39,6 +41,8 @@ const adminRoutes = {
     { path: "orders/edit/:id", element: <EditOrder /> },
     { path: "products", element: <Products /> },
     { path: "products/create", element: <CreateProduct /> },
+    { path: "products/detail/:id", element: <DetailProduct /> },
+    { path: "products/edit/:id", element: <EditProduct /> },
     { path: "categories", element: <Categories /> },
     { path: "categories/create", element: <CreateCategory /> },
     { path: "categories/edit/:id", element: <EditCategory /> },

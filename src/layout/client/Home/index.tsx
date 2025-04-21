@@ -16,11 +16,12 @@ import {
   Breadcrumb,
 } from "antd";
 import { useEffect, useState } from "react";
-import { Link, useNavigate, useOutletContext } from "react-router-dom";
+import { Link, Route, useNavigate, useOutletContext } from "react-router-dom";
 import { callFetchCategory, productApi } from "../../../services/axios.product";
 import { getImageUrl } from "../../../config/config";
 import MobileFilter from "./MobileFilter";
 import { ProductQueryParameters } from "~/types/product";
+import ProductPage from "~/pages/client/product";
 
 const Home = () => {
   const [searchTerm, setSearchTerm] =
@@ -149,18 +150,26 @@ const Home = () => {
     { key: "sort=-price", label: `Giá Cao Đến Thấp` },
   ];
 
-  const handleRedirectProduct = (product: any) => {
-    const slug = product.name
-      ? product.name
-          .toLowerCase()
-          .replace(/[^\w\s-]/g, '') 
-          .replace(/\s+/g, '-')     
-          .replace(/-+/g, '-')      
-      : '';
-    
-    // URL format: /product/ID-SLUG
-    navigate(`/product/${slug}`);
+  const removeVietnameseTones = (str: string) => {
+    return str
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '') // xóa dấu
+      .replace(/đ/g, 'd')
+      .replace(/Đ/g, 'D');
   };
+  
+  const handleRedirectProduct = (product: any) => {
+    const name = product.name ?? '';
+    
+    const slug = removeVietnameseTones(name)
+      .toLowerCase()
+      .replace(/[^\w\s-]/g, '')  
+      .replace(/\s+/g, '-')     
+      .replace(/-+/g, '-');      
+    navigate(`/products?slug=${slug}`);
+  };
+  
+  
 
   return (
     <>
@@ -279,10 +288,10 @@ const Home = () => {
                       >
                         <div className="wrapper">
                           <div className="thumbnail">
-                            <img
-                              src={getImageUrl(item.thumbnail)}
-                              alt={item.name}
-                            />
+                          <img
+                            src={getImageUrl(item.images?.[0]?.url)}
+                            alt={item.name}
+                          />
                           </div>
                           <div className="text" title={item.name}>
                             {item.name}

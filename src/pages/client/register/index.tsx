@@ -12,7 +12,7 @@ const RegisterPage: React.FC = () => {
         const {email, password, name, phone } = values;
         setIsSubmit(true);
         try {
-            debugger
+            
             const res = await authApi.callRegister({ Email: email, Password: password, Name: name, Phone: phone });
             if (res?.data?.user?.id) {
                 message.success('Đăng ký tài khoản thành công!'); 

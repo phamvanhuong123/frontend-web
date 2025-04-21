@@ -1,5 +1,5 @@
 import axios from "./axios.customize";
-import Product, { ProductQueryParameters } from '~/types/product';
+import Product, { CreateAProduct, DetailAProduct, ProductQueryParameters } from '~/types/product';
 
 const BASE_URL = "/api/v1/ecommerce";
 const BASE_URLv2 = "/api/v2/ecommerce";
@@ -10,7 +10,7 @@ export const productApi = {
     },
 
     CreateProduct(formData: FormData){
-        return axios.post(BASE_URL, formData)
+        return axios.post(`${BASE_URL}/products`, formData)
     },
     callFetchProductById(id: string) {
         return axios.get(`${BASE_URL}/products/${id}`);
@@ -20,8 +20,25 @@ export const productApi = {
         return response.data;
     },
     //lây hình ảnh bằng slug
-    callFetchProductBySlug(slug: string) {
-        return axios.get(`${BASE_URLv2}/products/${slug}`);
+    callFetchProductBySlug: async (slug: string) => {
+        return await axios.get(`${BASE_URLv2}/products`, {
+          params: { slug },
+        });
+    },
+    //xoa sản phẩm
+    deleteProduct: async (id: string) => {
+        return await axios.delete(`${BASE_URL}/products/${id}`);
+    },
+    //lấy theo id
+    getById: async (id: string) => {
+        return await axios.get<Product>(`${BASE_URL}/products/${id}`);
+    },
+    getByIdHaveId: async (id: string) => {
+        return await axios.get<DetailAProduct>(`${BASE_URL}/products/${id}`).then(res => res.data);;
+    },
+    //cập nhật sản phẩm
+    updateProduct: async (id: string, formData: FormData) => {
+        return await axios.put<Product>(`${BASE_URL}/products/${id}`, formData);
     },
 };
 

@@ -8,7 +8,7 @@ const clientRoutes = {
   element: <LayoutClient />,
   children: [
     { path: "", element: <Home /> },
-    { path: "product/:slug", element: <ProductPage /> },
+    { path: "products", element: <ProductPage /> },
     { path: "orders", element: <OrderPage /> },
   ],
 };
