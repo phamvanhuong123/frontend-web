@@ -1,69 +1,80 @@
 import React, { useEffect, useState } from 'react';
 import {
-    Box,
-    Paper,
-    TextField,
-    Typography,
-    RadioGroup,
-    FormControlLabel,
-    Radio,
-    Button,
-    Divider,
-    FormLabel,
-    MenuItem,
-    Select,
-    FormControl
+    Box, Paper, TextField, Typography, RadioGroup,
+    FormControlLabel, Radio, Button, Divider,
+    FormLabel, FormControl, InputLabel, Select, MenuItem
 } from '@mui/material';
 import axios from 'axios';
 import { SelectChangeEvent } from '@mui/material/Select';
+
 function Checkout() {
     const [paymentMethod, setPaymentMethod] = useState('cod');
+    const [provinces, setProvinces] = useState<any[]>([]);
+    const [districts, setDistricts] = useState<any[]>([]);
+    const [wards, setWards] = useState<any[]>([]);
+
     const [formData, setFormData] = useState({
         name: '',
         phone: '',
-        address: '',
-        province: ''
+        province: '',
+        district: '',
+        ward: '',
+        address: ''
     });
-    const [provinces, setProvinces] = useState([]);
 
+    const totalItems = 4;
+    const subtotal = 1029000;
+    const total = 1029000;
+
+    // Load provinces on mount
     useEffect(() => {
-        axios.get('https://provinces.open-api.vn/api/p/')
+        axios.get('https://provinces.open-api.vn/api/?depth=1')
             .then(res => setProvinces(res.data))
             .catch(err => console.error(err));
     }, []);
 
-    const handleChange = (
-        e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | { name?: string; value: unknown }>
-    ) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name as string]: value }));
-    };
+    // Load districts when province changes
+    useEffect(() => {
+        if (formData.province) {
+            const selected = provinces.find(p => p.name === formData.province);
+            if (selected) {
+                axios.get(`https://provinces.open-api.vn/api/p/${selected.code}?depth=2`)
+                    .then(res => setDistricts(res.data.districts))
+                    .catch(err => console.error(err));
+            }
+        } else {
+            setDistricts([]);
+            setWards([]);
+        }
+    }, [formData.province]);
 
-    const validatePhone = (phone: string) => {
-        const trimmed = phone.trim();
-        return /^0\d{10}$/.test(trimmed); // 11 chữ số, bắt đầu bằng 0
+    // Load wards when district changes
+    useEffect(() => {
+        if (formData.district) {
+            const selected = districts.find(d => d.name === formData.district);
+            if (selected) {
+                axios.get(`https://provinces.open-api.vn/api/d/${selected.code}?depth=2`)
+                    .then(res => setWards(res.data.wards))
+                    .catch(err => console.error(err));
+            }
+        } else {
+            setWards([]);
+        }
+    }, [formData.district]);
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | SelectChangeEvent) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({
+            ...prev,
+            [name]: value,
+            ...(name === 'province' && { district: '', ward: '' }),
+            ...(name === 'district' && { ward: '' })
+        }));
     };
 
     const handleSubmit = () => {
-        if (!formData.name.trim() || !formData.phone.trim() || !formData.address.trim() || !formData.province) {
-            alert('Vui lòng điền đầy đủ thông tin');
-            return;
-        }
-
-        if (!validatePhone(formData.phone)) {
-            alert('Số điện thoại không hợp lệ. Vui lòng nhập đủ 11 số và bắt đầu bằng 0.');
-            return;
-        }
-
         alert('Đơn hàng đã được gửi!');
     };
-    const handleSelectChange = (e: SelectChangeEvent) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
-    };
-    const totalItems = 4;
-    const subtotal = 1029000;
-    const total = 1029000;
 
     return (
         <Box sx={{ maxWidth: 500, mx: 'auto', p: 3 }}>
@@ -97,22 +108,52 @@ function Checkout() {
                     required
                     sx={{ mb: 2 }}
                 />
-                <p>Địa chỉ giao hàng</p>
+
                 <FormControl fullWidth sx={{ mb: 2 }}>
-                    <p>Tỉnh/Thành phố</p>
+                    <InputLabel>* Tỉnh/Thành phố</InputLabel>
                     <Select
                         name="province"
                         value={formData.province}
-                        onChange={handleSelectChange}
+                        label="* Tỉnh/Thành phố"
+                        onChange={handleChange}
                         required
                     >
-                        {provinces.map((province: any) => (
-                            <MenuItem key={province.code} value={province.name}>
-                                {province.name}
-                            </MenuItem>
+                        {provinces.map((p) => (
+                            <MenuItem key={p.code} value={p.name}>{p.name}</MenuItem>
                         ))}
                     </Select>
                 </FormControl>
+
+                <FormControl fullWidth sx={{ mb: 2 }} disabled={!districts.length}>
+                    <InputLabel>* Quận/Huyện</InputLabel>
+                    <Select
+                        name="district"
+                        value={formData.district}
+                        label="* Quận/Huyện"
+                        onChange={handleChange}
+                        required
+                    >
+                        {districts.map((d) => (
+                            <MenuItem key={d.code} value={d.name}>{d.name}</MenuItem>
+                        ))}
+                    </Select>
+                </FormControl>
+
+                <FormControl fullWidth sx={{ mb: 2 }} disabled={!wards.length}>
+                    <InputLabel>* Phường/Xã</InputLabel>
+                    <Select
+                        name="ward"
+                        value={formData.ward}
+                        label="* Phường/Xã"
+                        onChange={handleChange}
+                        required
+                    >
+                        {wards.map((w) => (
+                            <MenuItem key={w.code} value={w.name}>{w.name}</MenuItem>
+                        ))}
+                    </Select>
+                </FormControl>
+
                 <TextField
                     fullWidth
                     label="* Địa chỉ chi tiết"
