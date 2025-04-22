@@ -7,7 +7,7 @@ interface ManageAccountProps {
     setIsModalOpen: (open: boolean) => void;
 }
 
-const ManageAccount: React.FC<ManageAccountProps> = ({ isModalOpen, setIsModalOpen }) => {
+const ManageAccount = ({ isModalOpen, setIsModalOpen } : ManageAccountProps) => {
     const items = [
         {
             key: 'info',

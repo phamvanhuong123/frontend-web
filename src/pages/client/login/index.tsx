@@ -6,7 +6,7 @@ import { useDispatch } from "react-redux";
 import { doLoginAction } from "../../../redux/account/accountSlice";
 import { authApi } from "~/services/axios.auth";
 
-const LoginPage: React.FC = () => {
+const LoginPage = () => {
   const navigate = useNavigate();
   const [isSubmit, setIsSubmit] = useState(false);
   const dispatch = useDispatch();
