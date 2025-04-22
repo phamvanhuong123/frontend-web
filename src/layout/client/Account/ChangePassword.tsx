@@ -1,7 +1,7 @@
 import { Button, Col, Form, Input, Row, message, notification } from "antd";
 import { useState } from "react";
 import { useSelector } from "react-redux";
-import { callUpdatePassword } from "../../../services/axios.user";
+import { authApi } from "~/services/axios.auth";
 
 const ChangePassword = () => {
     const [form] = Form.useForm();
@@ -12,7 +12,7 @@ const ChangePassword = () => {
         const { email, oldpass, newpass } = values;
         setIsSubmit(true);
         try {
-            const res = await callUpdatePassword(email, oldpass, newpass);
+            const res = await authApi.callUpdatePassword(email, oldpass, newpass);
             if (res && res.data) {
                 message.success("Cập nhật mật khẩu thành công");
                 form.setFieldsValue({ oldpass: "", newpass: "" });

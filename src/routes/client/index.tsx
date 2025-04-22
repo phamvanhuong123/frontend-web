@@ -1,21 +1,16 @@
-import { useRoutes } from "react-router-dom";
-import Home from "~/pages/client/Home/Home";
-import LayoutDefault from "~/layout/client/LayoutDefault/LayoutDefault";
+import LayoutClient from "~/layout/client/LayoutDefault/LayoutDefault";
+import Home from "../../layout/client/Home";
+import ProductPage from "~/pages/client/product";
+import OrderPage from "~/pages/client/order";
 
+const clientRoutes = {
+  path: "/",
+  element: <LayoutClient />,
+  children: [
+    { path: "", element: <Home /> },
+    { path: "products", element: <ProductPage /> },
+    { path: "orders", element: <OrderPage /> },
+  ],
+};
 
-function RouterClient(){
-    const element = useRoutes([
-        {
-            path  : '/',
-            element : <LayoutDefault/>,
-            children : [
-                {
-                    path : '',
-                    element : <Home/>
-                }
-            ]
-        }
-    ]);
-    return element;
-}
-export default RouterClient
+export default clientRoutes;

@@ -1,69 +1,84 @@
 import { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import ViewDetail from "../../../layout/client/Product/ViewDetail";
-import { callFetchProductById } from "../../../services/axios.product";
+import { productApi } from "../../../services/axios.product";
+import { getImageUrl } from "~/config/config";
 
 const ProductPage = () => {
-    const [dataProduct, setDataProduct] = useState<any>(null);
-    const location = useLocation();
+  const [dataProduct, setDataProduct] = useState<any>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const location = useLocation();
+  const params = new URLSearchParams(location.search);
+  const slug = params.get("slug");
 
-    const params = new URLSearchParams(location.search);
-    const id = params?.get("id");
-
-    useEffect(() => {
-        if (id) {
-            fetchProduct(id);
+  
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        
+        setLoading(true);
+        
+        if (!slug) {
+          console.error("Không tìm thấy slug sản phẩm");
+          setLoading(false);
+          return;
         }
-    }, [id]);
-
-    const fetchProduct = async (id: string) => {
-        try {
-            const res = await callFetchProductById(id);
-            if (res && res.data) {
-                const raw = res.data;
-                // Process data
-                raw.items = getImages(raw);
-                setDataProduct(raw);
-            }
-        } catch (error) {
-            console.error("Failed to fetch product:", error);
+        
+        console.log("Fetching product with slug:", slug);
+        const res = await productApi.callFetchProductBySlug(slug);
+        
+        if (res && res.data) {
+          const raw = res.data;
+          raw.items = getImages(raw);
+          setDataProduct(raw);
+        } else {
+          console.error("Không tìm thấy sản phẩm với slug:", slug);
         }
+      } catch (error) {
+        console.error("Failed to fetch product:", error);
+      } finally {
+        setLoading(false);
+      }
     };
+    
+    fetchProduct();
+  }, [slug]); 
 
-    const getImages = (raw: any) => {
-        const images = [];
-        if (raw.thumbnail) {
-            images.push({
-                original: `${import.meta.env.VITE_BACKEND_URL}/images/product/${raw.thumbnail}`,
-                thumbnail: `${import.meta.env.VITE_BACKEND_URL}/images/product/${raw.thumbnail}`,
-                originalClass: "original-image",
-                thumbnailClass: "thumbnail-image",
-            });
-        }
-        if (raw.slider) {
-            raw.slider.forEach((item: string) => {
-                images.push({
-                    original: `${import.meta.env.VITE_BACKEND_URL}/images/product/${item}`,
-                    thumbnail: `${import.meta.env.VITE_BACKEND_URL}/images/product/${item}`,
-                    originalClass: "original-image",
-                    thumbnailClass: "thumbnail-image",
-                });
-            });
-        }
-        return images;
-    };
+  const getImages = (raw: any) => {
+    interface Image {
+      original: string;
+      thumbnail: string;
+    }
+    
+    const images: Image[] = [];
+    if (raw.images && Array.isArray(raw.images)) {
+      raw.images.forEach((image: { id: number; url: string }) => {
+        images.push({
+          original: getImageUrl(image.url),
+          thumbnail: getImageUrl(image.url),
 
-    return (
-        <>
-            {dataProduct ? (
-                <ViewDetail dataProduct={dataProduct} />
-            ) : (
-                <div style={{ textAlign: "center", padding: "20px" }}>
-                    <p>Đang tải sản phẩm...</p>
-                </div>
-            )}
-        </>
-    );
+        });
+      });
+    }
+  
+    return images;
+  };
+
+  return (
+    <>
+      {loading ? (
+        <div style={{ textAlign: "center", padding: "20px" }}>
+          <p>Đang tải sản phẩm...</p>
+        </div>
+      ) : dataProduct ? (
+        <ViewDetail dataProduct={dataProduct} />
+      ) : (
+        <div style={{ textAlign: "center", padding: "20px" }}>
+          <p>Không tìm thấy sản phẩm</p>
+        </div>
+      )}
+    </>
+  );
 };
 
 export default ProductPage;

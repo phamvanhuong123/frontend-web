@@ -14,7 +14,6 @@ export const orderApi = {
   },
   // Cập nhật order
   updateOrder(id: string, order: any) {
-    debugger
     const url = `api/v1/ecommerce/order/${id}`;
     return axios.put(url, order);
   },
@@ -33,14 +32,13 @@ export const orderApi = {
     const url = `api/v1/ecommerce/order/${id}/status`;
     return axios.put(url, { status });
   },
+  callPlaceOrder(data: Record<string, any>) {
+    return axios.post("/api/v1/order", {
+      ...data,
+    });
+  },
 };
 
-export const callPlaceOrder = (data: Record<string, any>) => {
-  return axios.post('/api/v1/order', {
-      ...data
-  })
-}
-
 export const callOrderHistory = () => {
-  return axios.get('/api/v1/history');
-}
+  return axios.get("/api/v1/history");
+};

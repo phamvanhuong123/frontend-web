@@ -68,7 +68,6 @@ function EditCategory() {
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    debugger
     e.preventDefault();
     
     if (!category.name) {

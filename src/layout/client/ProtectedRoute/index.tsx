@@ -1,38 +1,36 @@
 import { useSelector } from "react-redux";
-import { Navigate } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 import NotPermitted from "./NotPermitted";
+import { RootState } from "~/redux/account/accountSlice";
 
-const RoleBaseRoute = (props) => {
-    const isAdminRoute = window.location.pathname.startsWith('/admin');
-    const user = useSelector(state => state.account.user);
-    const userRole = user.role;
-
-    if (isAdminRoute && userRole === 'ADMIN' ||
-        !isAdminRoute && (userRole === 'USER' || userRole === 'ADMIN')
-    ) {
-        return (<>{props.children}</>)
-    } else {
-        return (<NotPermitted />)
-    }
+interface Props {
+  children: React.ReactNode;
 }
 
-const ProtectedRoute = (props) => {
-    const isAuthenticated = useSelector(state => state.account.isAuthenticated)
+const ProtectedRoute = ({ children }: Props) => {
+  const location = useLocation();
+  const { user, isAuthenticated } = useSelector((state: RootState) => state.account);
+  const isAdminRoute = location.pathname.startsWith("/admin");
 
-    return (
-        <>
-            {isAuthenticated === true ?
-                <>
-                    <RoleBaseRoute>
-                        {props.children}
-                    </RoleBaseRoute>
-                </>
-                :
-                <Navigate to='/login' replace />
-            }
-        </>
-    )
-}
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (!user?.role) {
+    return <NotPermitted />;
+  }
+
+  switch (user.role) {
+    case "ADMIN":
+    case "STAFF":
+      return <>{children}</>;
+
+    case "CUSTOMER":
+      return isAdminRoute ? <NotPermitted /> : <>{children}</>;
+
+    default:
+      return <NotPermitted />;
+  }
+};
 
 export default ProtectedRoute;
-

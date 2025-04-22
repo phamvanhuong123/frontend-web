@@ -25,12 +25,14 @@ import {
   Undo,
   DoneAll,
   Print,
+  HelpOutline,
 } from "@mui/icons-material";
 import { toast } from "react-toastify";
 import { useTheme } from "@mui/material/styles";
 import { useNavigate, useParams } from "react-router-dom";
 import { orderApi } from "~/services/axios.order";
 import Order from "~/types/order";
+import { JSX } from "@emotion/react/jsx-runtime";
 
 const statusMap: Record<
   string,
@@ -103,6 +105,7 @@ const EditOrder = () => {
   };
 
   const handlePrintInvoice = () => {
+    toast.info("Đang mở giao diện in...");
     window.print();
   };
 
@@ -127,6 +130,11 @@ const EditOrder = () => {
       </Box>
     );
   }
+  const currentStatus = statusMap[order.status] || {
+    label: "Không xác định",
+    color: "default",
+    icon: <HelpOutline />,
+  };
 
   return (
     <Container maxWidth="md">
@@ -186,9 +194,9 @@ const EditOrder = () => {
               <Box>
                 <Typography fontWeight={600}>Trạng thái hiện tại</Typography>
                 <Chip
-                  icon={statusMap[order.status].icon}
-                  label={statusMap[order.status].label}
-                  color={statusMap[order.status].color}
+                  icon={currentStatus.icon}
+                  label={currentStatus.label}
+                  color={currentStatus.color}
                 />
               </Box>
 
@@ -242,14 +250,17 @@ const EditOrder = () => {
 
               <Box textAlign="right" mt={2}>
                 <Typography
-                  variant="h6"
+                  variant="h5"
                   sx={{
-                    color: "primary.main",
-                    fontWeight: 700,
-                    fontSize: "1.25rem",
+                    color: "success.main",
+                    fontWeight: 600,
+                    backgroundColor: "rgba(0, 128, 0, 0.05)",
+                    px: 2,
+                    py: 1,
+                    borderRadius: 2,
                   }}
                 >
-                  Tổng tiền đơn hàng: {formatCurrency(order.totalAmount)}
+                  Tổng tiền: {formatCurrency(order.totalAmount)}
                 </Typography>
               </Box>
 

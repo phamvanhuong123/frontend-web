@@ -19,7 +19,6 @@ function CreateManufacture() {
         name: "",
         phoneNumber: "",
         address: "",
-        isActive: true,
     });
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {

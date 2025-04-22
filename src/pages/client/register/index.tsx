@@ -1,20 +1,21 @@
 import { Button, Divider, Form, Input, message, notification } from 'antd';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { callRegister } from '../../../services/axios.user';
 import './register.scss';
+import { authApi } from '~/services/axios.auth';
 
 const RegisterPage: React.FC = () => {
     const navigate = useNavigate();
     const [isSubmit, setIsSubmit] = useState(false);
 
-    const onFinish = async (values: { fullName: string; email: string; password: string; phone: string }) => {
-        const { fullName, email, password, phone } = values;
+    const onFinish = async (values: { name: string; email: string; password: string; phone: string }) => {
+        const {email, password, name, phone } = values;
         setIsSubmit(true);
         try {
-            const res = await callRegister(fullName, email, password, phone);
-            if (res?.data?._id) {
-                message.success('Đăng ký tài khoản thành công!');
+            
+            const res = await authApi.callRegister({ Email: email, Password: password, Name: name, Phone: phone });
+            if (res?.data?.user?.id) {
+                message.success('Đăng ký tài khoản thành công!'); 
                 navigate('/login');
             } else {
                 notification.error({
@@ -51,7 +52,7 @@ const RegisterPage: React.FC = () => {
                             <Form.Item
                                 labelCol={{ span: 24 }}
                                 label="Họ tên"
-                                name="fullName"
+                                name="name"
                                 rules={[{ required: true, message: 'Họ tên không được để trống!' }]}
                             >
                                 <Input />
