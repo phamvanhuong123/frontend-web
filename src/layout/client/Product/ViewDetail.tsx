@@ -87,7 +87,7 @@ const ViewDetail: React.FC<ViewDetailProps> = ({ dataProduct }) => {
 
   const handleBuyNow = (quantity: number, Product: any) => {
     dispatch(doAddProductAction({ quantity, detail: Product, id: Product.id }));
-    navigate("/order");
+    navigate("/orders");
   };
 
   return (
