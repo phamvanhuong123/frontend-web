@@ -5,6 +5,7 @@ import Router from "./routes/Router";
 import { userApi } from "./services/axios.user";
 import { doGetAccountAction } from "./redux/account/accountSlice";
 import Loading from "./layout/client/Loading";
+import { ToastContainer } from "react-toastify";
 
 export default function App() {
   const dispatch = useDispatch();
@@ -36,5 +37,8 @@ export default function App() {
     return <Loading />;
   }
 
-  return <Router />;
+  return <>
+    <Router />
+     <ToastContainer />
+  </>;
 }

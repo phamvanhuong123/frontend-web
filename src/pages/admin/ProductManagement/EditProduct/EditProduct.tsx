@@ -252,7 +252,7 @@ function EditProduct() {
   }
 
   return (
-    <Card sx={{ maxWidth: 800, margin: "auto", mt: 4, p: 2 }}>
+    <Card sx={{width : 600, maxWidth: '100%', margin: "auto", mt: 4, p: 2,overflow : 'auto' }}>
       <CardContent>
         <Typography variant="h5" gutterBottom>
           Chỉnh sửa sản phẩm

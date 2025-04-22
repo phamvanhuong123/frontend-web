@@ -117,10 +117,7 @@ function EditUser() {
 
   return (
     <Card sx={{ 
-        maxWidth: 800, 
-        ml: 10, 
-        mt: 4, 
-        p: 2,
+        width : 600, maxWidth: '100%', margin: "auto", mt: 4, p: 2, overflow : 'auto' 
       }}>
         <CardContent sx={{
           overflowY: 'auto',
