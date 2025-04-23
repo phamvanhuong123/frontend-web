@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { FaReact } from "react-icons/fa";
+import { useEffect, useState } from "react";
 import { FiShoppingCart } from "react-icons/fi";
 import { VscSearchFuzzy } from "react-icons/vsc";
 import {
@@ -12,6 +11,7 @@ import {
   Empty,
   Dropdown,
   Space,
+  List,
 } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, Link } from "react-router-dom";
@@ -107,8 +107,6 @@ const Header = (props: {
         <Empty description="Không có sản phẩm trong giỏ hàng" />
       )}
     </div>
-  ) : (
-    <Empty description="Không có sản phẩm trong giỏ hàng" />
   );
 
   return (
