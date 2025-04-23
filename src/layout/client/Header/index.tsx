@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { FaReact } from "react-icons/fa";
+import { useState, useEffect } from "react";
 import { FiShoppingCart } from "react-icons/fi";
 import { VscSearchFuzzy } from "react-icons/vsc";
 import {
@@ -12,6 +11,7 @@ import {
   Empty,
   Dropdown,
   Space,
+  List,
 } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, Link } from "react-router-dom";
@@ -29,10 +29,20 @@ const Header = (props: {
     (state: any) => state.account.isAuthenticated
   );
   const user = useSelector((state: any) => state.account.user);
-  const carts = useSelector((state: any) => state.order.carts);
+  const [carts, setCarts] = useState<any[]>([]); // state để lưu giỏ hàng
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [showManageAccount, setShowManageAccount] = useState(false);
+
+  useEffect(() => {
+    const storedCarts = localStorage.getItem("cart");
+    if (storedCarts) {
+      const parsedCarts = JSON.parse(storedCarts);
+      if (Array.isArray(parsedCarts)) {
+        setCarts(parsedCarts); // cập nhật giỏ hàng từ localStorage
+      }
+    }
+  }, []);
 
   const handleLogout = async () => {
     await authApi.callLogout();
@@ -40,20 +50,25 @@ const Header = (props: {
     message.success("Đăng xuất thành công");
     navigate("/");
   };
+
   const isAdminOrStaff = () => {
     return user?.role === "ADMIN" || user?.role === "STAFF";
   };
-  // Tạo items cho dropdown dựa trên vai trò người dùng
+
   const generateMenuItems = () => {
-    const adminItem = isAdminOrStaff() 
-      ? [{ key: "admin", label: <Link to="/admin">Quản trị hệ thống</Link> }] 
+    const adminItem = isAdminOrStaff()
+      ? [{ key: "admin", label: <Link to="/admin">Quản trị hệ thống</Link> }]
       : [];
-  
+
     return [
       ...adminItem,
       {
         key: "account",
-        label: <div onClick={() => setShowManageAccount(true)}>Quản lý tài khoản</div>,
+        label: (
+          <div onClick={() => setShowManageAccount(true)}>
+            Quản lý tài khoản
+          </div>
+        ),
       },
       {
         key: "history",
@@ -69,14 +84,34 @@ const Header = (props: {
   // Sử dụng hàm tạo menu items
   const items = generateMenuItems();
 
-  const contentPopover = carts?.length > 0 ? (
-    <div>
-      {carts.map((item: any, index: number) => (
-        <div key={index}>{item.name}</div>
-      ))}
+  // Tạo nội dung Popover hiển thị giỏ hàng
+  const contentPopover = (
+    <div style={{ maxHeight: "300px", overflowY: "auto" }}>
+      {carts.length > 0 ? (
+        <List
+          itemLayout="horizontal"
+          dataSource={carts}
+          renderItem={(item) => (
+            <List.Item>
+              <List.Item.Meta
+                title={<span>{item.name}</span>}
+                description={
+                  <>
+                    <span>Số lượng: {item.quantity}</span>
+                    <br />
+                    <span>
+                      Giá: {(item.price * item.quantity).toLocaleString()}₫
+                    </span>
+                  </>
+                }
+              />
+            </List.Item>
+          )}
+        />
+      ) : (
+        <Empty description="Không có sản phẩm trong giỏ hàng" />
+      )}
     </div>
-  ) : (
-    <Empty description="Không có sản phẩm trong giỏ hàng" />
   );
 
   return (
@@ -122,8 +157,11 @@ const Header = (props: {
                   content={contentPopover}
                   arrow={true}
                 >
-                  <Badge count={carts?.length ?? 0} size="small" showZero>
-                    <FiShoppingCart className="icon-cart" />
+                  <Badge count={carts.length ?? 0} size="small" showZero>
+                    <FiShoppingCart
+                      className="icon-cart"
+                      onClick={() => navigate("/cart")}
+                    />
                   </Badge>
                 </Popover>
               </li>
