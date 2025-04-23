@@ -347,9 +347,9 @@ const Payment: React.FC<PaymentProps> = ({ setCurrentStep }) => {
         // Handle VNPay payment logic here
         // For example, redirect to VNPay payment page
         // get url
-        debugger;
         const paymentData = {
           orderCode: `ORDER-${Date.now()}`,
+          // id: 
           fullName: user?.fullName,
           description: "Thanh toán đơn hàng",
           amount: totalPrice,
