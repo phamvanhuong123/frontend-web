@@ -34,7 +34,7 @@ interface ViewDetailProps {
   };
 }
 
-const ViewDetail = ({ dataProduct } : ViewDetailProps) => {
+const ViewDetail = ({ dataProduct }: ViewDetailProps) => {
   const [isOpenModalGallery, setIsOpenModalGallery] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [currentQuantity, setCurrentQuantity] = useState(1);
@@ -233,6 +233,7 @@ const ViewDetail = ({ dataProduct } : ViewDetailProps) => {
                       <BsCartPlus className="icon-cart" />
                       <span>Thêm vào giỏ hàng</span>
                     </button>
+                    
                     <button
                       className="now"
                       onClick={() => handleBuyNow(currentQuantity, dataProduct)}

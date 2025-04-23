@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { FiShoppingCart } from "react-icons/fi";
 import { VscSearchFuzzy } from "react-icons/vsc";
 import {
@@ -50,20 +50,25 @@ const Header = (props: {
     message.success("Đăng xuất thành công");
     navigate("/");
   };
+
   const isAdminOrStaff = () => {
     return user?.role === "ADMIN" || user?.role === "STAFF";
   };
-  // Tạo items cho dropdown dựa trên vai trò người dùng
+
   const generateMenuItems = () => {
-    const adminItem = isAdminOrStaff() 
-      ? [{ key: "admin", label: <Link to="/admin">Quản trị hệ thống</Link> }] 
+    const adminItem = isAdminOrStaff()
+      ? [{ key: "admin", label: <Link to="/admin">Quản trị hệ thống</Link> }]
       : [];
-  
+
     return [
       ...adminItem,
       {
         key: "account",
-        label: <div onClick={() => setShowManageAccount(true)}>Quản lý tài khoản</div>,
+        label: (
+          <div onClick={() => setShowManageAccount(true)}>
+            Quản lý tài khoản
+          </div>
+        ),
       },
       {
         key: "history",

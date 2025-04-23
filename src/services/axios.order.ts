@@ -4,6 +4,7 @@ import axios from "./axios.customize";
 const URL = "api/v1/ecommerce/order";
 
 export const orderApi = {
+  // Danh sách order
   getAll() {
     return axios.get<Order[]>(URL).then((res) => res.data);
   },
