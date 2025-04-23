@@ -93,13 +93,13 @@ const ViewDetail = ({ dataProduct }: ViewDetailProps) => {
       image: Product.image,
       quantity: quantity,
     };
-
-    // Lấy giỏ hàng hiện tại từ localStorage
+  
+    // Lấy danh sách giỏ hàng hiện tại từ localStorage (nếu có)
     const existingCart = JSON.parse(localStorage.getItem("cart") || "[]");
-
-    // Kiểm tra nếu sản phẩm đã tồn tại
+  
+    // Kiểm tra nếu sản phẩm đã tồn tại trong giỏ hàng
     const index = existingCart.findIndex((item: any) => item.id === Product.id);
-
+  
     if (index !== -1) {
       // Nếu sản phẩm đã tồn tại, tăng số lượng
       existingCart[index].quantity += quantity;
@@ -107,20 +107,17 @@ const ViewDetail = ({ dataProduct }: ViewDetailProps) => {
       // Nếu chưa có, thêm sản phẩm mới
       existingCart.push(newItem);
     }
-
+  
     // Lưu lại giỏ hàng mới vào localStorage
     localStorage.setItem("cart", JSON.stringify(existingCart));
-
-    // Phát sự kiện storage để đồng bộ với các thành phần khác
-    window.dispatchEvent(new Event("storage"));
-
-    // Dùng Redux để sync UI (nếu cần)
+  
+    // Dùng Redux để sync UI:
     dispatch(doAddProductAction({ quantity, detail: Product, id: Product.id }));
-
-    // Hiển thị thông báo thành công
+  
     message.success("Sản phẩm đã được thêm vào Giỏ hàng");
+    console.log("Đã gọi message");
   };
-
+  
   const handleBuyNow = (quantity: number, Product: any) => {
     dispatch(doAddProductAction({ quantity, detail: Product, id: Product.id }));
     navigate("/orders");
