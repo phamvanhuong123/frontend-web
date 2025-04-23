@@ -137,7 +137,7 @@ const Header = (props: {
                 placeholder="Hôm nay bạn muốn ăn gì?"
                 value={props.searchTerm}
                 style={{
-                  width: "600px",
+                  width: "100%",
                   borderRadius: "5px",
                   height: "40px",
                   padding: "0 10px",

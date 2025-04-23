@@ -8,13 +8,13 @@
   }
 
 .customize-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    margin: 20px 0;
+    // display: flex;
+    // flex-wrap: wrap;
+    // gap: 20px;
+    // margin: 20px 0;
 
     .column {
-        width: calc(20% - 16px);
+        
         cursor: pointer;
 
         .wrapper {
@@ -69,18 +69,3 @@
     }
 }
 
-@media screen and (max-width: 768px) {
-    .customize-row {
-        .column {
-            width: calc(50% - 10px);
-        }
-    }
-}
-
-@media screen and (max-width: 576px) {
-    .customize-row {
-        .column {
-            width: 100%;
-        }
-    }
-}

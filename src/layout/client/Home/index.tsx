@@ -279,9 +279,9 @@ const Home = () => {
                     items={items}
                     onChange={(key) => setSortQuery(key)}
                   />
-                  <Row className="customize-row">
+                  <Row className="customize-row" gutter={[10,10]}>
                     {listProduct.map((item) => (
-                      <div
+                      <Col xl={{span : 6}} lg={{span : 8}} sm={{span : 12}} xs={{span : 24}}
                         className="column"
                         key={`product-${item.id}`}
                         onClick={() => handleRedirectProduct(item)}
@@ -311,7 +311,7 @@ const Home = () => {
                             <span>Đã bán {item.sold || 0}</span>
                           </div>
                         </div>
-                      </div>
+                      </Col>
                     ))}
                     {listProduct.length === 0 && !isLoading && (
                       <Empty description="Không có sản phẩm nào" />
