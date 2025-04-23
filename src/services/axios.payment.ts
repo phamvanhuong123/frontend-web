@@ -16,4 +16,10 @@ export const paymentApi = {
   createMomoPayment(order: any) {
     return axios.post(`${URL}/momo`, order).then((res) => res.data);
   },
+  // Xác thực thanh toán VNPay
+  ProcessPaymentResponse(queryParams: any) {
+    return axios
+      .get(`${URL}/vnpay-return`, { params: queryParams })
+      .then((res) => res.data);
+  },
 };
