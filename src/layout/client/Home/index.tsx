@@ -15,13 +15,15 @@ import {
   Empty,
   Breadcrumb,
 } from "antd";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, Route, useNavigate, useOutletContext } from "react-router-dom";
 import { callFetchCategory, productApi } from "../../../services/axios.product";
 import { getImageUrl } from "../../../config/config";
 import MobileFilter from "./MobileFilter";
 import { ProductQueryParameters } from "~/types/product";
 import ProductPage from "~/pages/client/product";
+import { Carousel } from "antd";
+import { LeftOutlined, RightOutlined } from "@ant-design/icons";
 
 const Home = () => {
   const [searchTerm, setSearchTerm] =
@@ -31,7 +33,7 @@ const Home = () => {
     { label: string; value: string }[]
   >([]);
   const [listProduct, setListProduct] = useState<
-    { price: number; [key: string]: any }[]
+    { price: number;[key: string]: any }[]
   >([]);
   const [current, setCurrent] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -58,7 +60,7 @@ const Home = () => {
       if (filter) {
         const filterParams = new URLSearchParams(filter);
         if (filterParams.has("category")) {
-            params.category = filterParams.get("category") || "";
+          params.category = filterParams.get("category") || "";
         }
         if (filter.includes("price>=") && filter.includes("price<=")) {
           const [from, to] = filter.match(/\d+/g) || [];
@@ -94,6 +96,34 @@ const Home = () => {
       setIsLoading(false);
     }
   };
+  //banner
+  const bannerImages = [
+    "/banner1.jpg",
+    "/banner2.jpg",
+    "/banner3.jpg",
+  ];
+  const carouselRef = useRef<any>(null)
+  //New
+  const news = [
+    {
+      id: 1,
+      title: "Giảm giá cực sốc dịp lễ 30/4!",
+      date: "2025-04-20",
+      image: "/new1.jpg",
+    },
+    {
+      id: 2,
+      title: "5 sản phẩm bán chạy nhất tháng 4",
+      date: "2025-04-18",
+      image: "/new2.jpg",
+    },
+    {
+      id: 3,
+      title: "Cập nhật xu hướng mua sắm 2025",
+      date: "2025-04-15",
+      image: "/new3.jpg",
+    },
+  ];
 
   //cate
   const initCategory = async () => {
@@ -157,27 +187,85 @@ const Home = () => {
       .replace(/đ/g, 'd')
       .replace(/Đ/g, 'D');
   };
-  
+
   const handleRedirectProduct = (product: any) => {
     const name = product.name ?? '';
-    
+
     const slug = removeVietnameseTones(name)
       .toLowerCase()
-      .replace(/[^\w\s-]/g, '')  
-      .replace(/\s+/g, '-')     
-      .replace(/-+/g, '-');      
+      .replace(/[^\w\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-');
     navigate(`/products?slug=${slug}`);
   };
-  
-  
+
+
 
   return (
     <>
       <div style={{ background: "#efefef", padding: "20px 0" }}>
         <div
           className="homepage-container"
-          style={{ maxWidth: 1440, margin: "0 auto" }}
+          style={{ maxWidth: 1200, margin: "0 auto" }}
         >
+          <div style={{ position: "relative", marginBottom: 20 }}>
+            {/* Carousel chính có ref */}
+            <Carousel autoplay ref={carouselRef} effect="fade">
+              {bannerImages.map((img, index) => (
+                <div key={index}>
+                  <img
+                    src={img}
+                    alt={`banner-${index}`}
+                    style={{
+                      width: "100%",
+                      height: 400,
+                      objectFit: "cover", // <-- Giữ tỷ lệ gốc, không bị méo
+                      backgroundColor: "#f5f5f5", // Nền sáng cho dễ chịu
+                      borderRadius: 8,
+                    }}
+                  />
+                </div>
+              ))}
+            </Carousel>
+
+            {/* Nút mũi tên trái */}
+            <div
+              style={{
+                position: "absolute",
+                top: "50%",
+                left: 20,
+                transform: "translateY(-50%)",
+                background: "#fff",
+                borderRadius: "50%",
+                padding: 8,
+                boxShadow: "0 2px 6px rgba(0,0,0,0.2)",
+                cursor: "pointer",
+                zIndex: 1,
+              }}
+              onClick={() => carouselRef.current?.prev()}
+            >
+              <LeftOutlined />
+            </div>
+
+            {/* Nút mũi tên phải */}
+            <div
+              style={{
+                position: "absolute",
+                top: "50%",
+                right: 20,
+                transform: "translateY(-50%)",
+                background: "#fff",
+                borderRadius: "50%",
+                padding: 8,
+                boxShadow: "0 2px 6px rgba(0,0,0,0.2)",
+                cursor: "pointer",
+                zIndex: 1,
+              }}
+              onClick={() => carouselRef.current?.next()}
+            >
+              <RightOutlined />
+            </div>
+          </div>
           <Breadcrumb
             style={{ margin: "5px 0" }}
             items={[
@@ -188,14 +276,14 @@ const Home = () => {
           <Row gutter={[20, 20]}>
             <Col md={4} sm={0} xs={0}>
               <div
-                style={{ padding: "20px", background: "#fff", borderRadius: 5 }}
+                style={{ padding: "20px", backgroundColor: "#fff", borderRadius: 6 }}
               >
                 <div
                   style={{ display: "flex", justifyContent: "space-between" }}
                 >
                   <span>
                     <FilterTwoTone />
-                    <span style={{ fontWeight: 500 }}> Bộ lọc tìm kiếm</span>
+                    <span style={{ fontWeight: 500, fontSize: 18 }}> Bộ lọc tìm kiếm</span>
                   </span>
                   <ReloadOutlined
                     title="Reset"
@@ -288,10 +376,10 @@ const Home = () => {
                       >
                         <div className="wrapper">
                           <div className="thumbnail">
-                          <img
-                            src={getImageUrl(item.images?.[0]?.url)}
-                            alt={item.name}
-                          />
+                            <img
+                              src={getImageUrl(item.images?.[0]?.url)}
+                              alt={item.name}
+                            />
                           </div>
                           <div className="text" title={item.name}>
                             {item.name}
@@ -341,8 +429,54 @@ const Home = () => {
             listCategory={listCategory}
             onFinish={onFinish}
           />
+          <div style={{ padding: "40px 0" }}>
+            <h2 style={{ fontSize: 24, fontWeight: 600, marginBottom: 24 }}>
+              📰 Tin Tức Mới Nhất
+            </h2>
+            <Row gutter={[24, 24]}>
+              {news.map((item) => (
+                <Col xs={24} sm={12} md={8} key={item.id}>
+                  <div
+                    style={{
+                      background: "#fff",
+                      borderRadius: 8,
+                      overflow: "hidden",
+                      boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+                      height: "100%",
+                      display: "flex",
+                      flexDirection: "column",
+                    }}
+                  >
+                    <img
+                      src={item.image}
+                      alt={item.title}
+                      style={{ width: "100%", height: 180, objectFit: "contain" }}
+                    />
+                    <div style={{ padding: 16, flex: 1 }}>
+                      <div style={{ color: "#999", fontSize: 13, marginBottom: 8 }}>
+                        {new Date(item.date).toLocaleDateString("vi-VN")}
+                      </div>
+                      <h3
+                        style={{
+                          fontSize: 16,
+                          fontWeight: 600,
+                          color: "#222",
+                          marginBottom: 12,
+                        }}
+                      >
+                        {item.title}
+                      </h3>
+                      <Link to={`/news/${item.id}`} style={{ color: "#1890ff" }}>
+                        Xem thêm &rsaquo;
+                      </Link>
+                    </div>
+                  </div>
+                </Col>
+              ))}
+            </Row>
+          </div>
         </div>
-      </div>
+      </div >
     </>
   );
 };
