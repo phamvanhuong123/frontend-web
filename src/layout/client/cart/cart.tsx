@@ -48,6 +48,9 @@ const Cart: React.FC = () => {
     setCartItems(updated);
     setSelectedRowKeys((prev) => prev.filter((key) => key !== id));
     message.success("Đã xóa sản phẩm khỏi giỏ hàng");
+
+    // Phát sự kiện storage để đồng bộ
+    window.dispatchEvent(new Event("storage"));
   };
 
   const handleQuantityChange = (id: number, newQuantity: number | null) => {
@@ -58,6 +61,9 @@ const Cart: React.FC = () => {
     );
     setCartItems(updated);
     localStorage.setItem("cart", JSON.stringify(updated));
+
+    // Phát sự kiện storage để đồng bộ
+    window.dispatchEvent(new Event("storage"));
   };
 
   const handleRemoveSelected = () => {
@@ -68,6 +74,9 @@ const Cart: React.FC = () => {
     setCartItems(updated);
     setSelectedRowKeys([]);
     message.success("Đã xóa các sản phẩm đã chọn");
+
+    // Phát sự kiện storage để đồng bộ
+    window.dispatchEvent(new Event("storage"));
   };
 
   const handleSelectAll = () => {

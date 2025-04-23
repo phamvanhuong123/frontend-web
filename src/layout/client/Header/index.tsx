@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { FiShoppingCart } from "react-icons/fi";
 import { VscSearchFuzzy } from "react-icons/vsc";
 import {
@@ -29,19 +29,40 @@ const Header = (props: {
     (state: any) => state.account.isAuthenticated
   );
   const user = useSelector((state: any) => state.account.user);
-  const [carts, setCarts] = useState<any[]>([]); // state để lưu giỏ hàng
+  const [cartItems, setCartItems] = useState<any[]>([]); // state để lưu giỏ hàng
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [showManageAccount, setShowManageAccount] = useState(false);
 
+  // Lắng nghe sự thay đổi của localStorage
   useEffect(() => {
-    const storedCarts = localStorage.getItem("cart");
-    if (storedCarts) {
-      const parsedCarts = JSON.parse(storedCarts);
-      if (Array.isArray(parsedCarts)) {
-        setCarts(parsedCarts); // cập nhật giỏ hàng từ localStorage
+    const handleStorageChange = () => {
+      try {
+        const storedCarts = localStorage.getItem("cart");
+        if (storedCarts) {
+          const parsed = JSON.parse(storedCarts);
+          if (Array.isArray(parsed)) {
+            setCartItems(parsed);
+          } else {
+            setCartItems([]);
+          }
+        }
+      } catch (error) {
+        console.error("Lỗi khi đọc localStorage:", error);
+        setCartItems([]);
       }
-    }
+    };
+
+    // Lấy dữ liệu giỏ hàng ban đầu
+    handleStorageChange();
+
+    // Thêm listener để lắng nghe sự thay đổi của localStorage
+    window.addEventListener("storage", handleStorageChange);
+
+    // Xóa listener khi component unmount
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+    };
   }, []);
 
   const handleLogout = async () => {
@@ -87,10 +108,10 @@ const Header = (props: {
   // Tạo nội dung Popover hiển thị giỏ hàng
   const contentPopover = (
     <div style={{ maxHeight: "300px", overflowY: "auto" }}>
-      {carts.length > 0 ? (
+      {cartItems.length > 0 ? (
         <List
           itemLayout="horizontal"
-          dataSource={carts}
+          dataSource={cartItems}
           renderItem={(item) => (
             <List.Item>
               <List.Item.Meta
@@ -157,7 +178,7 @@ const Header = (props: {
                   content={contentPopover}
                   arrow={true}
                 >
-                  <Badge count={carts.length ?? 0} size="small" showZero>
+                  <Badge count={cartItems.length ?? 0} size="small" showZero>
                     <FiShoppingCart
                       className="icon-cart"
                       onClick={() => navigate("/cart")}
