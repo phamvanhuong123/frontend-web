@@ -29,10 +29,20 @@ const Header = (props: {
     (state: any) => state.account.isAuthenticated
   );
   const user = useSelector((state: any) => state.account.user);
-  const carts = useSelector((state: any) => state.order.carts);
+  const [carts, setCarts] = useState<any[]>([]); // state để lưu giỏ hàng
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [showManageAccount, setShowManageAccount] = useState(false);
+
+  useEffect(() => {
+    const storedCarts = localStorage.getItem("cart");
+    if (storedCarts) {
+      const parsedCarts = JSON.parse(storedCarts);
+      if (Array.isArray(parsedCarts)) {
+        setCarts(parsedCarts); // cập nhật giỏ hàng từ localStorage
+      }
+    }
+  }, []);
 
   const handleLogout = async () => {
     await authApi.callLogout();
@@ -69,11 +79,33 @@ const Header = (props: {
   // Sử dụng hàm tạo menu items
   const items = generateMenuItems();
 
-  const contentPopover = carts?.length > 0 ? (
-    <div>
-      {carts.map((item: any, index: number) => (
-        <div key={index}>{item.name}</div>
-      ))}
+  // Tạo nội dung Popover hiển thị giỏ hàng
+  const contentPopover = (
+    <div style={{ maxHeight: "300px", overflowY: "auto" }}>
+      {carts.length > 0 ? (
+        <List
+          itemLayout="horizontal"
+          dataSource={carts}
+          renderItem={(item) => (
+            <List.Item>
+              <List.Item.Meta
+                title={<span>{item.name}</span>}
+                description={
+                  <>
+                    <span>Số lượng: {item.quantity}</span>
+                    <br />
+                    <span>
+                      Giá: {(item.price * item.quantity).toLocaleString()}₫
+                    </span>
+                  </>
+                }
+              />
+            </List.Item>
+          )}
+        />
+      ) : (
+        <Empty description="Không có sản phẩm trong giỏ hàng" />
+      )}
     </div>
   ) : (
     <Empty description="Không có sản phẩm trong giỏ hàng" />
@@ -122,8 +154,11 @@ const Header = (props: {
                   content={contentPopover}
                   arrow={true}
                 >
-                  <Badge count={carts?.length ?? 0} size="small" showZero>
-                    <FiShoppingCart className="icon-cart" />
+                  <Badge count={carts.length ?? 0} size="small" showZero>
+                    <FiShoppingCart
+                      className="icon-cart"
+                      onClick={() => navigate("/cart")}
+                    />
                   </Badge>
                 </Popover>
               </li>

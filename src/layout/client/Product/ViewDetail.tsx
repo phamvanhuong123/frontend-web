@@ -85,10 +85,39 @@ const ViewDetail = ({ dataProduct } : ViewDetailProps) => {
   };
 
   const handleAddToCart = (quantity: number, Product: any) => {
+    // Tạo object sản phẩm cần thêm vào giỏ hàng
+    const newItem = {
+      id: Product.id,
+      name: Product.name,
+      price: Product.price,
+      image: Product.image,
+      quantity: quantity,
+    };
+  
+    // Lấy danh sách giỏ hàng hiện tại từ localStorage (nếu có)
+    const existingCart = JSON.parse(localStorage.getItem("cart") || "[]");
+  
+    // Kiểm tra nếu sản phẩm đã tồn tại trong giỏ hàng
+    const index = existingCart.findIndex((item: any) => item.id === Product.id);
+  
+    if (index !== -1) {
+      // Nếu sản phẩm đã tồn tại, tăng số lượng
+      existingCart[index].quantity += quantity;
+    } else {
+      // Nếu chưa có, thêm sản phẩm mới
+      existingCart.push(newItem);
+    }
+  
+    // Lưu lại giỏ hàng mới vào localStorage
+    localStorage.setItem("cart", JSON.stringify(existingCart));
+  
+    // Dùng Redux để sync UI:
     dispatch(doAddProductAction({ quantity, detail: Product, id: Product.id }));
+  
     message.success("Sản phẩm đã được thêm vào Giỏ hàng");
+    console.log("Đã gọi message");
   };
-
+  
   const handleBuyNow = (quantity: number, Product: any) => {
     dispatch(doAddProductAction({ quantity, detail: Product, id: Product.id }));
     navigate("/orders");
