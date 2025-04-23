@@ -1,44 +1,43 @@
 import Order from "~/types/order";
 import axios from "./axios.customize";
 
+const URL = "api/v1/ecommerce/order";
+
 export const orderApi = {
   // Danh sách order
   getAll() {
-    const url = "api/v1/ecommerce/order";
-    return axios.get<Order[]>(url).then((res) => res.data);
+    return axios.get<Order[]>(URL).then((res) => res.data);
   },
   // Thêm order
   createOrder(order: any) {
-    const url = "api/v1/ecommerce/order";
-    return axios.post(url, order);
+    return axios.post(URL, order);
   },
   // Cập nhật order
   updateOrder(id: string, order: any) {
-    const url = `api/v1/ecommerce/order/${id}`;
+    const url = `${URL}/${id}`;
     return axios.put(url, order);
   },
   // Detele order
   deleteOrder(id: string) {
-    const url = `api/v1/ecommerce/order/${id}`;
+    const url = `${URL}/${id}`;
     return axios.delete(url);
   },
   // Lấy order theo id
   getOrderById(id: string) {
-    const url = `api/v1/ecommerce/order/${id}`;
+    const url = `${URL}/${id}`;
     return axios.get<Order>(url).then((res) => res.data);
   },
   // Cập nhật trạng thái order
   updateOrderStatus(id: string, status: string) {
-    const url = `api/v1/ecommerce/order/${id}/status`;
+    const url = `${URL}/${id}/status`;
     return axios.put(url, { status });
   },
-  callPlaceOrder(data: Record<string, any>) {
-    return axios.post("/api/v1/order", {
-      ...data,
-    });
+  callOrderHistory(userId: string) {
+    return axios.get(`${URL}/${userId}/history`);
   },
-};
-
-export const callOrderHistory = () => {
-  return axios.get("/api/v1/history");
+  // callPlaceOrder(data: Record<string, any>) {
+  //   return axios.post(URL, {
+  //     ...data,
+  //   });
+  // },
 };
