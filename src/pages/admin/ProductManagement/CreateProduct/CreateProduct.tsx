@@ -19,10 +19,13 @@ import Manufacturer from "~/types/manufacture";
 import { manufactureApi } from "~/services/axios.manufacture";
 import { categoryApi } from "~/services/axios.category";
 import DeleteIcon from '@mui/icons-material/Delete';
+import storeApi from "~/services/axios.store";
+import { StoreLocation } from "~/types/store";
 
 function CreateProduct() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [manufacturers, setManufacturers] = useState<Manufacturer[]>([]);
+  const [stores, setStores] = useState<StoreLocation[]>([]);
   const [product, setProduct] = useState<CreateAProduct>({
     name: "",
     description: "",
@@ -31,6 +34,8 @@ function CreateProduct() {
     categoryId: "",
     manufacturerId: "",
     discountId: "",
+    quantity: 0,
+    storeId: "",
     images: []
   });
   const [imageFiles, setImageFiles] = useState<File[]>([]);
@@ -90,6 +95,7 @@ function CreateProduct() {
 
     const fetchApi = async () => {
       try {
+        debugger
         const formData = new FormData();
 
         formData.append("Name", product.name);
@@ -98,6 +104,9 @@ function CreateProduct() {
         formData.append("IsActive", "true");
         formData.append("CategoryId", product.categoryId);
         formData.append("ManufacturerId", product.manufacturerId);
+        formData.append("Quantity", product.quantity.toString());
+        formData.append("StoreId", product.storeId || "");
+
         if (product.discountId) {
           formData.append("DiscountId", product.discountId);
         }
@@ -129,9 +138,11 @@ function CreateProduct() {
       try {
         const manuResponse = await manufactureApi.getAll();
         const catResponse = await categoryApi.getAll();
+        const storeResponse = await storeApi.getAllStores();
 
         setCategories(catResponse);
         setManufacturers(manuResponse);
+        setStores(storeResponse);
       } catch (error) {
         console.error("Lỗi khi tải dữ liệu:", error);
       }
@@ -175,6 +186,16 @@ function CreateProduct() {
               inputProps={{ min: 0 }}
             />
             <TextField
+              fullWidth
+              label="Số lượng"
+              name="quantity"
+              value={product.quantity}
+              onChange={handleChange}
+              required
+              type="number"
+              inputProps={{ min: 0 }}
+            />
+            <TextField
               select
               fullWidth
               label="Danh mục"
@@ -201,6 +222,21 @@ function CreateProduct() {
               {manufacturers.map((manufacturer) => (
                 <MenuItem key={manufacturer.id} value={manufacturer.id}>
                   {manufacturer.name}
+                </MenuItem>
+              ))}
+            </TextField>
+            <TextField
+              select
+              fullWidth
+              label="Cửa hàng phân phối"
+              name="storeId"
+              value={product.storeId}
+              onChange={handleChange}
+              required
+            >
+              {stores.map((storeName) => (
+                <MenuItem key={storeName.id} value={storeName.id}>
+                  {storeName.name}
                 </MenuItem>
               ))}
             </TextField>

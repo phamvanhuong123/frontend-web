@@ -200,9 +200,10 @@ function DetailProduct() {
               )}
             </Box>
 
-            <Typography variant="body1" paragraph>
+            <Typography variant="body1" paragraph style={{ whiteSpace: 'pre-line' }}>
               <strong>Mô tả:</strong> {product.description || "Không có mô tả"}
             </Typography>
+
 
             <Divider sx={{ my: 2 }} />
 

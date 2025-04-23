@@ -7,6 +7,8 @@ interface Product {
     categoryName: string,
     manufacturerName: string,
     discountName: string,
+    quantity: number,
+    storeName: string,
     images: {
         id: string,
         productId: string,
@@ -32,6 +34,8 @@ export interface CreateAProduct {
     categoryId: string;
     manufacturerId: string;
     discountId?: string;
+    quantity: number;
+    storeId: string;
     images?: {
         id: string,
         productId: string,

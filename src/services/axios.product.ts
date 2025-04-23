@@ -38,7 +38,12 @@ export const productApi = {
     },
     //cập nhật sản phẩm
     updateProduct: async (id: string, formData: FormData) => {
-        return await axios.put<Product>(`${BASE_URL}/products/${id}`, formData);
+       
+        for (const [key, value] of formData.entries()) {
+            console.log(`${key}:`, value);
+        }
+        debugger;
+        return await axios.post<Product>(`${BASE_URL}/products/${id}`, formData);
     },
 };
 
