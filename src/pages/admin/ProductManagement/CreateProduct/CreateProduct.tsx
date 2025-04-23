@@ -10,7 +10,7 @@ import {
   Box,
   IconButton,
 } from "@mui/material";
-import { Flip, toast } from 'react-toastify';
+import { Flip, toast, ToastContainer } from 'react-toastify';
 import { useNavigate } from "react-router-dom";
 import { productApi } from "~/services/axios.product";
 import { CreateAProduct } from "~/types/product";
@@ -140,13 +140,13 @@ function CreateProduct() {
     fetchData();
   }, []);
   return (
-    <Card sx={{ maxWidth: 600, margin: "auto", mt: 4, p: 2 }}>
+    <Card sx={{ maxWidth: 600, margin: "auto", mt: 4, p: 2,overflow : 'auto' }}>
       <CardContent>
         <Typography variant="h5" gutterBottom>
           Thêm sản phẩm mới
         </Typography>
         <form onSubmit={handleSubmit}>
-          <Grid container spacing={2} gap={3}>
+          <Grid container spacing={2} gap={2}>
             <TextField
               fullWidth
               label="Tên sản phẩm"
@@ -205,7 +205,9 @@ function CreateProduct() {
               ))}
             </TextField>
 
-            <Box sx={{ mt: 2 }}>
+            <Box sx={{ mt: 2, display : 'flex',gap  : 2 ,alignItems : 'start' }}>
+              
+              <Box>
               <Typography variant="subtitle1" gutterBottom>
                 Hình ảnh sản phẩm (Tối đa 4 ảnh)
               </Typography>
@@ -273,10 +275,13 @@ function CreateProduct() {
                   </Box>
                 ))}
               </Box>
+              </Box>
+              <Button type="submit" variant="contained" color="primary">
+                Thêm sản phẩm
+              </Button>
             </Box>
-            <Button type="submit" variant="contained" color="primary">
-              Thêm sản phẩm
-            </Button>
+            
+           
           </Grid>
         </form>
       </CardContent>

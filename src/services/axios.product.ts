@@ -31,7 +31,7 @@ export const productApi = {
     },
     //lấy theo id
     getById: async (id: string) => {
-        return await axios.get<Product>(`${BASE_URL}/products/${id}`);
+        return await axios.get<Product>(`${BASE_URL}/products/${id}`).then(res => res.data);
     },
     getByIdHaveId: async (id: string) => {
         return await axios.get<DetailAProduct>(`${BASE_URL}/products/${id}`).then(res => res.data);;

@@ -35,7 +35,7 @@ interface ViewDetailProps {
   }
   
 
-const ViewDetail: React.FC<ViewDetailProps> = ({ dataProduct }) => {
+const ViewDetail = ({ dataProduct } : ViewDetailProps) => {
   const [isOpenModalGallery, setIsOpenModalGallery] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [currentQuantity, setCurrentQuantity] = useState(1);
@@ -87,7 +87,7 @@ const ViewDetail: React.FC<ViewDetailProps> = ({ dataProduct }) => {
 
   const handleBuyNow = (quantity: number, Product: any) => {
     dispatch(doAddProductAction({ quantity, detail: Product, id: Product.id }));
-    navigate("/order");
+    navigate("/orders");
   };
 
   return (

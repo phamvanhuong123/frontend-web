@@ -27,7 +27,7 @@ interface PaymentProps {
   setCurrentStep: (step: number) => void;
 }
 
-const Payment: React.FC<PaymentProps> = ({ setCurrentStep }) => {
+const Payment = ({ setCurrentStep : PaymentProps } : PaymentProps) => {
   const carts = useSelector((state: any) => state.order.carts);
   const user = useSelector((state: any) => state.account.user);
   const [totalPrice, setTotalPrice] = useState(0);
@@ -321,6 +321,10 @@ const Payment: React.FC<PaymentProps> = ({ setCurrentStep }) => {
       </Col>
     </Row>
   );
+};
+
+const setCurrentStep = (step: number) => {
+  console.log(`Navigating to step: ${step}`);
 };
 
 export default Payment;

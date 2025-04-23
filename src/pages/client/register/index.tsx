@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import './register.scss';
 import { authApi } from '~/services/axios.auth';
 
-const RegisterPage: React.FC = () => {
+const RegisterPage = () => {
     const navigate = useNavigate();
     const [isSubmit, setIsSubmit] = useState(false);
 

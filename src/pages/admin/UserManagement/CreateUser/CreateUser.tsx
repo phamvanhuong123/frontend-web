@@ -78,18 +78,10 @@ function CreateUser() {
   };
 
   return (
-    <Card sx={{ maxWidth: 800, mx: "auto", mt: 4, p: 2,
-        maxHeight: '90vh', 
-        overflow: 'hidden',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems : 'center',
-        justifyContent : 'space-between',
-        marginBottom : 2
-     }}>
+    <Card sx={{ width : 600, maxWidth: '100%', margin: "auto", mt: 4, p: 2, overflow : 'auto' }}>
       <CardContent>
-        <Box sx={{ display: "flex", justifyContent: "space-between", mb: 3 }}>
-          <Typography variant="h4" component="h1">
+        <Box sx={{ mb: 3 }}>
+          <Typography marginBottom={3} variant="h4" component="h1">
             Tạo người dùng mới
           </Typography>
           <Button

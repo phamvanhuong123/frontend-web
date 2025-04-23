@@ -6,7 +6,7 @@ import Payment from "../../../layout/client/Order/Payment";
 import { SmileOutlined, HomeOutlined } from "@ant-design/icons";
 import { Link, useNavigate } from "react-router-dom";
 
-const OrderPage: React.FC = () => {
+const OrderPage  = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const navigate = useNavigate();
 

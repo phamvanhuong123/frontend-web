@@ -9,6 +9,7 @@ export const userApi = {
     return axios.get<User>(`${url}/${id}`).then((res) => res.data);
   },
   // Danh sách người dùng
+
   getAll() {
     return axios.get<User[]>(url).then((res) => res.data);
   },

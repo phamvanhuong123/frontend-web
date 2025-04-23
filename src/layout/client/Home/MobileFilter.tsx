@@ -1,5 +1,4 @@
 import { Button, Checkbox, Col, Drawer, Form, InputNumber, Rate, Row, Divider } from "antd";
-import { FC } from "react";
 
 interface MobileFilterProps {
     isOpen: boolean;
@@ -9,7 +8,8 @@ interface MobileFilterProps {
     onFinish: (values: any) => void;
 }
 
-const MobileFilter: FC<MobileFilterProps> = ({ isOpen, setIsOpen, handleChangeFilter, listCategory, onFinish }) => {
+
+const MobileFilter  = ({ isOpen, setIsOpen, handleChangeFilter, listCategory, onFinish } : MobileFilterProps) => {
     const [form] = Form.useForm();
 
     return (

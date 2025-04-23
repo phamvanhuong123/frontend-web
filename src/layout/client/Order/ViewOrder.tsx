@@ -11,7 +11,7 @@ interface ViewOrderProps {
   setCurrentStep: (step: number) => void;
 }
 
-const ViewOrder: React.FC<ViewOrderProps> = ({ setCurrentStep }) => {
+const ViewOrder = ({ setCurrentStep } : ViewOrderProps) => {
   const carts = useSelector((state: any) => state.order.carts);
   const [totalPrice, setTotalPrice] = useState(0);
   const dispatch = useDispatch();
