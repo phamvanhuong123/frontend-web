@@ -219,7 +219,7 @@ const Home = () => {
                     style={{
                       width: "100%",
                       height: 400,
-                      objectFit: "contain", // <-- Giữ tỷ lệ gốc, không bị méo
+                      objectFit: "cover", // <-- Giữ tỷ lệ gốc, không bị méo
                       backgroundColor: "#f5f5f5", // Nền sáng cho dễ chịu
                       borderRadius: 8,
                     }}
