@@ -1,7 +1,7 @@
 import { Col, Row, Skeleton } from 'antd';
 
 
-const BookLoader = () => {
+const ProductLoader = () => {
 
     return (
         <Row gutter={[20, 20]}>
@@ -38,4 +38,4 @@ const BookLoader = () => {
     );
 };
 
-export default BookLoader;
+export default ProductLoader;

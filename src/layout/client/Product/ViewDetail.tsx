@@ -12,42 +12,42 @@ import { Link, useNavigate } from "react-router-dom";
 import { getImageUrl } from "../../../config/config";
 
 interface ViewDetailProps {
-    dataProduct: {
+  dataProduct: {
+    id: string;
+    name: string;
+    description: string;
+    price: number;
+    isActive: boolean;
+    categoryName: string;
+    manufacturerName: string;
+    discountName: string | null;
+    slug: string;
+    quantity: number | null;
+    sold: number | null;
+    images: {
       id: string;
-      name: string;
-      description: string;
-      price: number;
-      isActive: boolean;
-      categoryName: string;
-      manufacturerName: string;
-      discountName: string | null;
-      slug: string;
-      quantity: number | null;
-      sold: number | null;
-      images: {
-        id: string;
-        productId: string;
-        url: string;
-        altText: string;
-        displayOrder: number;
-      }[];
-    };
-  }
-  
+      productId: string;
+      url: string;
+      altText: string;
+      displayOrder: number;
+    }[];
+  };
+}
 
-const ViewDetail = ({ dataProduct } : ViewDetailProps) => {
+const ViewDetail = ({ dataProduct }: ViewDetailProps) => {
   const [isOpenModalGallery, setIsOpenModalGallery] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [currentQuantity, setCurrentQuantity] = useState(1);
   const refGallery = useRef<any>(null);
-  const images = dataProduct?.images?.map((image) => {
-    console.log("image.url", image.url);
-    return {
-      original: getImageUrl(image.url),
-      thumbnail: getImageUrl(image.url), // Có thể sử dụng hình nhỏ khác nếu có
-      alt: image.altText,
-    };
-  }) ?? [];
+  const images =
+    dataProduct?.images?.map((image) => {
+      console.log("image.url", image.url);
+      return {
+        original: getImageUrl(image.url),
+        thumbnail: getImageUrl(image.url), // Có thể sử dụng hình nhỏ khác nếu có
+        alt: image.altText,
+      };
+    }) ?? [];
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -64,7 +64,11 @@ const ViewDetail = ({ dataProduct } : ViewDetailProps) => {
       setCurrentQuantity(currentQuantity - 1);
     }
     if (type === "PLUS") {
-      if (dataProduct.quantity !== null && currentQuantity >= dataProduct.quantity) return;
+      if (
+        dataProduct.quantity !== null &&
+        currentQuantity >= dataProduct.quantity
+      )
+        return;
       setCurrentQuantity(currentQuantity + 1);
     }
   };
@@ -144,7 +148,8 @@ const ViewDetail = ({ dataProduct } : ViewDetailProps) => {
                 </Col>
                 <Col span={24}>
                   <div className="manufacturerName">
-                    Nhà cung cấp: <a href="#">{dataProduct?.manufacturerName}</a>
+                    Nhà cung cấp:{" "}
+                    <a href="#">{dataProduct?.manufacturerName}</a>
                   </div>
                   <div className="title">{dataProduct?.name}</div>
                   <div className="rating">
@@ -199,6 +204,7 @@ const ViewDetail = ({ dataProduct } : ViewDetailProps) => {
                       <BsCartPlus className="icon-cart" />
                       <span>Thêm vào giỏ hàng</span>
                     </button>
+                    
                     <button
                       className="now"
                       onClick={() => handleBuyNow(currentQuantity, dataProduct)}
@@ -220,7 +226,7 @@ const ViewDetail = ({ dataProduct } : ViewDetailProps) => {
         currentIndex={currentIndex}
         items={images}
         title={dataProduct?.name}
-        />
+      />
     </div>
   );
 };
