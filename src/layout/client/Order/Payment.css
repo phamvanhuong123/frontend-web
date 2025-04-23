@@ -1,0 +1,29 @@
+.address-home {
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 16px;
+  padding: 0px 6px;
+  border-radius: 100px;
+  margin-right: 4px;
+  height: 18px;
+  display: inline-flex;
+  -webkit-box-align: center;
+  align-items: center;
+  color: rgb(0, 171, 86);
+  background-color: rgb(239, 255, 244);
+}
+
+.default-tag {
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 16px;
+  padding: 0px 6px;
+  border-radius: 100px;
+  margin-right: 4px;
+  height: 18px;
+  display: inline-flex;
+  -webkit-box-align: center;
+  align-items: center;
+  color: rgb(0, 171, 86);
+  background-color: rgb(255, 255, 255);
+}
