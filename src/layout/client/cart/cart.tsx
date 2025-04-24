@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   Table,
   Button,
@@ -7,6 +7,7 @@ import {
   InputNumber,
   message,
   Space,
+  Carousel,
 } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import type { TableRowSelection } from "antd/es/table/interface";
@@ -18,6 +19,7 @@ import {
   doUpdateCartAction,
 } from "~/redux/order/orderSlice";
 import { CartItem } from "~/redux/order/orderSlice";
+import { getImageUrl } from "~/config/config";
 const { Title, Text } = Typography;
 
 const Cart = () => {
@@ -28,25 +30,7 @@ const Cart = () => {
   ) as CartItem[];
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [isAllSelected, setIsAllSelected] = useState(false);
-
-  // useEffect(() => {
-  //   try {
-  //     const storedCarts = localStorage.getItem("cart");
-  //     if (storedCarts) {
-  //       const parsed: unknown = JSON.parse(storedCarts);
-  //       if (Array.isArray(parsed)) {
-  //         setCartItems(parsed as CartItem[]);
-  //       } else {
-  //         console.error("Dữ liệu trong localStorage không hợp lệ");
-  //         setCartItems([]);
-  //       }
-  //     }
-  //   } catch (error) {
-  //     console.error("Lỗi khi đọc localStorage:", error);
-  //     setCartItems([]);
-  //   }
-  // }, []);
-
+  
   const handleSelectAllToggle = () => {
     if (isAllSelected) {
       setSelectedRowKeys([]);
@@ -59,12 +43,7 @@ const Cart = () => {
   const handleRemove = (id: string) => {
     dispatch(doDeleteItemCartAction({ id }));
 
-    // const updated = cartItems.filter((item: any) => item.id !== id);
-    // localStorage.setItem("cart", JSON.stringify(updated));
-    // setCartItems(updated);
-    // setSelectedRowKeys((prev) => prev.filter((key) => key !== id));
     message.success("Đã xóa sản phẩm khỏi giỏ hàng");
-    // window.dispatchEvent(new Event("storage"));
   };
 
   const handleQuantityChange = (id: string, newQuantity: number | null) => {
@@ -77,12 +56,6 @@ const Cart = () => {
     dispatch(
       doUpdateCartAction({ id, quantity: newQuantity, detail: product.detail })
     );
-    // const updated = cartItems.map((item) =>
-    //   item.id === id ? { ...item, quantity: newQuantity } : item
-    // );
-    // setCartItems(updated);
-    // localStorage.setItem("cart", JSON.stringify(updated));
-    // window.dispatchEvent(new Event("storage"));
   };
 
   const handleRemoveSelected = () => {
@@ -92,14 +65,6 @@ const Cart = () => {
 
     setSelectedRowKeys([]);
     message.success("Đã xóa các sản phẩm đã chọn");
-    // const updated = cartItems.filter(
-    //   (item) => !selectedRowKeys.includes(item.id)
-    // );
-    // localStorage.setItem("cart", JSON.stringify(updated));
-    // setCartItems(updated);
-    // setSelectedRowKeys([]);
-    // message.success("Đã xóa các sản phẩm đã chọn");
-    // window.dispatchEvent(new Event("storage"));
   };
 
   const handleBuy = () => {
@@ -120,6 +85,37 @@ const Cart = () => {
   };
 
   const columns: ColumnsType<CartItem> = [
+    {
+      title: "Ảnh",
+      key: "image",
+      render: (_, record) => {
+        const images = record.detail.image || []; // Lấy danh sách ảnh từ sản phẩm
+
+        return (
+          <Carousel
+            autoplay
+            dots={false}
+            arrows
+            style={{ width: 60 }}
+          >
+            {images.map((img: any, idx: number) => (
+              <div key={idx}>
+                <img
+                  src={getImageUrl(img.url)}
+                  alt={img.altText || "Ảnh sản phẩm"} // Văn bản thay thế
+                  style={{
+                    width: "50px",
+                    height: "50px",
+                    objectFit: "cover",
+                    borderRadius: "4px",
+                  }}
+                />
+              </div>
+            ))}
+          </Carousel>
+        );
+      },
+    },
     {
       title: "Tên sản phẩm",
       dataIndex: "name",

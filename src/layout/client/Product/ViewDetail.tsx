@@ -1,4 +1,4 @@
-import { Row, Col, Rate, Divider, Breadcrumb, message } from "antd";
+import { Row, Col, Rate, Divider, Breadcrumb } from "antd";
 import "./ViewDetail.scss";
 import ImageGallery from "react-image-gallery";
 import { useRef, useState } from "react";

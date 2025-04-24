@@ -74,7 +74,7 @@ const ViewOrder = ({ setCurrentStep }: ViewOrderProps) => {
                   style={{ marginRight: 8 }}
                 />
                 <img
-                  src={getImageUrl(product?.detail?.images?.[0]?.url)}
+                  src={getImageUrl(product?.detail?.image?.[0]?.url)}
                   alt="product Thumbnail"
                 />
                 <div className="title">{product?.detail?.name}</div>
