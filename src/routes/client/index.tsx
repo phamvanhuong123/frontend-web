@@ -5,6 +5,7 @@ import OrderPage from "~/pages/client/order";
 import History from "~/layout/client/Order/History";
 import PaymentResponse from "~/layout/client/Order/PaymentResponse";
 import Cart from "~/layout/client/cart/cart";
+import OrderDetails from "~/layout/client/Order/OrderDetails";
 
 const clientRoutes = {
   path: "/",
@@ -13,6 +14,7 @@ const clientRoutes = {
     { path: "", element: <Home /> },
     { path: "products", element: <ProductPage /> },
     { path: "orders", element: <OrderPage /> },
+    { path: "orders/:orderCode", element: <OrderDetails /> },
     { path: "history", element: <History /> },
     { path: "orders/payment/response", element: <PaymentResponse /> },
     { path: "cart", element: <Cart /> },

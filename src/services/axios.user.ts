@@ -37,7 +37,7 @@ export const userApi = {
     return axios.get<User>(`${url}/${id}`).then((res) => res.data);
   },
   // Đăng nhập
- 
+
   callUpdateUserInfo(
     _id: string,
     phone: string,
@@ -52,14 +52,10 @@ export const userApi = {
     });
   },
   //lấy thông tin tài khoản người dùng
-  callFetchAccount(){
+  callFetchAccount() {
     return axios.get(`${url}`);
   },
 };
-
-
-
-
 
 // Cập nhật avatar
 export const callUpdateAvatar = (fileImg: File) => {
@@ -77,6 +73,5 @@ export const callUpdateAvatar = (fileImg: File) => {
 };
 
 // Lấy thông tin tài khoản người dùng
-
 
 // Đăng ký tài khoản

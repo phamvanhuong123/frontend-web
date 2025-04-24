@@ -95,7 +95,6 @@ function CreateProduct() {
 
     const fetchApi = async () => {
       try {
-        debugger
         const formData = new FormData();
 
         formData.append("Name", product.name);

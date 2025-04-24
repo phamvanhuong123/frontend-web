@@ -329,7 +329,10 @@ const Payment: React.FC<PaymentProps> = ({ setCurrentStep }) => {
       price: item.detail.price,
     }));
 
+    const orderCode = `ORDER-${Date.now()}`;
+
     const orderData = {
+      orderCode: orderCode,
       userId: user?.id,
       shippingAddressId: selectedAddress.id,
       billingAddressId: selectedAddress.isDefaultBilling
@@ -348,7 +351,7 @@ const Payment: React.FC<PaymentProps> = ({ setCurrentStep }) => {
         // For example, redirect to VNPay payment page
         // get url
         const paymentData = {
-          orderCode: `ORDER-${Date.now()}`,
+          orderCode: orderCode,
           // id:
           fullName: user?.fullName,
           description: "Thanh toán đơn hàng",

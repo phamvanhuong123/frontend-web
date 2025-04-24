@@ -2,6 +2,7 @@ import Order from "~/types/order";
 import axios from "./axios.customize";
 
 const URL = "api/v1/ecommerce/order";
+const URLv2 = "api/v2/ecommerce/order";
 
 export const orderApi = {
   // Danh sách order
@@ -25,6 +26,10 @@ export const orderApi = {
   // Lấy order theo id
   getOrderById(id: string) {
     const url = `${URL}/${id}`;
+    return axios.get<Order>(url).then((res) => res.data);
+  },
+  getOrderByOrderCode(orderCode: string) {
+    const url = `${URLv2}/${orderCode}`;
     return axios.get<Order>(url).then((res) => res.data);
   },
   // Cập nhật trạng thái order

@@ -7,12 +7,13 @@ import {
   doUpdateCartAction,
   doSetSelectedProductsAction
 } from "../../../redux/order/orderSlice";
+import { getImageUrl } from "~/config/config";
 
 interface ViewOrderProps {
   setCurrentStep: (step: number) => void;
 }
 
-const ViewOrder = ({ setCurrentStep } : ViewOrderProps) => {
+const ViewOrder = ({ setCurrentStep }: ViewOrderProps) => {
   const carts = useSelector((state: any) => state.order.carts);
   const [totalPrice, setTotalPrice] = useState(0);
   const dispatch = useDispatch();
@@ -36,7 +37,7 @@ const ViewOrder = ({ setCurrentStep } : ViewOrderProps) => {
         doUpdateCartAction({
           quantity: value,
           detail: product,
-          _id: product._id,
+          id: product.id,
         })
       );
     }
@@ -51,7 +52,7 @@ const ViewOrder = ({ setCurrentStep } : ViewOrderProps) => {
             <div className="order-product" key={`index-${index}`}>
               <div className="product-content">
                 <img
-                  src={`${import.meta.env.VITE_BACKEND_URL}/images/product/${product?.detail?.thumbnail}`}
+                  src={getImageUrl(product?.detail?.images?.[0]?.url)}
                   alt="product Thumbnail"
                 />
                 <div className="title">{product?.detail?.mainText}</div>
@@ -80,7 +81,7 @@ const ViewOrder = ({ setCurrentStep } : ViewOrderProps) => {
                 <DeleteTwoTone
                   style={{ cursor: "pointer" }}
                   onClick={() =>
-                    dispatch(doDeleteItemCartAction({ _id: product._id }))
+                    dispatch(doDeleteItemCartAction({ id: product.id }))
                   }
                   twoToneColor="#eb2f96"
                 />
