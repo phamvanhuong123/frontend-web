@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { FiShoppingCart } from "react-icons/fi";
 import { VscSearchFuzzy } from "react-icons/vsc";
 import {
