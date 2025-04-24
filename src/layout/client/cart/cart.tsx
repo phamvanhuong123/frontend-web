@@ -10,86 +10,100 @@ import {
 } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import type { TableRowSelection } from "antd/es/table/interface";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { doSetSelectedProductsAction } from "~/redux/order/orderSlice";
-
+import {
+  doDeleteItemCartAction,
+  doSetSelectedProductsAction,
+  doUpdateCartAction,
+} from "~/redux/order/orderSlice";
+import { CartItem } from "~/redux/order/orderSlice";
 const { Title, Text } = Typography;
 
-interface CartItem {
-  id: number;
-  name: string;
-  price: number;
-  quantity: number;
-}
-
 const Cart = () => {
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
-  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
-  const [isAllSelected, setIsAllSelected] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const cartItems = useSelector(
+    (state: any) => state.order.carts
+  ) as CartItem[];
+  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+  const [isAllSelected, setIsAllSelected] = useState(false);
 
-  useEffect(() => {
-    try {
-      const storedCarts = localStorage.getItem("cart");
-      if (storedCarts) {
-        const parsed: unknown = JSON.parse(storedCarts);
-        if (Array.isArray(parsed)) {
-          setCartItems(parsed as CartItem[]);
-        } else {
-          console.error("Dữ liệu trong localStorage không hợp lệ");
-          setCartItems([]);
-        }
-      }
-    } catch (error) {
-      console.error("Lỗi khi đọc localStorage:", error);
-      setCartItems([]);
-    }
-  }, []);
+  // useEffect(() => {
+  //   try {
+  //     const storedCarts = localStorage.getItem("cart");
+  //     if (storedCarts) {
+  //       const parsed: unknown = JSON.parse(storedCarts);
+  //       if (Array.isArray(parsed)) {
+  //         setCartItems(parsed as CartItem[]);
+  //       } else {
+  //         console.error("Dữ liệu trong localStorage không hợp lệ");
+  //         setCartItems([]);
+  //       }
+  //     }
+  //   } catch (error) {
+  //     console.error("Lỗi khi đọc localStorage:", error);
+  //     setCartItems([]);
+  //   }
+  // }, []);
 
   const handleSelectAllToggle = () => {
     if (isAllSelected) {
       setSelectedRowKeys([]);
     } else {
-      setSelectedRowKeys(cartItems.map((item) => item.id));
+      setSelectedRowKeys(cartItems.map((item: any) => item.id));
     }
     setIsAllSelected(!isAllSelected);
   };
 
-  const handleRemove = (id: number) => {
-    const updated = cartItems.filter((item) => item.id !== id);
-    localStorage.setItem("cart", JSON.stringify(updated));
-    setCartItems(updated);
-    setSelectedRowKeys((prev) => prev.filter((key) => key !== id));
+  const handleRemove = (id: string) => {
+    dispatch(doDeleteItemCartAction({ id }));
+
+    // const updated = cartItems.filter((item: any) => item.id !== id);
+    // localStorage.setItem("cart", JSON.stringify(updated));
+    // setCartItems(updated);
+    // setSelectedRowKeys((prev) => prev.filter((key) => key !== id));
     message.success("Đã xóa sản phẩm khỏi giỏ hàng");
-    window.dispatchEvent(new Event("storage"));
+    // window.dispatchEvent(new Event("storage"));
   };
 
-  const handleQuantityChange = (id: number, newQuantity: number | null) => {
+  const handleQuantityChange = (id: string, newQuantity: number | null) => {
     if (!newQuantity || newQuantity < 1) return;
 
-    const updated = cartItems.map((item) =>
-      item.id === id ? { ...item, quantity: newQuantity } : item
+    const product = cartItems.find((item) => item.id === id);
+    if (!product) {
+      return;
+    }
+    dispatch(
+      doUpdateCartAction({ id, quantity: newQuantity, detail: product.detail })
     );
-    setCartItems(updated);
-    localStorage.setItem("cart", JSON.stringify(updated));
-    window.dispatchEvent(new Event("storage"));
+    // const updated = cartItems.map((item) =>
+    //   item.id === id ? { ...item, quantity: newQuantity } : item
+    // );
+    // setCartItems(updated);
+    // localStorage.setItem("cart", JSON.stringify(updated));
+    // window.dispatchEvent(new Event("storage"));
   };
 
   const handleRemoveSelected = () => {
-    const updated = cartItems.filter(
-      (item) => !selectedRowKeys.includes(item.id)
-    );
-    localStorage.setItem("cart", JSON.stringify(updated));
-    setCartItems(updated);
+    selectedRowKeys.forEach((key) => {
+      dispatch(doDeleteItemCartAction({ id: key }));
+    });
+
     setSelectedRowKeys([]);
     message.success("Đã xóa các sản phẩm đã chọn");
-    window.dispatchEvent(new Event("storage"));
+    // const updated = cartItems.filter(
+    //   (item) => !selectedRowKeys.includes(item.id)
+    // );
+    // localStorage.setItem("cart", JSON.stringify(updated));
+    // setCartItems(updated);
+    // setSelectedRowKeys([]);
+    // message.success("Đã xóa các sản phẩm đã chọn");
+    // window.dispatchEvent(new Event("storage"));
   };
 
   const handleBuy = () => {
-    const selectedItems = cartItems.filter((item) =>
+    const selectedItems = cartItems.filter((item: any) =>
       selectedRowKeys.includes(item.id)
     );
 
@@ -99,7 +113,7 @@ const Cart = () => {
     }
 
     // Lưu danh sách sản phẩm được chọn vào Redux store để xử lý sau
-    dispatch(doSetSelectedProductsAction(selectedItems));
+    dispatch(doSetSelectedProductsAction({ products: selectedItems }));
 
     // Chuyển đến trang đặt hàng
     navigate("/orders");
@@ -110,21 +124,22 @@ const Cart = () => {
       title: "Tên sản phẩm",
       dataIndex: "name",
       key: "name",
+      render: (_, record) => record.detail.name || "Sản phẩm không xác định",
     },
     {
       title: "Giá",
       dataIndex: "price",
       key: "price",
-      render: (price: number) => `${price.toLocaleString()}₫`,
+      render: (_, record) => `${record.detail?.price?.toLocaleString() || 0}₫`,
     },
     {
       title: "Số lượng",
       dataIndex: "quantity",
       key: "quantity",
-      render: (qty: number, record: CartItem) => (
+      render: (quantity: number, record: CartItem) => (
         <InputNumber
           min={1}
-          value={qty}
+          value={quantity}
           onChange={(value) => handleQuantityChange(record.id, value)}
         />
       ),
@@ -133,7 +148,7 @@ const Cart = () => {
       title: "Tổng",
       key: "total",
       render: (_, record: CartItem) =>
-        `${(record.price * record.quantity).toLocaleString()}₫`,
+        `${(record.detail.price * record.quantity).toLocaleString()}₫`,
     },
     {
       title: "Hành động",
@@ -154,10 +169,10 @@ const Cart = () => {
     },
   };
 
-  const totalPrice = cartItems.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
-  );
+  const totalPrice = cartItems.reduce((sum: number, item: CartItem) => {
+    const price = item.detail.price || 0;
+    return sum + price * item.quantity;
+  }, 0);
 
   return (
     <div className="cart-container" style={{ padding: "20px" }}>

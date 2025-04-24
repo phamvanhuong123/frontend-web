@@ -5,7 +5,8 @@ import { useEffect, useState } from "react";
 import {
   doDeleteItemCartAction,
   doUpdateCartAction,
-  doSetSelectedProductsAction
+  doSetSelectedProductsAction,
+  CartItem,
 } from "../../../redux/order/orderSlice";
 import { getImageUrl } from "~/config/config";
 
@@ -14,32 +15,47 @@ interface ViewOrderProps {
 }
 
 const ViewOrder = ({ setCurrentStep }: ViewOrderProps) => {
-  const carts = useSelector((state: any) => state.order.carts);
+  const carts = useSelector((state: any) => state.order.carts) as CartItem[];
+  const selectedProducts = useSelector(
+    (state: any) => state.order.selectedProducts
+  ) as CartItem[];
+
   const [totalPrice, setTotalPrice] = useState(0);
+  const [checkedProductIds, setCheckedProductIds] = useState<string[]>([]);
+
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (carts && carts.length > 0) {
-      const sum = carts.reduce(
-        (acc: number, item: any) => acc + item.quantity * item.detail.price,
+    if (selectedProducts && selectedProducts.length > 0) {
+      const sum = selectedProducts.reduce(
+        (acc: number, item: CartItem) =>
+          acc + item.quantity * item.detail.price,
         0
       );
       setTotalPrice(sum);
     } else {
       setTotalPrice(0);
     }
-  }, [carts]);
+  }, [selectedProducts]);
 
-  const handleOnChangeInput = (value: number | null, product: any) => {
+  const handleOnChangeInput = (value: number | null, product: CartItem) => {
     if (!value || value < 1) return;
     if (!isNaN(value)) {
       dispatch(
         doUpdateCartAction({
           quantity: value,
-          detail: product,
+          detail: product.detail,
           id: product.id,
         })
       );
+    }
+  };
+
+  const handleToggleCheck = (id: string) => {
+    if (checkedProductIds.includes(id)) {
+      setCheckedProductIds(checkedProductIds.filter((item) => item !== id));
+    } else {
+      setCheckedProductIds([...checkedProductIds, id]);
     }
   };
 
@@ -51,11 +67,17 @@ const ViewOrder = ({ setCurrentStep }: ViewOrderProps) => {
           return (
             <div className="order-product" key={`index-${index}`}>
               <div className="product-content">
+                <input
+                  type="checkbox"
+                  checked={checkedProductIds.includes(product.id)}
+                  onChange={() => handleToggleCheck(product.id)}
+                  style={{ marginRight: 8 }}
+                />
                 <img
                   src={getImageUrl(product?.detail?.images?.[0]?.url)}
                   alt="product Thumbnail"
                 />
-                <div className="title">{product?.detail?.mainText}</div>
+                <div className="title">{product?.detail?.name}</div>
                 <div className="price">
                   {new Intl.NumberFormat("vi-VN", {
                     style: "currency",
@@ -118,13 +140,16 @@ const ViewOrder = ({ setCurrentStep }: ViewOrderProps) => {
           </div>
           <Divider style={{ margin: "10px 0" }} />
           <button
-            disabled={carts.length === 0}
+            disabled={checkedProductIds.length === 0}
             onClick={() => {
-              dispatch(doSetSelectedProductsAction(carts)); // Lưu vào Redux
-              setCurrentStep(1); // Tiếp tục tới bước thanh toán
+              const selected = carts.filter((item) =>
+                checkedProductIds.includes(item.id)
+              );
+              dispatch(doSetSelectedProductsAction({ products: selected }));
+              setCurrentStep(1);
             }}
           >
-            Mua Hàng ({carts?.length ?? 0})
+            Mua Hàng ({checkedProductIds.length})
           </button>
         </div>
       </Col>

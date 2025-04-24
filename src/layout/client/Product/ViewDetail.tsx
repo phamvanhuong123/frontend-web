@@ -7,7 +7,10 @@ import { MinusOutlined, PlusOutlined, HomeOutlined } from "@ant-design/icons";
 import { BsCartPlus } from "react-icons/bs";
 import ProductLoader from "./ProductLoader";
 import { useDispatch } from "react-redux";
-import { doAddProductAction } from "../../../redux/order/orderSlice";
+import {
+  doAddProductAction,
+  doSetSelectedProductsAction,
+} from "../../../redux/order/orderSlice";
 import { Link, useNavigate } from "react-router-dom";
 import { getImageUrl } from "../../../config/config";
 
@@ -84,45 +87,68 @@ const ViewDetail = ({ dataProduct }: ViewDetailProps) => {
     }
   };
 
-  const handleAddToCart = (quantity: number, Product: any) => {
+  const handleAddToCart = (quantity: number, product: any) => {
     // Tạo object sản phẩm cần thêm vào giỏ hàng
-    const newItem = {
-      id: Product.id,
-      name: Product.name,
-      price: Product.price,
-      image: Product.image,
-      quantity: quantity,
+    const productDetail = {
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      image: product.images || [],
     };
 
-    // Lấy giỏ hàng hiện tại từ localStorage
-    const existingCart = JSON.parse(localStorage.getItem("cart") || "[]");
+    dispatch(
+      doAddProductAction({ quantity, detail: productDetail, id: product.id })
+    );
 
-    // Kiểm tra nếu sản phẩm đã tồn tại
-    const index = existingCart.findIndex((item: any) => item.id === Product.id);
+    // // Lấy giỏ hàng hiện tại từ localStorage
+    // const existingCart = JSON.parse(localStorage.getItem("cart") || "[]");
 
-    if (index !== -1) {
-      // Nếu sản phẩm đã tồn tại, tăng số lượng
-      existingCart[index].quantity += quantity;
-    } else {
-      // Nếu chưa có, thêm sản phẩm mới
-      existingCart.push(newItem);
-    }
+    // // Kiểm tra nếu sản phẩm đã tồn tại
+    // const index = existingCart.findIndex((item: any) => item.id === Product.id);
 
-    // Lưu lại giỏ hàng mới vào localStorage
-    localStorage.setItem("cart", JSON.stringify(existingCart));
+    // if (index !== -1) {
+    //   // Nếu sản phẩm đã tồn tại, tăng số lượng
+    //   existingCart[index].quantity += quantity;
+    // } else {
+    //   // Nếu chưa có, thêm sản phẩm mới
+    //   existingCart.push(newItem);
+    // }
 
-    // Phát sự kiện storage để đồng bộ với các thành phần khác
-    window.dispatchEvent(new Event("storage"));
+    // // Lưu lại giỏ hàng mới vào localStorage
+    // localStorage.setItem("cart", JSON.stringify(existingCart));
 
-    // Dùng Redux để sync UI (nếu cần)
-    dispatch(doAddProductAction({ quantity, detail: Product, id: Product.id }));
+    // // Phát sự kiện storage để đồng bộ với các thành phần khác
+    // window.dispatchEvent(new Event("storage"));
 
-    // Hiển thị thông báo thành công
-    message.success("Sản phẩm đã được thêm vào Giỏ hàng");
+    // // Dùng Redux để sync UI (nếu cần)
+    // dispatch(doAddProductAction({ quantity, detail: Product, id: Product.id }));
+
+    // // Hiển thị thông báo thành công
+    // message.success("Sản phẩm đã được thêm vào Giỏ hàng");
   };
 
-  const handleBuyNow = (quantity: number, Product: any) => {
-    dispatch(doAddProductAction({ quantity, detail: Product, id: Product.id }));
+  const handleBuyNow = (quantity: number, product: any) => {
+    const productDetail = {
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      image: product.images || [],
+    };
+
+    dispatch(
+      doAddProductAction({ quantity, detail: productDetail, id: product.id })
+    );
+    dispatch(
+      doSetSelectedProductsAction({
+        products: [
+          {
+            id: product.id,
+            quantity,
+            detail: productDetail,
+          },
+        ],
+      })
+    );
     navigate("/orders");
   };
 
@@ -236,7 +262,7 @@ const ViewDetail = ({ dataProduct }: ViewDetailProps) => {
                       <BsCartPlus className="icon-cart" />
                       <span>Thêm vào giỏ hàng</span>
                     </button>
-                    
+
                     <button
                       className="now"
                       onClick={() => handleBuyNow(currentQuantity, dataProduct)}

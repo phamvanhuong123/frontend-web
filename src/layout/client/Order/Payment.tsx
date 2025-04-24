@@ -64,7 +64,9 @@ const formatAddress = (address: ShippingAddress): string => {
 };
 
 const Payment: React.FC<PaymentProps> = ({ setCurrentStep }) => {
-  const carts = useSelector((state: any) => state.order.carts);
+  const selectedProducts = useSelector(
+    (state: any) => state.order.selectedProducts
+  );
   const user = useSelector((state: any) => state.account.user);
   const [totalPrice, setTotalPrice] = useState(0);
   const [isSubmit, setIsSubmit] = useState(false);
@@ -94,8 +96,8 @@ const Payment: React.FC<PaymentProps> = ({ setCurrentStep }) => {
   >();
 
   useEffect(() => {
-    if (carts && carts.length > 0) {
-      const sum = carts.reduce(
+    if (selectedProducts && selectedProducts.length > 0) {
+      const sum = selectedProducts.reduce(
         (acc: number, item: any) => acc + item.quantity * item.detail.price,
         0
       );
@@ -103,7 +105,7 @@ const Payment: React.FC<PaymentProps> = ({ setCurrentStep }) => {
     } else {
       setTotalPrice(0);
     }
-  }, [carts]);
+  }, [selectedProducts]);
 
   // Fetch user's shipping addresses
   useEffect(() => {
@@ -322,7 +324,7 @@ const Payment: React.FC<PaymentProps> = ({ setCurrentStep }) => {
     }
 
     setIsSubmit(true);
-    const orderItems = carts.map((item: any) => ({
+    const orderItems = selectedProducts.map((item: any) => ({
       productId: item.detail.id,
       productName: item.detail.mainText,
       quantity: item.quantity,
@@ -441,7 +443,7 @@ const Payment: React.FC<PaymentProps> = ({ setCurrentStep }) => {
         </Form>
 
         {/* Product List */}
-        {carts?.map((product: any, index: number) => {
+        {selectedProducts?.map((product: any, index: number) => {
           const currentProductPrice = product?.detail?.price ?? 0;
           return (
             <div
@@ -513,7 +515,7 @@ const Payment: React.FC<PaymentProps> = ({ setCurrentStep }) => {
                 <LoadingOutlined /> &nbsp;
               </span>
             )}
-            Đặt Hàng ({carts?.length ?? 0})
+            Đặt Hàng ({selectedProducts?.length ?? 0})
           </button>
         </div>
       </Col>

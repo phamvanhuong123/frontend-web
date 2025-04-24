@@ -19,50 +19,54 @@ import { authApi } from "../../../services/axios.auth";
 import "./header.scss";
 import { doLogoutAction } from "../../../redux/account/accountSlice";
 import ManageAccount from "../Account/ManageAccount";
+import { CartItem } from "~/redux/order/orderSlice";
 
 const Header = (props: {
   searchTerm: string;
   setSearchTerm: (value: string) => void;
 }) => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [openDrawer, setOpenDrawer] = useState(false);
   const isAuthenticated = useSelector(
     (state: any) => state.account.isAuthenticated
   );
   const user = useSelector((state: any) => state.account.user);
-  const [cartItems, setCartItems] = useState<any[]>([]); // state để lưu giỏ hàng
-  const navigate = useNavigate();
-  const dispatch = useDispatch();
+
+  const cartItems = useSelector(
+    (state: any) => state.order.carts
+  ) as CartItem[];
   const [showManageAccount, setShowManageAccount] = useState(false);
 
-  useEffect(() => {
-    const handleStorageChange = () => {
-      try {
-        const storedCarts = localStorage.getItem("cart");
-        if (storedCarts) {
-          const parsed = JSON.parse(storedCarts);
-          if (Array.isArray(parsed)) {
-            setCartItems(parsed);
-          } else {
-            setCartItems([]);
-          }
-        }
-      } catch (error) {
-        console.error("Lỗi khi đọc localStorage:", error);
-        setCartItems([]);
-      }
-    };
- 
-    // Lấy dữ liệu giỏ hàng ban đầu
-    handleStorageChange();
+  // useEffect(() => {
+  //   const handleStorageChange = () => {
+  //     try {
+  //       const storedCarts = localStorage.getItem("cart");
+  //       if (storedCarts) {
+  //         const parsed = JSON.parse(storedCarts);
+  //         if (Array.isArray(parsed)) {
+  //           setCartItems(parsed);
+  //         } else {
+  //           setCartItems([]);
+  //         }
+  //       }
+  //     } catch (error) {
+  //       console.error("Lỗi khi đọc localStorage:", error);
+  //       setCartItems([]);
+  //     }
+  //   };
 
-    // Thêm listener để lắng nghe sự thay đổi của localStorage
-    window.addEventListener("storage", handleStorageChange);
+  //   // Lấy dữ liệu giỏ hàng ban đầu
+  //   handleStorageChange();
 
-    // Xóa listener khi component unmount
-    return () => {
-      window.removeEventListener("storage", handleStorageChange);
-    };
-  }, []);
+  //   // Thêm listener để lắng nghe sự thay đổi của localStorage
+  //   window.addEventListener("storage", handleStorageChange);
+
+  //   // Xóa listener khi component unmount
+  //   return () => {
+  //     window.removeEventListener("storage", handleStorageChange);
+  //   };
+  // }, []);
 
   const handleLogout = async () => {
     await authApi.callLogout();
@@ -114,13 +118,14 @@ const Header = (props: {
           renderItem={(item) => (
             <List.Item>
               <List.Item.Meta
-                title={<span>{item.name}</span>}
+                title={<span>{item.detail.name}</span>}
                 description={
                   <>
                     <span>Số lượng: {item.quantity}</span>
                     <br />
                     <span>
-                      Giá: {(item.price * item.quantity).toLocaleString()}₫
+                      Giá:{" "}
+                      {(item.detail.price * item.quantity).toLocaleString()}₫
                     </span>
                   </>
                 }

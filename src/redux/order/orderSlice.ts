@@ -3,17 +3,19 @@ import { message } from "antd";
 
 /**
  * carts = [
- *   { quantity: 1, _id: 'abc', detail: { _id: 'abc', name: 'def', quantity: 10 } },
- *   { quantity: 1, _id: '123', detail: { _id: '123', name: '456', quantity: 5 } },
+ *   { quantity: 1, id: 'abc', detail: { id: 'abc', name: 'def', quantity: 10 } },
+ *   { quantity: 1, id: '123', detail: { id: '123', name: '456', quantity: 5 } },
  * ]
  */
-interface CartItem {
+export interface CartItem {
   quantity: number;
-  _id: string;
+  id: string;
   detail: {
-    _id: string;
+    id: string;
     name: string;
+    price: number;
     quantity: number;
+    images: [];
   };
 }
 
@@ -35,7 +37,7 @@ export const orderSlice = createSlice({
       const item = action.payload; // Lấy payload từ action (thông tin sản phẩm)
 
       // Kiểm tra xem sản phẩm đã có trong giỏ hàng chưa
-      const isExistIndex = carts.findIndex((c) => c._id === item._id);
+      const isExistIndex = carts.findIndex((c) => c.id === item.id);
 
       // Nếu sản phẩm đã tồn tại trong giỏ hàng
       if (isExistIndex > -1) {
@@ -44,7 +46,7 @@ export const orderSlice = createSlice({
 
         // Kiểm tra nếu số lượng vượt quá số lượng tồn kho
         if (
-          carts[isExistIndex].quantity > carts[isExistIndex].detail.quantity
+          carts[isExistIndex].detail.quantity < carts[isExistIndex].quantity
         ) {
           // Đặt lại số lượng = số lượng tồn kho tối đa
           carts[isExistIndex].quantity = carts[isExistIndex].detail.quantity;
@@ -55,7 +57,7 @@ export const orderSlice = createSlice({
         // Thêm sản phẩm mới vào giỏ hàng
         carts.push({
           quantity: item.quantity,
-          _id: item._id,
+          id: item.id,
           detail: item.detail,
         });
       }
@@ -70,13 +72,11 @@ export const orderSlice = createSlice({
       const carts = state.carts;
       const item = action.payload;
 
-      const isExistIndex = carts.findIndex((c) => c._id === item._id);
+      const isExistIndex = carts.findIndex((c) => c.id === item.id);
       if (isExistIndex > -1) {
         carts[isExistIndex].quantity = item.quantity;
-        if (
-          carts[isExistIndex].quantity > carts[isExistIndex].detail.quantity
-        ) {
-          carts[isExistIndex].quantity = carts[isExistIndex].detail.quantity;
+        if (carts[isExistIndex].quantity > carts[isExistIndex].quantity) {
+          carts[isExistIndex].quantity = carts[isExistIndex].quantity;
         }
       }
 
@@ -86,7 +86,7 @@ export const orderSlice = createSlice({
 
     // Xóa sản phẩm khỏi giỏ hàng
     doDeleteItemCartAction: (state, action) => {
-      state.carts = state.carts.filter((c) => c._id !== action.payload._id);
+      state.carts = state.carts.filter((c) => c.id !== action.payload.id);
       message.success("Sản phẩm đã được xóa khỏi Giỏ hàng");
     },
 
@@ -105,7 +105,7 @@ export const orderSlice = createSlice({
     },
     doSetSelectedProductsAction: (state, action) => {
       // action.payload là danh sách sản phẩm được chọn từ cart
-      state.selectedProducts = action.payload;
+      state.selectedProducts = action.payload.products;
     },
   },
   extraReducers: () => {
@@ -118,7 +118,7 @@ export const {
   doUpdateCartAction,
   doDeleteItemCartAction,
   doPlaceOrderAction,
-  doSetSelectedProductsAction
+  doSetSelectedProductsAction,
 } = orderSlice.actions;
 
 export default orderSlice.reducer;
