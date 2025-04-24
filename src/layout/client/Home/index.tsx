@@ -35,7 +35,7 @@ const Home = () => {
     { price: number; [key: string]: any }[]
   >([]);
   const [current, setCurrent] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
+  const [pageSize, setPageSize] = useState(12);
   const [total, setTotal] = useState(0);
 
   const [isLoading, setIsLoading] = useState(false);
@@ -425,6 +425,7 @@ const Home = () => {
                     )}
                   </Row>
                   <Pagination
+                    style={{ marginTop: 10 }}
                     current={current}
                     total={total}
                     pageSize={pageSize}
@@ -435,7 +436,7 @@ const Home = () => {
                       }
                     }}
                     showSizeChanger
-                    pageSizeOptions={["10", "20", "30", "40"]}
+                    pageSizeOptions={["12", "24", "36", "48"]}
                   />
                 </div>
               </Spin>
