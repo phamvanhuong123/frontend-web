@@ -32,7 +32,7 @@ const Home = () => {
     { label: string; value: string }[]
   >([]);
   const [listProduct, setListProduct] = useState<
-    { price: number;[key: string]: any }[]
+    { price: number; [key: string]: any }[]
   >([]);
   const [current, setCurrent] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -96,31 +96,27 @@ const Home = () => {
     }
   };
   //banner
-  const bannerImages = [
-    "/banner1.jpg",
-    "/banner2.jpg",
-    "/banner3.jpg",
-  ];
-  const carouselRef = useRef<any>(null)
+  const bannerImages = ["/banner5.png", "/banner7.jpg"];
+  const carouselRef = useRef<any>(null);
   //New
   const news = [
     {
       id: 1,
-      title: "Giảm giá cực sốc dịp lễ 30/4!",
+      title: "Giảm giá cực sốc dịp lễ 30/4! Yến sào Hoàng Gia Quy Nhơn",
       date: "2025-04-20",
-      image: "/new1.jpg",
+      image: "/bl62.webp",
     },
     {
       id: 2,
-      title: "5 sản phẩm bán chạy nhất tháng 4",
+      title: "5 sản phẩm bán chạy nhất tháng 4 của Yến sào Hoàng Gia Quy Nhơn",
       date: "2025-04-18",
-      image: "/new2.jpg",
+      image: "/yen block.webp",
     },
     {
       id: 3,
-      title: "Cập nhật xu hướng mua sắm 2025",
+      title: "Cập nhật xu hướng mua sắm 2025 của Yến sào Hoàng Gia Quy Nhơn",
       date: "2025-04-15",
-      image: "/new3.jpg",
+      image: "/yen.jpg",
     },
   ];
 
@@ -181,24 +177,22 @@ const Home = () => {
 
   const removeVietnameseTones = (str: string) => {
     return str
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '') // xóa dấu
-      .replace(/đ/g, 'd')
-      .replace(/Đ/g, 'D');
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "") // xóa dấu
+      .replace(/đ/g, "d")
+      .replace(/Đ/g, "D");
   };
 
   const handleRedirectProduct = (product: any) => {
-    const name = product.name ?? '';
+    const name = product.name ?? "";
 
     const slug = removeVietnameseTones(name)
       .toLowerCase()
-      .replace(/[^\w\s-]/g, '')
-      .replace(/\s+/g, '-')
-      .replace(/-+/g, '-');
+      .replace(/[^\w\s-]/g, "")
+      .replace(/\s+/g, "-")
+      .replace(/-+/g, "-");
     navigate(`/products?slug=${slug}`);
   };
-
-
 
   return (
     <>
@@ -211,18 +205,32 @@ const Home = () => {
             {/* Carousel chính có ref */}
             <Carousel autoplay ref={carouselRef} effect="fade">
               {bannerImages.map((img, index) => (
-                <div key={index}>
+                <div key={index} style={{ position: "relative" }}>
                   <img
                     src={img}
                     alt={`banner-${index}`}
                     style={{
                       width: "100%",
-                      height: 400,
-                      objectFit: "cover", // <-- Giữ tỷ lệ gốc, không bị méo
-                      backgroundColor: "#f5f5f5", // Nền sáng cho dễ chịu
+                      height: 450,
+                      objectFit: "cover",
                       borderRadius: 8,
+                      backgroundColor: "#f5f5f5",
+                      filter: "brightness(0.85)",
                     }}
                   />
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: "50%",
+                      left: "10%",
+                      transform: "translateY(-50%)",
+                      color: "#fff",
+                      fontSize: 32,
+                      fontWeight: "bold",
+                      textShadow: "2px 2px 8px rgba(0, 0, 0, 0.5)",
+                    }}
+                  >
+                  </div>
                 </div>
               ))}
             </Carousel>
@@ -275,14 +283,21 @@ const Home = () => {
           <Row gutter={[20, 20]}>
             <Col md={4} sm={0} xs={0}>
               <div
-                style={{ padding: "20px", backgroundColor: "#fff", borderRadius: 6 }}
+                style={{
+                  padding: "20px",
+                  backgroundColor: "#fff",
+                  borderRadius: 6,
+                }}
               >
                 <div
                   style={{ display: "flex", justifyContent: "space-between" }}
                 >
                   <span>
                     <FilterTwoTone />
-                    <span style={{ fontWeight: 500, fontSize: 18 }}> Bộ lọc tìm kiếm</span>
+                    <span style={{ fontWeight: 500, fontSize: 18 }}>
+                      {" "}
+                      Bộ lọc tìm kiếm
+                    </span>
                   </span>
                   <ReloadOutlined
                     title="Reset"
@@ -366,9 +381,13 @@ const Home = () => {
                     items={items}
                     onChange={(key) => setSortQuery(key)}
                   />
-                  <Row className="customize-row" gutter={[10,10]}>
+                  <Row className="customize-row" gutter={[10, 10]}>
                     {listProduct.map((item) => (
-                      <Col xl={{span : 6}} lg={{span : 8}} sm={{span : 12}} xs={{span : 24}}
+                      <Col
+                        xl={{ span: 6 }}
+                        lg={{ span: 8 }}
+                        sm={{ span: 12 }}
+                        xs={{ span: 24 }}
                         className="column"
                         key={`product-${item.id}`}
                         onClick={() => handleRedirectProduct(item)}
@@ -449,10 +468,16 @@ const Home = () => {
                     <img
                       src={item.image}
                       alt={item.title}
-                      style={{ width: "100%", height: 180, objectFit: "contain" }}
+                      style={{
+                        width: "100%",
+                        height: 180,
+                        objectFit: "contain",
+                      }}
                     />
                     <div style={{ padding: 16, flex: 1 }}>
-                      <div style={{ color: "#999", fontSize: 13, marginBottom: 8 }}>
+                      <div
+                        style={{ color: "#999", fontSize: 13, marginBottom: 8 }}
+                      >
                         {new Date(item.date).toLocaleDateString("vi-VN")}
                       </div>
                       <h3
@@ -465,7 +490,10 @@ const Home = () => {
                       >
                         {item.title}
                       </h3>
-                      <Link to={`/news/${item.id}`} style={{ color: "#1890ff" }}>
+                      <Link
+                        to={`/news/${item.id}`}
+                        style={{ color: "#1890ff" }}
+                      >
                         Xem thêm &rsaquo;
                       </Link>
                     </div>
@@ -475,7 +503,7 @@ const Home = () => {
             </Row>
           </div>
         </div>
-      </div >
+      </div>
     </>
   );
 };

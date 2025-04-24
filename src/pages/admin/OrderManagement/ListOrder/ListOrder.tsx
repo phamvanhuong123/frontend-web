@@ -75,7 +75,7 @@ function ListOrder({ statusFilter, paymentStatusFilter }: ListOrderProps) {
     return new Intl.NumberFormat("vi-VN", {
       style: "currency",
       currency: "VND",
-    }).format(amount * 1000);
+    }).format(amount);
   };
 
   const handleEdit = (id: string) => {
