@@ -10,6 +10,9 @@ import {
 } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import type { TableRowSelection } from "antd/es/table/interface";
+import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { doSetSelectedProductsAction } from "~/redux/order/orderSlice";
 
 const { Title, Text } = Typography;
 
@@ -20,9 +23,12 @@ interface CartItem {
   quantity: number;
 }
 
-const Cart: React.FC = () => {
+const Cart = () => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+  const [isAllSelected, setIsAllSelected] = useState(false);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   useEffect(() => {
     try {
@@ -42,12 +48,22 @@ const Cart: React.FC = () => {
     }
   }, []);
 
+  const handleSelectAllToggle = () => {
+    if (isAllSelected) {
+      setSelectedRowKeys([]);
+    } else {
+      setSelectedRowKeys(cartItems.map((item) => item.id));
+    }
+    setIsAllSelected(!isAllSelected);
+  };
+
   const handleRemove = (id: number) => {
     const updated = cartItems.filter((item) => item.id !== id);
     localStorage.setItem("cart", JSON.stringify(updated));
     setCartItems(updated);
     setSelectedRowKeys((prev) => prev.filter((key) => key !== id));
     message.success("Đã xóa sản phẩm khỏi giỏ hàng");
+    window.dispatchEvent(new Event("storage"));
   };
 
   const handleQuantityChange = (id: number, newQuantity: number | null) => {
@@ -58,6 +74,7 @@ const Cart: React.FC = () => {
     );
     setCartItems(updated);
     localStorage.setItem("cart", JSON.stringify(updated));
+    window.dispatchEvent(new Event("storage"));
   };
 
   const handleRemoveSelected = () => {
@@ -68,27 +85,24 @@ const Cart: React.FC = () => {
     setCartItems(updated);
     setSelectedRowKeys([]);
     message.success("Đã xóa các sản phẩm đã chọn");
-  };
-
-  const handleSelectAll = () => {
-    setSelectedRowKeys(cartItems.map((item) => item.id));
+    window.dispatchEvent(new Event("storage"));
   };
 
   const handleBuy = () => {
     const selectedItems = cartItems.filter((item) =>
       selectedRowKeys.includes(item.id)
     );
+
     if (selectedItems.length === 0) {
       message.warning("Vui lòng chọn ít nhất một sản phẩm để thanh toán");
       return;
     }
 
-    const total = selectedItems.reduce(
-      (sum, item) => sum + item.price * item.quantity,
-      0
-    );
+    // Lưu danh sách sản phẩm được chọn vào Redux store để xử lý sau
+    dispatch(doSetSelectedProductsAction(selectedItems));
 
-    // Thanh toán chưa làm
+    // Chuyển đến trang đặt hàng
+    navigate("/orders");
   };
 
   const columns: ColumnsType<CartItem> = [
@@ -136,6 +150,7 @@ const Cart: React.FC = () => {
     selectedRowKeys,
     onChange: (newSelectedRowKeys) => {
       setSelectedRowKeys(newSelectedRowKeys);
+      setIsAllSelected(newSelectedRowKeys.length === cartItems.length);
     },
   };
 
@@ -169,7 +184,12 @@ const Cart: React.FC = () => {
             }}
           >
             <Space wrap>
-              <Button onClick={handleSelectAll}>Chọn tất cả</Button>
+              <Button
+                onClick={handleSelectAllToggle}
+                style={{ width: "100px" }}
+              >
+                {isAllSelected ? "Bỏ chọn" : "Chọn tất cả"}
+              </Button>
               <Button
                 danger
                 disabled={selectedRowKeys.length === 0}

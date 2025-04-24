@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import {
   doDeleteItemCartAction,
   doUpdateCartAction,
+  doSetSelectedProductsAction
 } from "../../../redux/order/orderSlice";
 
 interface ViewOrderProps {
@@ -117,7 +118,10 @@ const ViewOrder = ({ setCurrentStep } : ViewOrderProps) => {
           <Divider style={{ margin: "10px 0" }} />
           <button
             disabled={carts.length === 0}
-            onClick={() => setCurrentStep(1)}
+            onClick={() => {
+              dispatch(doSetSelectedProductsAction(carts)); // Lưu vào Redux
+              setCurrentStep(1); // Tiếp tục tới bước thanh toán
+            }}
           >
             Mua Hàng ({carts?.length ?? 0})
           </button>
