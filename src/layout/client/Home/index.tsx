@@ -16,12 +16,11 @@ import {
   Breadcrumb,
 } from "antd";
 import { useEffect, useRef, useState } from "react";
-import { Link, Route, useNavigate, useOutletContext } from "react-router-dom";
+import { Link, useNavigate, useOutletContext } from "react-router-dom";
 import { callFetchCategory, productApi } from "../../../services/axios.product";
 import { getImageUrl } from "../../../config/config";
 import MobileFilter from "./MobileFilter";
 import { ProductQueryParameters } from "~/types/product";
-import ProductPage from "~/pages/client/product";
 import { Carousel } from "antd";
 import { LeftOutlined, RightOutlined } from "@ant-design/icons";
 

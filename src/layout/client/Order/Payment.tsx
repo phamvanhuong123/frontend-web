@@ -349,7 +349,7 @@ const Payment: React.FC<PaymentProps> = ({ setCurrentStep }) => {
         // get url
         const paymentData = {
           orderCode: `ORDER-${Date.now()}`,
-          // id: 
+          // id:
           fullName: user?.fullName,
           description: "Thanh toán đơn hàng",
           amount: totalPrice,
