@@ -10,7 +10,7 @@ import {
   Box,
   IconButton,
 } from "@mui/material";
-import { Flip, toast, ToastContainer } from 'react-toastify';
+import { Flip, toast, ToastContainer } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { productApi } from "~/services/axios.product";
 import { CreateAProduct } from "~/types/product";
@@ -18,7 +18,7 @@ import Category from "~/types/category";
 import Manufacturer from "~/types/manufacture";
 import { manufactureApi } from "~/services/axios.manufacture";
 import { categoryApi } from "~/services/axios.category";
-import DeleteIcon from '@mui/icons-material/Delete';
+import DeleteIcon from "@mui/icons-material/Delete";
 import storeApi from "~/services/axios.store";
 import { StoreLocation } from "~/types/store";
 
@@ -36,13 +36,12 @@ function CreateProduct() {
     discountId: "",
     quantity: 0,
     storeId: "",
-    images: []
+    images: [],
   });
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
 
   const navigate = useNavigate();
-
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -52,19 +51,18 @@ function CreateProduct() {
     });
   };
 
-
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const files = Array.from(e.target.files).slice(0, 4); // Giới hạn tối đa 4 ảnh
       setImageFiles(files);
 
       // Tạo preview cho các ảnh
-      const previews = files.map(file => URL.createObjectURL(file));
+      const previews = files.map((file) => URL.createObjectURL(file));
       setImagePreviews(previews);
 
-      setProduct(prev => ({
+      setProduct((prev) => ({
         ...prev,
-        imageFiles: files
+        imageFiles: files,
       }));
     }
   };
@@ -79,9 +77,9 @@ function CreateProduct() {
     setImageFiles(newFiles);
     setImagePreviews(newPreviews);
 
-    setProduct(prev => ({
+    setProduct((prev) => ({
       ...prev,
-      imageFiles: newFiles
+      imageFiles: newFiles,
     }));
   };
 
@@ -126,7 +124,9 @@ function CreateProduct() {
         navigate("/admin/products");
       } catch (error: any) {
         console.error("Error details:", error);
-        toast.error(error.response?.data?.message || "Có lỗi xảy ra khi thêm sản phẩm");
+        toast.error(
+          error.response?.data?.message || "Có lỗi xảy ra khi thêm sản phẩm"
+        );
       }
     };
     fetchApi();
@@ -150,7 +150,7 @@ function CreateProduct() {
     fetchData();
   }, []);
   return (
-    <Card sx={{ maxWidth: 600, margin: "auto", mt: 4, p: 2,overflow : 'auto' }}>
+    <Card sx={{ maxWidth: 600, margin: "auto", mt: 4, p: 2, overflow: "auto" }}>
       <CardContent>
         <Typography variant="h5" gutterBottom>
           Thêm sản phẩm mới
@@ -240,83 +240,97 @@ function CreateProduct() {
               ))}
             </TextField>
 
-            <Box sx={{ mt: 2, display : 'flex',gap  : 2 ,alignItems : 'start' }}>
-              
-              <Box>
-              <Typography variant="subtitle1" gutterBottom>
-                Hình ảnh sản phẩm (Tối đa 4 ảnh)
-              </Typography>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleFileChange}
-                multiple
-                style={{ display: 'none' }}
-                id="image-upload"
-              />
-              <label htmlFor="image-upload">
-                <Button
-                  variant="outlined"
-                  component="span"
-                  disabled={imageFiles.length >= 4}
-                >
-                  Chọn ảnh
-                </Button>
-              </label>
+            <Box
+              sx={{
+                mt: 2,
+                display: "flex",
+                gap: 2,
+                alignItems: "start",
+                justifyContent: "space-between",
+                width: "100%",
+              }}
+            >
+              <Box sx={{ width: "60%" }}>
+                <Typography variant="subtitle1" gutterBottom>
+                  Hình ảnh sản phẩm (Tối đa 4 ảnh)
+                </Typography>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                  multiple
+                  style={{ display: "none" }}
+                  id="image-upload"
+                />
+                <label htmlFor="image-upload">
+                  <Button
+                    variant="outlined"
+                    component="span"
+                    disabled={imageFiles.length >= 4}
+                  >
+                    Chọn ảnh
+                  </Button>
+                </label>
 
-              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mt: 2 }}>
-                {imagePreviews.map((preview, index) => (
-                  <Box key={index} sx={{ position: 'relative' }}>
-                    <img
-                      src={preview}
-                      alt={`preview-${index}`}
-                      style={{
-                        width: 150,
-                        height: 150,
-                        objectFit: 'cover',
-                        borderRadius: 4
-                      }}
-                    />
-                    <IconButton
-                      size="small"
-                      onClick={() => removeImage(index)}
+                <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mt: 2 }}>
+                  {imagePreviews.map((preview, index) => (
+                    <Box
+                      key={index}
                       sx={{
-                        position: 'absolute',
-                        top: 4,
-                        right: 4,
-                        backgroundColor: 'rgba(0,0,0,0.5)',
-                        color: 'white',
-                        '&:hover': {
-                          backgroundColor: 'rgba(0,0,0,0.7)',
-                        }
+                        position: "relative",
+                        boxShadow: "rgba(99, 99, 99, 0.2) 0px 2px 8px 0px",
+                        width : 'calc(50% - 10px)'
                       }}
+                      
                     >
-                      <DeleteIcon fontSize="small" />
-                    </IconButton>
-                  </Box>
-                ))}
-                {product.images?.map((image) => (
-                  <Box key={image.id} sx={{ position: 'relative' }}>
-                    <img
-                      src={image.url}
-                      alt={`product-image-${image.id}`}
-                      style={{
-                        width: 150,
-                        height: 150,
-                        objectFit: 'cover',
-                        borderRadius: 4
-                      }}
-                    />
-                  </Box>
-                ))}
-              </Box>
+                      <img
+                        src={preview}
+                        alt={`preview-${index}`}
+                        style={{
+                          width: 150,
+                          height: 150,
+                          objectFit: "cover",
+                          borderRadius: 4,
+                        }}
+                      />
+                      <IconButton
+                        size="small"
+                        onClick={() => removeImage(index)}
+                        sx={{
+                          position: "absolute",
+                          top: 4,
+                          right: 4,
+                          backgroundColor: "rgba(0,0,0,0.5)",
+                          color: "white",
+                          "&:hover": {
+                            backgroundColor: "rgba(0,0,0,0.7)",
+                          },
+                        }}
+                      >
+                        <DeleteIcon fontSize="small" />
+                      </IconButton>
+                    </Box>
+                  ))}
+                  {product.images?.map((image) => (
+                    <Box key={image.id} sx={{ position: "relative" }}>
+                      <img
+                        src={image.url}
+                        alt={`product-image-${image.id}`}
+                        style={{
+                          width: 150,
+                          height: 150,
+                          objectFit: "cover",
+                          borderRadius: 4,
+                        }}
+                      />
+                    </Box>
+                  ))}
+                </Box>
               </Box>
               <Button type="submit" variant="contained" color="primary">
                 Thêm sản phẩm
               </Button>
             </Box>
-            
-           
           </Grid>
         </form>
       </CardContent>

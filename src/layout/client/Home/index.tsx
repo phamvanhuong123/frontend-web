@@ -381,9 +381,10 @@ const Home = () => {
                     items={items}
                     onChange={(key) => setSortQuery(key)}
                   />
-                  <Row className="customize-row" gutter={[10, 10]}>
+                  <Row className="customize-row"  gutter={[10, 10]}>
                     {listProduct.map((item) => (
                       <Col
+
                         xl={{ span: 6 }}
                         lg={{ span: 8 }}
                         sm={{ span: 12 }}
