@@ -12,6 +12,7 @@ import {
   Dropdown,
   Space,
   List,
+  Carousel,
 } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, Link } from "react-router-dom";
@@ -20,6 +21,7 @@ import "./header.scss";
 import { doLogoutAction } from "../../../redux/account/accountSlice";
 import ManageAccount from "../Account/ManageAccount";
 import { CartItem } from "~/redux/order/orderSlice";
+import { getImageUrl } from "~/config/config";
 
 const Header = (props: {
   searchTerm: string;
@@ -37,36 +39,6 @@ const Header = (props: {
     (state: any) => state.order.carts
   ) as CartItem[];
   const [showManageAccount, setShowManageAccount] = useState(false);
-
-  // useEffect(() => {
-  //   const handleStorageChange = () => {
-  //     try {
-  //       const storedCarts = localStorage.getItem("cart");
-  //       if (storedCarts) {
-  //         const parsed = JSON.parse(storedCarts);
-  //         if (Array.isArray(parsed)) {
-  //           setCartItems(parsed);
-  //         } else {
-  //           setCartItems([]);
-  //         }
-  //       }
-  //     } catch (error) {
-  //       console.error("Lỗi khi đọc localStorage:", error);
-  //       setCartItems([]);
-  //     }
-  //   };
-
-  //   // Lấy dữ liệu giỏ hàng ban đầu
-  //   handleStorageChange();
-
-  //   // Thêm listener để lắng nghe sự thay đổi của localStorage
-  //   window.addEventListener("storage", handleStorageChange);
-
-  //   // Xóa listener khi component unmount
-  //   return () => {
-  //     window.removeEventListener("storage", handleStorageChange);
-  //   };
-  // }, []);
 
   const handleLogout = async () => {
     await authApi.callLogout();
@@ -110,29 +82,96 @@ const Header = (props: {
 
   // Tạo nội dung Popover hiển thị giỏ hàng
   const contentPopover = (
-    <div style={{ maxHeight: "300px", overflowY: "auto" }}>
+    <div
+      style={{
+        maxHeight: "300px",
+        overflowY: "auto",
+        width: "400px",
+        position: "relative",
+      }}
+    >
       {cartItems.length > 0 ? (
-        <List
-          itemLayout="horizontal"
-          dataSource={cartItems}
-          renderItem={(item) => (
-            <List.Item>
-              <List.Item.Meta
-                title={<span>{item.detail.name}</span>}
-                description={
-                  <>
-                    <span>Số lượng: {item.quantity}</span>
-                    <br />
-                    <span>
-                      Giá:{" "}
-                      {(item.detail.price * item.quantity).toLocaleString()}₫
-                    </span>
-                  </>
-                }
-              />
-            </List.Item>
-          )}
-        />
+        <>
+          <List
+            itemLayout="horizontal"
+            dataSource={cartItems}
+            renderItem={(item) => (
+              <List.Item>
+                <List.Item.Meta
+                  avatar={
+                    <Carousel autoplay dots={false} arrows style={{ width: 60 }}>
+                      {item.detail.image?.map((img: any, idx: number) => (
+                        <div key={idx}>
+                          <img
+                            src={getImageUrl(img.url)}
+                            alt={img.altText || "Ảnh sản phẩm"}
+                            style={{
+                              width: "60px",
+                              height: "60px",
+                              objectFit: "cover",
+                              borderRadius: "4px",
+                            }}
+                          />
+                        </div>
+                      ))}
+                    </Carousel>
+                  }
+                  title={<span>{item.detail.name}</span>}
+                  description={
+                    <>
+                      <span>Số lượng: {item.quantity}</span>
+                      <br />
+                      <span>
+                        Giá:{" "}
+                        {(item.detail.price * item.quantity).toLocaleString()}₫
+                      </span>
+                    </>
+                  }
+                />
+              </List.Item>
+            )}
+          />
+          {/* Nút điều hướng tới trang Cart */}
+          <div
+            style={{
+              position: "sticky", // Sử dụng sticky để cố định trong popover
+              bottom: 0,
+              left: 0,
+              right: 0,
+              padding: "10px",
+              borderTop: "1px solid #f0f0f0",
+              backgroundColor: "#fff",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
+            <span>
+              Tổng cộng:{" "}
+              <strong>
+                {cartItems
+                  .reduce(
+                    (total, item) => total + item.detail.price * item.quantity,
+                    0
+                  )
+                  .toLocaleString()}₫
+              </strong>
+            </span>
+            <button
+              onClick={() => navigate("/cart")}
+              style={{
+                backgroundColor: "#1890ff",
+                color: "#fff",
+                border: "none",
+                padding: "8px 16px",
+                borderRadius: "4px",
+                cursor: "pointer",
+              }}
+            >
+              Xem giỏ hàng ({cartItems.length})
+            </button>
+          </div>
+        </>
       ) : (
         <Empty description="Không có sản phẩm trong giỏ hàng" />
       )}

@@ -102,7 +102,7 @@ const Cart = () => {
               <div key={idx}>
                 <img
                   src={getImageUrl(img.url)}
-                  alt={img.altText || "Ảnh sản phẩm"} // Văn bản thay thế
+                  alt={img.altText || "Ảnh sản phẩm"}
                   style={{
                     width: "50px",
                     height: "50px",
