@@ -20,7 +20,7 @@ import { Link, useNavigate, useOutletContext } from "react-router-dom";
 import { callFetchCategory, productApi } from "../../../services/axios.product";
 import { getImageUrl } from "../../../config/config";
 import MobileFilter from "./MobileFilter";
-import { ProductQueryParameters } from "~/types/product";
+import { PaginationResponse, ProductQueryParameters } from "~/types/product";
 import { Carousel } from "antd";
 import { LeftOutlined, RightOutlined } from "@ant-design/icons";
 
@@ -29,6 +29,9 @@ const Home = () => {
     useOutletContext<[string, React.Dispatch<React.SetStateAction<string>>]>();
 
   const [listCategory, setListCategory] = useState<
+    { label: string; value: string }[]
+  >([]);
+  const [listManufacturer, setListManufacturer] = useState<
     { label: string; value: string }[]
   >([]);
   const [listProduct, setListProduct] = useState<
@@ -42,47 +45,76 @@ const Home = () => {
   const [filter, setFilter] = useState("");
   const [sortQuery, setSortQuery] = useState("sort=-sold");
 
-  const [showMobileFilter, setShowMobileFilter] = useState(false);
+  const [formFilterValues, setFormFilterValues] = useState<{
+    category?: string[]; // Ant Design Checkbox.Group returns string[]
+    manufacturer?: string[]; // Will be ignored by backend unless updated
+    range?: { from?: number; to?: number };
+    // isActive?: boolean; // Add if you implement UI
+}>({});
 
+  const [showMobileFilter, setShowMobileFilter] = useState(false);
+  const [sortBy, setSortBy] = useState<string | null>('Sold'); // Default sort by Sold
+const [sortOrder, setSortOrder] = useState<'asc' | 'desc' | null>('desc'); // Default order descending
   const [form] = Form.useForm();
   const navigate = useNavigate();
 
   const fetchProduct = async () => {
+    debugger
     setIsLoading(true);
     try {
+      // Build params object based on current state
       const params: ProductQueryParameters = {
         pageIndex: current,
         pageSize: pageSize,
+        searchTerm: searchTerm || null, // Send null if empty
+        sortBy: sortBy || null, // Send null if no sort selected
+        sortOrder: sortOrder || null, // Send null if no sort selected
       };
 
-      // Thêm các điều kiện filter
-      if (filter) {
-        const filterParams = new URLSearchParams(filter);
-        if (filterParams.has("category")) {
-          params.category = filterParams.get("category") || "";
+      // Map formFilterValues to backend parameters
+      if (formFilterValues.category && formFilterValues.category.length > 0) {
+        // Backend code provided filters by a SINGLE CategoryId (nullable int).
+        // Frontend Checkbox.Group allows multiple selections (string[]).
+        // To match the backend code: send the FIRST selected Category ID.
+        // If backend needs to support multiple, backend must be updated.
+        // Ensure value is a valid number before sending
+        const firstCategoryId = parseInt(formFilterValues.category[0], 10);
+        if (!isNaN(firstCategoryId)) {
+             params.categoryId = firstCategoryId;
+        } else {
+             params.categoryId = null;
         }
-        if (filter.includes("price>=") && filter.includes("price<=")) {
-          const [from, to] = filter.match(/\d+/g) || [];
-          params.priceFrom = Number(from);
-          params.priceTo = Number(to);
-        }
+
+      } else {
+         params.categoryId = null; // Send null if no category selected
       }
 
-      // Thêm sort
-      if (sortQuery) {
-        params.sort = sortQuery.replace("sort=", "");
+      if (formFilterValues.range?.from !== undefined && formFilterValues.range.from !== null) {
+        params.minPrice = formFilterValues.range.from;
+      } else {
+         params.minPrice = null;
       }
 
-      // Thêm search term
-      if (searchTerm) {
-        params.searchTerm = searchTerm;
+      if (formFilterValues.range?.to !== undefined && formFilterValues.range.to !== null) {
+        params.maxPrice = formFilterValues.range.to;
+      } else {
+         params.maxPrice = null;
       }
 
-      const res = await productApi.getAllPage(params);
+      // Add isActive if UI exists and state is managed
+      // if (formFilterValues.isActive !== undefined) {
+      //    params.isActive = formFilterValues.isActive;
+      // }
+
+
+      // productApi.getAllPage must be configured to send the params object
+      // as query string parameters correctly (e.g., using Axios `params` property).
+      const res: PaginationResponse<any> = await productApi.getAllPage(params);
+
 
       if (res) {
-        setListProduct(res.items); // items chứa danh sách sản phẩm
-        setTotal(res.totalCount); // totalCount chứa tổng số bản ghi
+        setListProduct(res.items); // items contains the list of products
+        setTotal(res.totalCount); // totalCount contains the total record count
       } else {
         setListProduct([]);
         setTotal(0);
@@ -142,19 +174,24 @@ const Home = () => {
 
   const handleChangeFilter = (changedValues: any, values: any) => {
     const filters: string[] = [];
-    // Xử lý filter theo danh mục
+  
+    // Filter by category
     if (values.category && values.category.length > 0) {
       filters.push(`category=${values.category.join(",")}`);
     }
-
-    // Xử lý filter theo khoảng giá
+  
+    // Filter by manufacturer
+    if (values.manufacturer && values.manufacturer.length > 0) {
+      filters.push(`manufacturer=${values.manufacturer.join(",")}`);
+    }
+  
+    // Filter by price range
     if (values.range?.from !== undefined && values.range?.to !== undefined) {
       filters.push(`price>=${values.range.from}`);
-
       filters.push(`price<=${values.range.to}`);
     }
-
-    // Kết hợp tất cả các filter
+  
+    // Combine all filters
     setFilter(filters.join("&"));
   };
 
@@ -164,16 +201,19 @@ const Home = () => {
       if (values.category?.length) {
         filterQuery += `&category=${values.category.join(",")}`;
       }
+      if (values.manufacturer?.length) {
+        filterQuery += `&manufacturer=${values.manufacturer.join(",")}`;
+      }
       setFilter(filterQuery);
     }
   };
 
   const items = [
-    { key: "sort=-sold", label: `Phổ biến` },
-    { key: "sort=-updatedAt", label: `Hàng Mới` },
-    { key: "sort=price", label: `Giá Thấp Đến Cao` },
-    { key: "sort=-price", label: `Giá Cao Đến Thấp` },
-  ];
+  { key: "-sold", label: `Phổ biến` },
+  { key: "-updatedAt", label: `Hàng Mới` },
+  { key: "price", label: `Giá Thấp Đến Cao` },
+  { key: "-price", label: `Giá Cao Đến Thấp` },
+];
 
   const removeVietnameseTones = (str: string) => {
     return str
@@ -314,6 +354,7 @@ const Home = () => {
                   form={form}
                   onValuesChange={handleChangeFilter}
                 >
+                  {/* Category Filter */}
                   <Form.Item
                     name="category"
                     label="Danh mục sản phẩm"
@@ -333,7 +374,29 @@ const Home = () => {
                       </Row>
                     </Checkbox.Group>
                   </Form.Item>
-                  <Divider />
+
+                  {/* Manufacturer Filter */}
+                  <Form.Item
+                    name="manufacturer"
+                    label="Nhà sản xuất"
+                    labelCol={{ span: 24 }}
+                  >
+                    <Checkbox.Group>
+                      <Row>
+                        {listManufacturer.map((item, index) => (
+                          <Col
+                            span={24}
+                            key={`manufacturer-${index}`}
+                            style={{ padding: "7px 0" }}
+                          >
+                            <Checkbox value={item.value}>{item.label}</Checkbox>
+                          </Col>
+                        ))}
+                      </Row>
+                    </Checkbox.Group>
+                  </Form.Item>
+
+                  {/* Price Range Filter */}
                   <Form.Item label="Khoảng giá" labelCol={{ span: 24 }}>
                     <Row gutter={[10, 10]}>
                       <Col span={11}>
@@ -434,7 +497,7 @@ const Home = () => {
                       }
                     }}
                     showSizeChanger
-                    pageSizeOptions={["10", "20", "30", "40"]}
+                    pageSizeOptions={["8", "20", "30", "40"]}
                   />
                 </div>
               </Spin>
@@ -446,6 +509,7 @@ const Home = () => {
             handleChangeFilter={handleChangeFilter}
             listCategory={listCategory}
             onFinish={onFinish}
+            form={form}
           />
           <div style={{ padding: "40px 0" }}>
             <h2 style={{ fontSize: 24, fontWeight: 600, marginBottom: 24 }}>

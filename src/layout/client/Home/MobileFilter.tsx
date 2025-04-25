@@ -1,4 +1,4 @@
-import { Button, Checkbox, Col, Drawer, Form, InputNumber, Rate, Row, Divider } from "antd";
+import { Button, Checkbox, Col, Drawer, Form, InputNumber, Rate, Row, Divider, FormInstance } from "antd";
 
 interface MobileFilterProps {
     isOpen: boolean;
@@ -6,6 +6,7 @@ interface MobileFilterProps {
     handleChangeFilter: (changedValues: any, values: any) => void;
     listCategory: { value: string; label: string }[];
     onFinish: (values: any) => void;
+    form: FormInstance<any>;
 }
 
 
