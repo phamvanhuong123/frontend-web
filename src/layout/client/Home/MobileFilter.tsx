@@ -6,6 +6,7 @@ interface MobileFilterProps {
     handleChangeFilter: (changedValues: any, values: any) => void;
     listCategory: { value: string; label: string }[];
     onFinish: (values: any) => void;
+    form: any;
 }
 
 

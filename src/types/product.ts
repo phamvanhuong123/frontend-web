@@ -16,14 +16,24 @@ interface Product {
     }[]
 }
 
+
 export interface ProductQueryParameters {
-    pageIndex?: number;
-    pageSize?: number;
-    sort?: string;
-    category?: string;
-    priceFrom?: number;
-    priceTo?: number;
-    searchTerm?: string;
+  pageIndex: number;
+  pageSize: number;
+  searchTerm?: string | null;
+  categoryId?: string | null;
+  minPrice?: number | null;
+  maxPrice?: number | null;
+  isActive?: boolean | null;
+  sortBy?: string | null;
+  sortOrder?: 'asc' | 'desc' | null;
+}
+
+export interface PaginationResponse<T> {
+  pageIndex: number;
+  pageSize: number;
+  totalCount: number;
+  items: T[];
 }
 
 export interface CreateAProduct {
