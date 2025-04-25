@@ -38,6 +38,10 @@ const ViewOrder = ({ setCurrentStep }: ViewOrderProps) => {
     }
   }, [selectedProducts]);
 
+  useEffect(() => {
+    setCheckedProductIds(selectedProducts.map((item) => item.id));
+  }, [selectedProducts]);
+
   const handleOnChangeInput = (value: number | null, product: CartItem) => {
     if (!value || value < 1) return;
     if (!isNaN(value)) {
@@ -51,11 +55,23 @@ const ViewOrder = ({ setCurrentStep }: ViewOrderProps) => {
     }
   };
 
-  const handleToggleCheck = (id: string) => {
-    if (checkedProductIds.includes(id)) {
-      setCheckedProductIds(checkedProductIds.filter((item) => item !== id));
+  const handleToggleCheck = (product: CartItem) => {
+    if (checkedProductIds.includes(product.id)) {
+      setCheckedProductIds(
+        checkedProductIds.filter((item) => item !== product.id)
+      );
+      dispatch(
+        doSetSelectedProductsAction({
+          products: selectedProducts.filter((item) => item.id !== product.id),
+        })
+      );
     } else {
-      setCheckedProductIds([...checkedProductIds, id]);
+      setCheckedProductIds([...checkedProductIds, product.id]);
+      dispatch(
+        doSetSelectedProductsAction({
+          products: [...selectedProducts, product],
+        })
+      );
     }
   };
 
@@ -70,11 +86,11 @@ const ViewOrder = ({ setCurrentStep }: ViewOrderProps) => {
                 <input
                   type="checkbox"
                   checked={checkedProductIds.includes(product.id)}
-                  onChange={() => handleToggleCheck(product.id)}
+                  onChange={() => handleToggleCheck(product)}
                   style={{ marginRight: 8 }}
                 />
                 <img
-                  src={getImageUrl(product?.detail?.images?.[0]?.url)}
+                  src={getImageUrl(product?.detail?.image?.[0]?.url)}
                   alt="product Thumbnail"
                 />
                 <div className="title">{product?.detail?.name}</div>

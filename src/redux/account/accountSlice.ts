@@ -33,11 +33,14 @@ export const accountSlice = createSlice({
   name: "account",
   initialState,
   reducers: {
-    doLoginAction: (state, action: PayloadAction<{
-      accessToken: string;
-      refreshToken: string;
-      userInfo: IUser;
-    }>) => {
+    doLoginAction: (
+      state,
+      action: PayloadAction<{
+        accessToken: string;
+        refreshToken: string;
+        userInfo: IUser;
+      }>
+    ) => {
       state.accessToken = action.payload.accessToken;
       state.refreshToken = action.payload.refreshToken;
       state.user = action.payload.userInfo;
@@ -51,21 +54,27 @@ export const accountSlice = createSlice({
         refreshToken: "",
         user: null,
         isAuthenticated: false,
-        tempAvatar: undefined
+        tempAvatar: undefined,
       };
     },
-    doUploadAvatarAction: (state, action: PayloadAction<{ avatar: string }>) => {
+    doUploadAvatarAction: (
+      state,
+      action: PayloadAction<{ avatar: string }>
+    ) => {
       state.tempAvatar = action.payload.avatar; // Lưu avatar tạm thời
     },
-    doUpdateUserInfoAction: (state, action: PayloadAction<{
-      name: string;
-      phoneNumber: string;
-      avatar?: string;
-    }>) => {
+    doUpdateUserInfoAction: (
+      state,
+      action: PayloadAction<{
+        name: string;
+        phoneNumber: string;
+        avatar?: string;
+      }>
+    ) => {
       if (state.user) {
         state.user.name = action.payload.name;
         state.user.phoneNumber = action.payload.phoneNumber;
-        
+
         // Nếu có avatar trong payload hoặc có tempAvatar thì cập nhật
         if (action.payload.avatar || state.tempAvatar) {
           state.user.avatar = action.payload.avatar || state.tempAvatar;
@@ -85,13 +94,13 @@ export const accountSlice = createSlice({
 });
 
 // Export tất cả các actions
-export const { 
-  doLoginAction, 
-  doLogoutAction, 
-  doUploadAvatarAction, 
+export const {
+  doLoginAction,
+  doLogoutAction,
+  doUploadAvatarAction,
   doUpdateUserInfoAction,
   doResetTempAvatarAction,
-  doGetAccountAction
+  doGetAccountAction,
 } = accountSlice.actions;
 
 export default accountSlice.reducer;
