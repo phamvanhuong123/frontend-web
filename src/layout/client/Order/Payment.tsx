@@ -12,6 +12,7 @@ import {
   Modal,
   Card,
   List,
+  Checkbox,
 } from "antd";
 import {
   DeleteTwoTone,
@@ -94,7 +95,8 @@ const Payment: React.FC<PaymentProps> = ({ setCurrentStep }) => {
   const [selectedDistrict, setSelectedDistrict] = useState<
     string | undefined
   >();
-
+  const [isAddressDefault, setIsAddressDefault] = useState(false);
+  const [isAddressDefaultBilling, setIsAddressDefaultBilling] = useState(false);
   useEffect(() => {
     if (selectedProducts && selectedProducts.length > 0) {
       const sum = selectedProducts.reduce(
@@ -394,6 +396,12 @@ const Payment: React.FC<PaymentProps> = ({ setCurrentStep }) => {
     }
   };
 
+  const handleAddressDefault = () => {
+    setIsAddressDefault((prev) => !prev);
+  };
+  const handleAddressDefaultBilling = () => {
+    setIsAddressDefaultBilling((prev) => !prev);
+  };
   return (
     <Row gutter={[20, 20]}>
       <Col md={16} xs={24}>
@@ -723,20 +731,22 @@ const Payment: React.FC<PaymentProps> = ({ setCurrentStep }) => {
             <Row gutter={16}>
               <Col span={12}>
                 <Form.Item name="isDefaultShipping" valuePropName="checked">
-                  <Radio.Group>
-                    <Radio value={true}>
-                      Đặt làm địa chỉ giao hàng mặc định
-                    </Radio>
-                  </Radio.Group>
+                  <Checkbox
+                    value={isAddressDefault}
+                    onChange={handleAddressDefault}
+                  >
+                    Đặt làm địa chỉ giao hàng mặc định
+                  </Checkbox>
                 </Form.Item>
               </Col>
               <Col span={12}>
                 <Form.Item name="isDefaultBilling" valuePropName="checked">
-                  <Radio.Group>
-                    <Radio value={true}>
-                      Đặt làm địa chỉ thanh toán mặc định
-                    </Radio>
-                  </Radio.Group>
+                  <Checkbox
+                    value={isAddressDefaultBilling}
+                    onChange={() => handleAddressDefaultBilling()}
+                  >
+                    Đặt làm địa chỉ thanh toán mặc định
+                  </Checkbox>
                 </Form.Item>
               </Col>
             </Row>
