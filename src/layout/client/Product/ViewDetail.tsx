@@ -63,16 +63,17 @@ const ViewDetail = ({ dataProduct }: ViewDetailProps) => {
 
   const handleChangeButton = (type: "MINUS" | "PLUS") => {
     if (type === "MINUS") {
-      if (currentQuantity - 1 <= 0) return;
-      setCurrentQuantity(currentQuantity - 1);
+      if (currentQuantity - 1 <= 0) return; // Không cho phép số lượng nhỏ hơn 1
+      setCurrentQuantity((prev) => prev - 1); // Giảm số lượng
     }
     if (type === "PLUS") {
+      // console.log(dataProduct.quantity); Đang là 0 nha, ai ở backend thêm dô mấy cái cho đẹp
       if (
         dataProduct.quantity !== null &&
         currentQuantity >= dataProduct.quantity
       )
-        return;
-      setCurrentQuantity(currentQuantity + 1);
+        return; // Không cho phép vượt quá số lượng tồn kho
+      setCurrentQuantity((prev) => prev + 1); // Tăng số lượng
     }
   };
 
@@ -153,21 +154,9 @@ const ViewDetail = ({ dataProduct }: ViewDetailProps) => {
         />
         <div style={{ padding: "20px", background: "#fff", borderRadius: 5 }}>
           {dataProduct && dataProduct.id ? (
-            <Row gutter={[20, 20]}>
-              <Col md={10} sm={0} xs={0}>
-                <ImageGallery
-                  ref={refGallery}
-                  items={images}
-                  showPlayButton={false}
-                  showFullscreenButton={false}
-                  renderLeftNav={() => <></>}
-                  renderRightNav={() => <></>}
-                  slideOnThumbnailOver={true}
-                  onClick={handleOnClickImage}
-                />
-              </Col>
-              <Col md={14} sm={24}>
-                <Col md={0} sm={24} xs={24}>
+            <>
+              <Row gutter={[20, 20]}>
+                <Col md={10} sm={0} xs={0}>
                   <ImageGallery
                     ref={refGallery}
                     items={images}
@@ -175,78 +164,126 @@ const ViewDetail = ({ dataProduct }: ViewDetailProps) => {
                     showFullscreenButton={false}
                     renderLeftNav={() => <></>}
                     renderRightNav={() => <></>}
-                    showThumbnails={false}
+                    slideOnThumbnailOver={true}
+                    onClick={handleOnClickImage}
                   />
                 </Col>
-                <Col span={24}>
-                  <div className="manufacturerName">
-                    Nhà cung cấp:{" "}
-                    <a href="#">{dataProduct?.manufacturerName}</a>
-                  </div>
-                  <div className="title">{dataProduct?.name}</div>
-                  <div className="rating">
-                    <Rate
-                      value={5}
-                      disabled
-                      style={{ color: "#ffce3d", fontSize: 12 }}
+                <Col md={14} sm={24}>
+                  <Col md={0} sm={24} xs={24}>
+                    <ImageGallery
+                      ref={refGallery}
+                      items={images}
+                      showPlayButton={false}
+                      showFullscreenButton={false}
+                      renderLeftNav={() => <></>}
+                      renderRightNav={() => <></>}
+                      showThumbnails={false}
                     />
-                    <span className="sold">
-                      <Divider type="vertical" />
-                      Đã bán {dataProduct.sold}
-                    </span>
-                  </div>
-                  <div className="price">
-                    <span className="currency">
-                      {new Intl.NumberFormat("vi-VN", {
-                        style: "currency",
-                        currency: "VND",
-                      }).format(dataProduct?.price ?? 0)}
-                    </span>
-                  </div>
-                  <div className="delivery">
-                    <div>
-                      <span className="left-side">Vận chuyển</span>
-                      <span className="right-side">Miễn phí vận chuyển</span>
+                  </Col>
+                  <Col span={24}>
+                    <div className="manufacturerName">
+                      Nhà cung cấp:{" "}
+                      <a href="#">{dataProduct?.manufacturerName}</a>
                     </div>
-                  </div>
-                  <div className="quantity">
-                    <span className="left-side">Số lượng</span>
-                    <span className="right-side">
-                      <button onClick={() => handleChangeButton("MINUS")}>
-                        <MinusOutlined />
-                      </button>
-                      <input
-                        onChange={(event) =>
-                          handleChangeInput(event.target.value)
-                        }
-                        value={currentQuantity}
+                    <div className="title">{dataProduct?.name}</div>
+                    <div className="rating">
+                      <Rate
+                        value={5}
+                        disabled
+                        style={{ color: "#ffce3d", fontSize: 12 }}
                       />
-                      <button onClick={() => handleChangeButton("PLUS")}>
-                        <PlusOutlined />
-                      </button>
-                    </span>
-                  </div>
-                  <div className="buy">
-                    <button
-                      className="cart"
-                      onClick={() =>
-                        handleAddToCart(currentQuantity, dataProduct)
-                      }
-                    >
-                      <BsCartPlus className="icon-cart" />
-                      <span>Thêm vào giỏ hàng</span>
-                    </button>
+                      <span className="sold">
+                        <Divider type="vertical" />
+                        Đã bán {dataProduct.sold}
+                      </span>
+                    </div>
+                    <div className="price">
+                      <span className="currency">
+                        {new Intl.NumberFormat("vi-VN", {
+                          style: "currency",
+                          currency: "VND",
+                        }).format(dataProduct?.price ?? 0)}
+                      </span>
+                    </div>
+                    <div className="delivery">
+                      <div>
+                        <span className="left-side">Vận chuyển</span>
+                        <span className="right-side">Miễn phí vận chuyển</span>
+                      </div>
+                    </div>
+                    <div className="quantity">
+                      <span className="left-side">Số lượng</span>
+                      <span className="right-side">
+                        {/* Hiển thị số lượng còn lại trong kho */}
+                        <div
+                          className="stock-info"
+                          style={{ marginTop: "8px", color: "#888", marginRight: 10 }}
+                        >
+                          {dataProduct.quantity !== null ? (
+                            <span>
+                              {dataProduct.quantity} sản phẩm có sẵn
+                            </span>
+                          ) : (
+                            <span>Không giới hạn số lượng</span>
+                          )}
+                        </div>
+                        <button onClick={() => handleChangeButton("MINUS")}>
+                          <MinusOutlined />
+                        </button>
+                        <input
+                          type="number"
+                          min="1"
+                          max={dataProduct.quantity || undefined} // Giới hạn số lượng tối đa nếu có
+                          onChange={(event) =>
+                            handleChangeInput(event.target.value)
+                          }
+                          value={currentQuantity}
+                        />
+                        <button onClick={() => handleChangeButton("PLUS")}>
+                          <PlusOutlined />
+                        </button>
+                      </span>
+                    </div>
 
-                    <button
-                      className="now"
-                      onClick={() => handleBuyNow(currentQuantity, dataProduct)}
-                    >
-                      Mua ngay
-                    </button>
-                  </div>
+                    <div className="buy">
+                      <button
+                        className="cart"
+                        onClick={() =>
+                          handleAddToCart(currentQuantity, dataProduct)
+                        }
+                      >
+                        <BsCartPlus className="icon-cart" />
+                        <span>Thêm vào giỏ hàng</span>
+                      </button>
+
+                      <button
+                        className="now"
+                        onClick={() =>
+                          handleBuyNow(currentQuantity, dataProduct)
+                        }
+                      >
+                        Mua ngay
+                      </button>
+                    </div>
+                  </Col>
                 </Col>
-              </Col>
-            </Row>
+              </Row>
+              {/* Phần mô tả sản phẩm */}
+              <div
+                style={{
+                  marginTop: "20px",
+                  padding: "20px",
+                  background: "#f9f9f9",
+                  borderRadius: "5px",
+                }}
+              >
+                <h3>Mô tả sản phẩm</h3>
+                <p style={{ whiteSpace: "pre-line", lineHeight: "1.6" }}>
+                  {dataProduct.description ||
+                    "Không có mô tả cho sản phẩm này."}
+                </p>
+              </div>
+            </>
           ) : (
             <ProductLoader />
           )}
