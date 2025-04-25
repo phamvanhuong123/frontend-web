@@ -17,23 +17,15 @@ interface Product {
 }
 
 export interface ProductQueryParameters {
-    pageIndex: number;
-    pageSize: number;
-    searchTerm?: string | null;
-    categoryId?: number | null; 
-    minPrice?: number | null;
-    maxPrice?: number | null;
-    isActive?: boolean | null; 
-    sortBy?: string | null; 
-    sortOrder?: 'asc' | 'desc' | null; 
-  }
+    pageIndex?: number;
+    pageSize?: number;
+    sort?: string;
+    category?: string;
+    priceFrom?: number;
+    priceTo?: number;
+    searchTerm?: string;
+}
 
-  export interface PaginationResponse<T> {
-    pageIndex: number;
-    pageSize: number;
-    totalCount: number;
-    items: T[];
-  }
 export interface CreateAProduct {
     name: string;
     description?: string;
