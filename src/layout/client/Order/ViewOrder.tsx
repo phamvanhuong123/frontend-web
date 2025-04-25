@@ -52,6 +52,17 @@ const ViewOrder = ({ setCurrentStep }: ViewOrderProps) => {
           id: product.id,
         })
       );
+      // set lại số lượng sản phẩm đã chọn
+      const updatedProducts = selectedProducts.map((item) => {
+        if (item.id === product.id) {
+          return {
+            ...item,
+            quantity: value,
+          };
+        }
+        return item;
+      });
+      dispatch(doSetSelectedProductsAction({ products: updatedProducts }));
     }
   };
 
