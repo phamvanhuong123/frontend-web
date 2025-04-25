@@ -43,6 +43,8 @@ const PaymentResponse = () => {
           paymentId: queryParams.get("vnp_TransactionNo") || "",
           transactionId: queryParams.get("vnp_TransactionNo") || "",
           vnPayResponseCode: queryParams.get("vnp_ResponseCode") || "",
+          vnPayTransactionStatus:
+            queryParams.get("vnp_TransactionStatus") || "",
         });
       } catch (err) {
         setError("Xác thực thanh toán thất bại");
@@ -78,15 +80,18 @@ const PaymentResponse = () => {
     <div className="payment-response-container">
       <Card
         title={
-          response?.success ? "Thanh toán thành công" : "Thanh toán thất bại"
+          response?.vnPayTransactionStatus == "00"
+            ? "Thanh toán thành công"
+            : "Thanh toán thất bại"
         }
         style={{ maxWidth: 800, margin: "20px auto" }}
         headStyle={{
-          backgroundColor: response?.success ? "#52c41a" : "#f5222d",
+          backgroundColor:
+            response?.vnPayTransactionStatus == "00" ? "#52c41a" : "#f5222d",
           color: "white",
         }}
       >
-        {response?.success ? (
+        {response?.vnPayTransactionStatus == "00" ? (
           <Alert
             message="Cảm ơn bạn đã thanh toán!"
             type="success"

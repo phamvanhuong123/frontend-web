@@ -14,6 +14,7 @@ interface VnPayResponse {
   paymentId: string;
   transactionId: string;
   vnPayResponseCode: string;
+  vnPayTransactionStatus?: string;
 }
 
 export default VnPayResponse;
