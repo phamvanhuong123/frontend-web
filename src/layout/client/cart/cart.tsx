@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Table,
   Button,
@@ -28,9 +28,13 @@ const Cart = () => {
   const cartItems = useSelector(
     (state: any) => state.order.carts
   ) as CartItem[];
+
+  const selectedCartItem = useSelector(
+    (state: any) => state.order.selectedProducts
+  ) as CartItem[];
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [isAllSelected, setIsAllSelected] = useState(false);
-  
+  const [totalPrice, setTotalPrice] = useState(0);
   const handleSelectAllToggle = () => {
     if (isAllSelected) {
       setSelectedRowKeys([]);
@@ -78,7 +82,6 @@ const Cart = () => {
     }
 
     // Lưu danh sách sản phẩm được chọn vào Redux store để xử lý sau
-    dispatch(doSetSelectedProductsAction({ products: selectedItems }));
 
     // Chuyển đến trang đặt hàng
     navigate("/orders");
@@ -92,12 +95,7 @@ const Cart = () => {
         const images = record.detail.image || []; // Lấy danh sách ảnh từ sản phẩm
 
         return (
-          <Carousel
-            autoplay
-            dots={false}
-            arrows
-            style={{ width: 60 }}
-          >
+          <Carousel autoplay dots={false} arrows style={{ width: 60 }}>
             {images.map((img: any, idx: number) => (
               <div key={idx}>
                 <img
@@ -162,13 +160,22 @@ const Cart = () => {
     onChange: (newSelectedRowKeys) => {
       setSelectedRowKeys(newSelectedRowKeys);
       setIsAllSelected(newSelectedRowKeys.length === cartItems.length);
+      const selectedProducts = cartItems.filter((item) =>
+        newSelectedRowKeys.includes(item.id)
+      );
+      dispatch(doSetSelectedProductsAction({ products: selectedProducts }));
     },
   };
-
-  const totalPrice = cartItems.reduce((sum: number, item: CartItem) => {
-    const price = item.detail.price || 0;
-    return sum + price * item.quantity;
-  }, 0);
+  useEffect(() => {
+    const selectedItems = cartItems.filter((item) =>
+      selectedRowKeys.includes(item.id)
+    );
+    const total = selectedItems.reduce((sum: number, item: CartItem) => {
+      const price = item.detail.price || 0;
+      return sum + price * item.quantity;
+    }, 0);
+    setTotalPrice(total);
+  }, [cartItems, selectedRowKeys]);
 
   return (
     <div className="cart-container" style={{ padding: "20px" }}>

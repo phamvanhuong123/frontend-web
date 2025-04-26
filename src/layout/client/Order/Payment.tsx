@@ -112,6 +112,7 @@ const Payment: React.FC<PaymentProps> = ({ setCurrentStep }) => {
 
   // Fetch user's shipping addresses
   useEffect(() => {
+    console.log("Product", selectedProducts);
     const fetchAddresses = async () => {
       if (!user?.id) return;
 
@@ -478,10 +479,10 @@ const Payment: React.FC<PaymentProps> = ({ setCurrentStep }) => {
             >
               <div className="product-content">
                 <img
-                  src={getImageUrl(product?.detail?.thumbnail)}
+                  src={getImageUrl(product?.detail?.image?.[0]?.url)}
                   alt="product Thumbnail"
                 />
-                <div className="title">{product?.detail?.mainText}</div>
+                <div className="title">{product?.detail?.name}</div>
                 <div className="price">
                   {new Intl.NumberFormat("vi-VN", {
                     style: "currency",
