@@ -18,8 +18,14 @@ export const paymentApi = {
   },
   // Xác thực thanh toán VNPay
   ProcessPaymentResponse(queryParams: any) {
+    console.log("Processing payment response with query params:", queryParams);
+
     return axios
       .get(`${URL}/vnpay-return`, { params: queryParams })
       .then((res) => res.data);
+  },
+  // lấy thông tin thanh toán theo mã đơn hàng
+  getPaymentByOrderId(orderId: string) {
+    return axios.get(`${URL}/${orderId}`).then((res) => res.data);
   },
 };

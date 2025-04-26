@@ -131,7 +131,7 @@ const PaymentResponse = () => {
         </Descriptions>
 
         <div style={{ marginTop: 24, textAlign: "center" }}>
-          {response?.success ? (
+          {response?.vnPayTransactionStatus == "00" ? (
             <Button
               type="primary"
               onClick={() => navigate(`/orders/${response.orderCode}`)}

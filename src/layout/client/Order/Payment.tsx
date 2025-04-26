@@ -25,7 +25,8 @@ import { useEffect, useState } from "react";
 import {
   doDeleteItemCartAction,
   doPlaceOrderAction,
-} from "../../../redux/order/orderSlice";
+} from "~/redux/order/orderSlice";
+import { doSetSelectedAddressAction } from "~/redux/address/addressSlice";
 import { orderApi } from "~/services/axios.order";
 import { getImageUrl } from "~/config/config";
 import { addressApi } from "~/services/axios.address";
@@ -65,13 +66,13 @@ const formatAddress = (address: ShippingAddress): string => {
 };
 
 const Payment: React.FC<PaymentProps> = ({ setCurrentStep }) => {
+  const dispatch = useDispatch();
   const selectedProducts = useSelector(
     (state: any) => state.order.selectedProducts
   );
   const user = useSelector((state: any) => state.account.user);
   const [totalPrice, setTotalPrice] = useState(0);
   const [isSubmit, setIsSubmit] = useState(false);
-  const dispatch = useDispatch();
   const [form] = Form.useForm();
   const [addressForm] = Form.useForm();
 
@@ -116,6 +117,9 @@ const Payment: React.FC<PaymentProps> = ({ setCurrentStep }) => {
 
       try {
         const response = await addressApi.getByUserId(user.id);
+
+        console.log("Địa chỉ giao hàng", response);
+
         if (response) {
           const addresses: ShippingAddress[] = response.map((addr: any) => ({
             id: addr.id || addr.Id,
@@ -139,6 +143,13 @@ const Payment: React.FC<PaymentProps> = ({ setCurrentStep }) => {
             (addr) => addr.isDefaultShipping
           );
           setSelectedAddress(defaultAddress || addresses[0] || null);
+          dispatch(
+            doSetSelectedAddressAction({
+              city: defaultAddress?.city,
+              district: defaultAddress?.district,
+              ward: defaultAddress?.ward,
+            })
+          );
         }
       } catch (error) {
         console.error("Error fetching addresses:", error);
@@ -150,7 +161,7 @@ const Payment: React.FC<PaymentProps> = ({ setCurrentStep }) => {
     };
 
     fetchAddresses();
-  }, [user?.id]);
+  }, []);
 
   useEffect(() => {
     const fetchProvinces = async () => {
@@ -214,6 +225,13 @@ const Payment: React.FC<PaymentProps> = ({ setCurrentStep }) => {
 
   const handleSelectAddress = (address: ShippingAddress) => {
     setSelectedAddress(address);
+    dispatch(
+      doSetSelectedAddressAction({
+        city: address?.city,
+        district: address?.district,
+        ward: address?.ward,
+      })
+    );
     setIsAddressModalVisible(false);
   };
 

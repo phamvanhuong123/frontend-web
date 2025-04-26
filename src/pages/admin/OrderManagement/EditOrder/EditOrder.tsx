@@ -18,7 +18,6 @@ import {
   ArrowBack,
   Save,
   LocalShipping,
-  CheckCircle,
   Cancel,
   Loop,
   PendingActions,
@@ -33,6 +32,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { orderApi } from "~/services/axios.order";
 import Order from "~/types/order";
 import { JSX } from "@emotion/react/jsx-runtime";
+import { paymentApi } from "~/services/axios.payment";
 
 const statusMap: Record<
   string,
@@ -50,6 +50,7 @@ const EditOrder = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [order, setOrder] = useState<Order | null>(null);
+  const [statusPayment, setStatusPayment] = useState<number>(0);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
   const theme = useTheme();
@@ -69,6 +70,21 @@ const EditOrder = () => {
     };
     fetchOrder();
   }, [id, navigate]);
+
+  useEffect(() => {
+    if (!id) return;
+
+    const fetchPaymentStatus = async () => {
+      try {
+        const paymentData = await paymentApi.getPaymentByOrderId(id);
+        setStatusPayment(paymentData.status);
+      } catch (error) {
+        toast.error("Không tải được thông tin thanh toán");
+      }
+    };
+
+    fetchPaymentStatus();
+  }, [id]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!order) return;
@@ -136,6 +152,19 @@ const EditOrder = () => {
     icon: <HelpOutline />,
   };
 
+  const renderPaymentStatus = (status: number) => {
+    switch (status) {
+      case 0:
+        return <Chip label="Chưa thanh toán" color="warning" />;
+      case 1:
+        return <Chip label="Đã thanh toán" color="success" />;
+      case 2:
+        return <Chip label="Đã hoàn tiền" color="error" />;
+      default:
+        return <Chip label="Không xác định" color="default" />;
+    }
+  };
+
   return (
     <Container maxWidth="md">
       <Box py={4}>
@@ -185,11 +214,7 @@ const EditOrder = () => {
               />
               <Box>
                 <Typography fontWeight={600}>Thanh toán</Typography>
-                <Chip
-                  label={order.paymentId ? "Đã thanh toán" : "Chưa thanh toán"}
-                  color={order.paymentId ? "success" : "warning"}
-                  sx={{ my: 1 }}
-                />
+                {renderPaymentStatus(statusPayment)}
               </Box>
               <Box>
                 <Typography fontWeight={600}>Trạng thái hiện tại</Typography>

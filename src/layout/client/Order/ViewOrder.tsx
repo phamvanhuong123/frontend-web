@@ -1,4 +1,4 @@
-import { Col, Divider, Empty, InputNumber, Row } from "antd";
+import { Checkbox, Col, Divider, Empty, InputNumber, Row } from "antd";
 import { DeleteTwoTone } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
@@ -9,6 +9,7 @@ import {
   CartItem,
 } from "../../../redux/order/orderSlice";
 import { getImageUrl } from "~/config/config";
+import { Check } from "@mui/icons-material";
 
 interface ViewOrderProps {
   setCurrentStep: (step: number) => void;
@@ -94,7 +95,7 @@ const ViewOrder = ({ setCurrentStep }: ViewOrderProps) => {
           return (
             <div className="order-product" key={`index-${index}`}>
               <div className="product-content">
-                <input
+                <Checkbox
                   type="checkbox"
                   checked={checkedProductIds.includes(product.id)}
                   onChange={() => handleToggleCheck(product)}
