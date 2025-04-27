@@ -57,20 +57,20 @@ function ListUsers() {
           <TableHead>
             <TableRow>
               <TableCell sx={{ fontWeight: 600 }}>
-                <TableSortLabel>Name</TableSortLabel>
+                <TableSortLabel>Họ Tên</TableSortLabel>
               </TableCell>
               <TableCell sx={{ fontWeight: 600 }}>Email</TableCell>
               <TableCell sx={{ fontWeight: 600 }} align="center">
-                Phone Number
+                Số Điện Thoại
               </TableCell>
               <TableCell sx={{ fontWeight: 600 }} align="center">
-                Role
+                Vai Trò
               </TableCell>
               <TableCell sx={{ fontWeight: 600 }} align="center">
-                Status
+                Trạng Thái Hoạt Động
               </TableCell>
               <TableCell sx={{ fontWeight: 600 }} align="center">
-                Actions
+                Hành Động
               </TableCell>
             </TableRow>
           </TableHead>

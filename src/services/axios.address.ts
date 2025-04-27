@@ -1,5 +1,5 @@
 import axios from "./axios.customize";
-import Address from "~/types/address";
+import Address, { District, Province, Ward } from "~/types/address";
 const url = "api/v1/ecommerce/address";
 
 export const addressApi = {
@@ -22,5 +22,42 @@ export const addressApi = {
   },
   delete(id: string) {
     return axios.delete(`${url}/${id}`).then((res) => res.data);
+  },
+  //api tinh
+  getProvinces(): Promise<Province[]> {
+    return axios
+      .get("https://provinces.open-api.vn/api/p/")
+      .then((res) => res.data);
+  },
+
+  // api huyen
+  getDistrictsByProvince(provinceCode: string): Promise<District[]> {
+    return axios
+      .get(`https://provinces.open-api.vn/api/p/${provinceCode}?depth=2`)
+      .then((res) => res.data.districts || []);
+  },
+
+  // api xa
+  getWardsByDistrict(districtCode: string): Promise<Ward[]> {
+    return axios
+      .get(`https://provinces.open-api.vn/api/d/${districtCode}?depth=2`)
+      .then((res) => res.data.wards || []);
+  },
+
+  // api tim kiem dia chi
+  searchAddress(query: {
+    province?: string;
+    district?: string;
+    ward?: string;
+  }): Promise<Address[]> {
+    return axios
+      .get(`${url}/search`, { params: query })
+      .then((res) => res.data);
+  },
+
+  setDefaultAddress(id: string): Promise<Address> {
+    return axios
+      .put<Address>(`${url}/${id}/set-default`)
+      .then((res) => res.data);
   },
 };

@@ -1,71 +1,62 @@
-import { Button, Divider, Form, Input, message, notification } from "antd";
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import "./register.scss";
-import { userApi } from "~/services/axios.user";
+import { Button, Divider, Form, Input, message, notification } from 'antd';
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import './register.scss';
+import { authApi } from '~/services/axios.auth';
 
-const RegisterPage: React.FC = () => {
-  const navigate = useNavigate();
-  const [isSubmit, setIsSubmit] = useState(false);
+const RegisterPage = () => {
+    const navigate = useNavigate();
+    const [isSubmit, setIsSubmit] = useState(false);
 
-  const onFinish = async (values: {
-    fullName: string;
-    email: string;
-    password: string;
-    phone: string;
-  }) => {
-    const { fullName, email, password, phone } = values;
-    setIsSubmit(true);
-    try {
-      const res = await userApi.callRegister({
-        Name: fullName,
-        Email: email,
-        Password: password,
-        Phone: phone,
-      });
-      if (res?.data?._id) {
-        message.success("Đăng ký tài khoản thành công!");
-        navigate("/login");
-      } else {
-        notification.error({
-          message: "Có lỗi xảy ra",
-          description: Array.isArray(res?.message)
-            ? res.message[0]
-            : res?.message || "Đăng ký thất bại",
-          duration: 5,
-        });
-      }
-    } catch (error) {
-      notification.error({
-        message: "Có lỗi xảy ra",
-        description: "Không thể kết nối đến máy chủ",
-        duration: 5,
-      });
-    } finally {
-      setIsSubmit(false);
-    }
-  };
+    const onFinish = async (values: { name: string; email: string; password: string; phone: string }) => {
+        const {email, password, name, phone } = values;
+        setIsSubmit(true);
+        try {
+            
+            const res = await authApi.callRegister({ Email: email, Password: password, Name: name, Phone: phone });
+            if (res?.data?.user?.id) {
+                message.success('Đăng ký tài khoản thành công!'); 
+                navigate('/login');
+            } else {
+                notification.error({
+                    message: "Có lỗi xảy ra",
+                    description: Array.isArray(res?.message) ? res.message[0] : res?.message || "Đăng ký thất bại",
+                    duration: 5,
+                });
+            }
+        } catch (error) {
+            notification.error({
+                message: "Có lỗi xảy ra",
+                description: "Không thể kết nối đến máy chủ",
+                duration: 5,
+            });
+        } finally {
+            setIsSubmit(false);
+        }
+    };
 
-  return (
-    <div className="register-page">
-      <main className="main">
-        <div className="container">
-          <section className="wrapper">
-            <div className="heading">
-              <h2 className="text text-large">Đăng Ký Tài Khoản</h2>
-              <Divider />
-            </div>
-            <Form name="register-form" onFinish={onFinish} autoComplete="off">
-              <Form.Item
-                labelCol={{ span: 24 }}
-                label="Họ tên"
-                name="fullName"
-                rules={[
-                  { required: true, message: "Họ tên không được để trống!" },
-                ]}
-              >
-                <Input />
-              </Form.Item>
+    return (
+        <div className="register-page">
+            <main className="main">
+                <div className="container">
+                    <section className="wrapper">
+                        <div className="heading">
+                            <h2 className="text text-large">Đăng Ký Tài Khoản</h2>
+                            <Divider />
+                        </div>
+                        <Form
+                            name="register-form"
+                            onFinish={onFinish}
+                            autoComplete="off"
+                        >
+                            <Form.Item
+                                labelCol={{ span: 24 }}
+                                label="Họ tên"
+                                name="name"
+                                rules={[{ required: true, message: 'Họ tên không được để trống!' }]}
+                            >
+                                <Input />
+                            </Form.Item>
 
               <Form.Item
                 labelCol={{ span: 24 }}

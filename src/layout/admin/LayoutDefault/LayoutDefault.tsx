@@ -1,8 +1,8 @@
 import DashboardIcon from "@mui/icons-material/Dashboard";
-import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import ChatIcon from '@mui/icons-material/Chat';
 import FactoryIcon from '@mui/icons-material/Factory';
 import PostAddIcon from '@mui/icons-material/PostAdd';
+
 
 import { ReactRouterAppProvider } from '@toolpad/core/react-router';
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
@@ -11,9 +11,10 @@ import CategoryIcon from '@mui/icons-material/Category';
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import { type Navigation } from "@toolpad/core/AppProvider";
 import { DashboardLayout } from "@toolpad/core/DashboardLayout";
-import { Outlet } from "react-router-dom";
+import { Outlet} from "react-router-dom";
 import Box from "@mui/material/Box";
-
+import LogoutButton from "../LogOutButton/LogOutButton";
+import Avatar from "../Avatar/Avatar";
 
 const NAVIGATION: Navigation = [
   {
@@ -55,7 +56,7 @@ const NAVIGATION: Navigation = [
     segment: "admin/posts",
     title: "Post",
     icon: <PostAddIcon />,
-  }
+  },
 ];
 
 function CustomAppTitle() {
@@ -73,18 +74,23 @@ function CustomAppTitle() {
 }
 
 
-function LayoutDefault() {
+
+
+function AdminLayoutDefault() {
   return (
     <>
       <ReactRouterAppProvider navigation={NAVIGATION}>
         <DashboardLayout
           slots={{
             appTitle: CustomAppTitle,
-
+            sidebarFooter: LogoutButton,
+            toolbarActions : Avatar
           }}
           sx={{
             bgcolor: '#FAFAFB',
-
+            ".MuiBox-root.css-jrtdnu" : {
+              overflow : 'hidden'
+            }
           }}
         >
           <Outlet />
@@ -93,4 +99,5 @@ function LayoutDefault() {
     </>
   );
 }
-export default LayoutDefault;
+
+export default AdminLayoutDefault;

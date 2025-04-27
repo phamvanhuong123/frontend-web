@@ -9,6 +9,7 @@ export const userApi = {
     return axios.get<User>(`${url}/${id}`).then((res) => res.data);
   },
   // Danh sách người dùng
+
   getAll() {
     return axios.get<User[]>(url).then((res) => res.data);
   },
@@ -19,7 +20,6 @@ export const userApi = {
   },
   // Cập nhật người dùng
   updateUser(id: string, user: any) {
-    debugger;
     return axios.put<User>(`${url}/${id}`, user).then((res) => res.data);
   },
   // Xóa người dùng
@@ -37,29 +37,24 @@ export const userApi = {
     return axios.get<User>(`${url}/${id}`).then((res) => res.data);
   },
   // Đăng nhập
-  callLogin(email: string, password: string) {
-    const fullUrl = `${url}/login`;
-    console.log("Đường dẫn API đang gọi:", fullUrl); // In ra đường dẫn đầy đủ
-    return axios.post(fullUrl, {
-      // Sử dụng biến fullUrl đã tạo
-      Email: email,
-      Password: password,
+
+  callUpdateUserInfo(
+    _id: string,
+    phone: string,
+    fullName: string,
+    avatar: string
+  ) {
+    return axios.put(`${url}/${_id}`, {
+      _id,
+      phone,
+      fullName,
+      avatar,
     });
   },
-  callRegister(data: {
-    Email: string;
-    Password: string;
-    Name: string;
-    Phone: string;
-  }) {
-    const fullUrl = `${url}/register`;
-    return axios.post(fullUrl, data);
+  //lấy thông tin tài khoản người dùng
+  callFetchAccount() {
+    return axios.get(`${url}`);
   },
-};
-
-// Đăng xuất
-export const callLogout = () => {
-  return axios.post(`${url}/logout`);
 };
 
 // Cập nhật avatar
@@ -77,35 +72,6 @@ export const callUpdateAvatar = (fileImg: File) => {
   });
 };
 
-// Cập nhật thông tin người dùng
-export const callUpdateUserInfo = (
-  _id: string,
-  phone: string,
-  fullName: string,
-  avatar: string
-) => {
-  return axios.put(`${url}`, {
-    _id,
-    phone,
-    fullName,
-    avatar,
-  });
-};
-
-// Cập nhật mật khẩu
-export const callUpdatePassword = (
-  email: string,
-  oldpass: string,
-  newpass: string
-) => {
-  return axios.post(`${url}/users/change-password`, {
-    email,
-    oldpass,
-    newpass,
-  });
-};
-
 // Lấy thông tin tài khoản người dùng
-export const callFetchAccount = () => {
-  return axios.get(`${url}`);
-};
+
+// Đăng ký tài khoản

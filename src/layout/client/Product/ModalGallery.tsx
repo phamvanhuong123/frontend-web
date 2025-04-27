@@ -11,7 +11,7 @@ interface ModalGalleryProps {
     title: string;
 }
 
-const ModalGallery: React.FC<ModalGalleryProps> = ({ isOpen, setIsOpen, currentIndex, items, title }) => {
+const ModalGallery = ({ isOpen, setIsOpen, currentIndex, items, title } : ModalGalleryProps) => {
     const [activeIndex, setActiveIndex] = useState(0);
     const refGallery = useRef<ImageGallery>(null);
 

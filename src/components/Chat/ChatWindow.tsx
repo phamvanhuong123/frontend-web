@@ -16,7 +16,7 @@ import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
-const ChatWindow: React.FC = () => {
+const ChatWindow = () => {
     const [messages, setMessages] = useState<Message[]>([]);
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -121,23 +121,36 @@ const ChatWindow: React.FC = () => {
                             >
                                 <ReactMarkdown
                                     components={{
-                                        code({ node, inline, className, children, ...props }) {
+                                        code({ inline, className, children, ...props }: any) {
                                             const match = /language-(\w+)/.exec(className || '');
-                                            return !inline && match ? (
-                                                <SyntaxHighlighter
-                                                    style={vscDarkPlus}
-                                                    language={match[1]}
-                                                    PreTag="div"
-                                                    {...props}
-                                                >
-                                                    {String(children).replace(/\n$/, '')}
-                                                </SyntaxHighlighter>
-                                            ) : (
-                                                <code className={className} {...props}>
-                                                    {children}
-                                                </code>
-                                            );
-                                        }
+                                            if (!inline && match) {
+                                                return (
+                                                    <SyntaxHighlighter
+                                                        style={vscDarkPlus}
+                                                        language={match[1]}
+                                                        PreTag="div"
+                                                        {...props}
+                                                    >
+                                                        {String(children).replace(/\n$/, '')}
+                                                    </SyntaxHighlighter>
+                                                );
+                                            } else {
+                                                return (
+                                                    <code
+                                                        className={className}
+                                                        style={{
+                                                            backgroundColor: inline ? 'rgba(27,31,35,0.05)' : undefined,
+                                                            padding: inline ? '2px 4px' : undefined,
+                                                            borderRadius: inline ? '4px' : undefined,
+                                                            fontSize: inline ? '90%' : undefined,
+                                                        }}
+                                                        {...props}
+                                                    >
+                                                        {children}
+                                                    </code>
+                                                );
+                                            }
+                                        },
                                     }}
                                 >
                                     {message.content}
@@ -187,4 +200,4 @@ const ChatWindow: React.FC = () => {
     );
 };
 
-export default ChatWindow; 
+export default ChatWindow;

@@ -68,7 +68,6 @@ function EditCategory() {
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    debugger
     e.preventDefault();
     
     if (!category.name) {
@@ -102,9 +101,7 @@ function EditCategory() {
   }
 
   return (
-    <Card sx={{ maxWidth: 800, ml: 10, mt: 4, p: 2,
-      
-     }}>
+    <Card sx={{ width : 600, maxWidth: '100%', ml: 10,m : 'auto', mt: 4, p: 2}}>
       <CardContent>
         <Typography variant="h5" gutterBottom>
           Chỉnh sửa danh mục

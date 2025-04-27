@@ -1,48 +1,36 @@
 import { useSelector } from "react-redux";
-import { Navigate } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 import NotPermitted from "./NotPermitted";
-import { RootState } from "~/types/state";
+import { RootState } from "~/redux/account/accountSlice";
 
 interface Props {
-    children: React.ReactNode;
+  children: React.ReactNode;
 }
 
-const RoleBaseRoute = (props: Props) => {
-    const isAdminRoute = window.location.pathname.startsWith('/admin');
-    const user = useSelector((state: RootState) => state.account.user);
-    const userRole = user?.role;
+const ProtectedRoute = ({ children }: Props) => {
+  const location = useLocation();
+  const { user, isAuthenticated } = useSelector((state: RootState) => state.account);
+  const isAdminRoute = location.pathname.startsWith("/admin");
 
-    if (isAdminRoute && userRole === 'ADMIN' ||
-        !isAdminRoute && (userRole === 'USER' || userRole === 'ADMIN')
-    ) {
-        return (<>{props.children}</>)
-    } else {
-        return (<NotPermitted />)
-    }
-}
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
 
-const ProtectedRoute = (props: Props) => {
-    // Tạm thời cho phép truy cập tất cả các route
-    return <>{props.children}</>;
+  if (!user?.role) {
+    return <NotPermitted />;
+  }
 
-    /* Code phân quyền (đã comment lại)
-    const isAuthenticated = useSelector((state: RootState) => state.account.isAuthenticated)
+  switch (user.role) {
+    case "ADMIN":
+    case "STAFF":
+      return <>{children}</>;
 
-    return (
-        <>
-            {isAuthenticated === true ?
-                <>
-                    <RoleBaseRoute>
-                        {props.children}
-                    </RoleBaseRoute>
-                </>
-                :
-                <Navigate to='/login' replace />
-            }
-        </>
-    )
-    */
-}
+    case "CUSTOMER":
+      return isAdminRoute ? <NotPermitted /> : <>{children}</>;
+
+    default:
+      return <NotPermitted />;
+  }
+};
 
 export default ProtectedRoute;
-
