@@ -129,7 +129,7 @@ const EditOrder = () => {
     new Intl.NumberFormat("vi-VN", {
       style: "currency",
       currency: "VND",
-    }).format(amount * 1000);
+    }).format(amount);
 
   if (loading) {
     return (

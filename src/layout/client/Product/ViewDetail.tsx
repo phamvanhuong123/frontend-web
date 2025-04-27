@@ -6,13 +6,15 @@ import ModalGallery from "./ModalGallery";
 import { MinusOutlined, PlusOutlined, HomeOutlined } from "@ant-design/icons";
 import { BsCartPlus } from "react-icons/bs";
 import ProductLoader from "./ProductLoader";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
+  CartItem,
   doAddProductAction,
   doSetSelectedProductsAction,
 } from "../../../redux/order/orderSlice";
 import { Link, useNavigate } from "react-router-dom";
 import { getImageUrl } from "../../../config/config";
+import Cart from "../cart/cart";
 
 interface ViewDetailProps {
   dataProduct: {
@@ -54,6 +56,7 @@ const ViewDetail = ({ dataProduct }: ViewDetailProps) => {
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const carts = useSelector((state: any) => state.order.carts) as CartItem[];
 
   const handleOnClickImage = () => {
     setIsOpenModalGallery(true);
@@ -113,12 +116,24 @@ const ViewDetail = ({ dataProduct }: ViewDetailProps) => {
     dispatch(
       doAddProductAction({ quantity, detail: productDetail, id: product.id })
     );
+    let updatedProducts;
+    const existingProduct = carts.find((item) => item.id === product.id);
+
+    if (existingProduct) {
+      updatedProducts = {
+        ...existingProduct,
+        quantity: existingProduct.quantity + quantity,
+      };
+    } else {
+      updatedProducts = { id: product.id, quantity: quantity };
+    }
+
     dispatch(
       doSetSelectedProductsAction({
         products: [
           {
-            id: product.id,
-            quantity,
+            id: updatedProducts.id,
+            quantity: updatedProducts.quantity,
             detail: productDetail,
           },
         ],
@@ -217,12 +232,14 @@ const ViewDetail = ({ dataProduct }: ViewDetailProps) => {
                         {/* Hiển thị số lượng còn lại trong kho */}
                         <div
                           className="stock-info"
-                          style={{ marginTop: "8px", color: "#888", marginRight: 10 }}
+                          style={{
+                            marginTop: "8px",
+                            color: "#888",
+                            marginRight: 10,
+                          }}
                         >
                           {dataProduct.quantity !== null ? (
-                            <span>
-                              {dataProduct.quantity} sản phẩm có sẵn
-                            </span>
+                            <span>{dataProduct.quantity} sản phẩm có sẵn</span>
                           ) : (
                             <span>Không giới hạn số lượng</span>
                           )}
