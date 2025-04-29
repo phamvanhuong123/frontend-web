@@ -33,5 +33,7 @@ export const authApi = {
       newpass,
     });
   },
-  
+  callGoogleCallback: (code: string) => {
+    return axios.post(`${url}/google-callback`, { code });
+  },
 }

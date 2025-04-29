@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-interface IUser {
+export interface IUser {
   _id: string;
   email: string;
   name: string;
@@ -12,7 +12,6 @@ interface IUser {
 
 interface IAccountState {
   accessToken: string;
-  refreshToken: string;
   user: IUser | null;
   isAuthenticated: boolean;
   tempAvatar?: string; // Thêm trường tempAvatar để lưu avatar tạm thời khi upload
@@ -20,7 +19,6 @@ interface IAccountState {
 
 const initialState: IAccountState = {
   accessToken: "",
-  refreshToken: "",
   user: null,
   isAuthenticated: false,
   tempAvatar: undefined,
@@ -37,12 +35,10 @@ export const accountSlice = createSlice({
       state,
       action: PayloadAction<{
         accessToken: string;
-        refreshToken: string;
         userInfo: IUser;
       }>
     ) => {
       state.accessToken = action.payload.accessToken;
-      state.refreshToken = action.payload.refreshToken;
       state.user = action.payload.userInfo;
       state.isAuthenticated = true;
       state.tempAvatar = undefined; // Reset tempAvatar khi login
