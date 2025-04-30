@@ -1,7 +1,7 @@
 import { Row, Col, Rate, Divider, Breadcrumb } from "antd";
 import "./ViewDetail.scss";
 import ImageGallery from "react-image-gallery";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import ModalGallery from "./ModalGallery";
 import { MinusOutlined, PlusOutlined, HomeOutlined } from "@ant-design/icons";
 import { BsCartPlus } from "react-icons/bs";
@@ -14,7 +14,7 @@ import {
 } from "../../../redux/order/orderSlice";
 import { Link, useNavigate } from "react-router-dom";
 import { getImageUrl } from "../../../config/config";
-import Cart from "../cart/cart";
+import ProductReviews from "./ProductReviews"; // Import the new component
 
 interface ViewDetailProps {
   dataProduct: {
@@ -43,13 +43,13 @@ const ViewDetail = ({ dataProduct }: ViewDetailProps) => {
   const [isOpenModalGallery, setIsOpenModalGallery] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [currentQuantity, setCurrentQuantity] = useState(1);
+  const [hasPurchased, setHasPurchased] = useState(false);
   const refGallery = useRef<any>(null);
   const images =
     dataProduct?.images?.map((image) => {
-      console.log("image.url", image.url);
       return {
         original: getImageUrl(image.url),
-        thumbnail: getImageUrl(image.url), // Có thể sử dụng hình nhỏ khác nếu có
+        thumbnail: getImageUrl(image.url),
         alt: image.altText,
       };
     }) ?? [];
@@ -57,6 +57,34 @@ const ViewDetail = ({ dataProduct }: ViewDetailProps) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const carts = useSelector((state: any) => state.order.carts) as CartItem[];
+  const currentUser = useSelector((state: any) => state.account?.user);
+
+  // Check if user has purchased this product
+  useEffect(() => {
+    const checkPurchaseStatus = async () => {
+      if (currentUser?.id && dataProduct?.id) {
+        try {
+          const response = await fetch(
+            `/api/orders/check-purchase/${dataProduct.id}`,
+            {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+              },
+            }
+          );
+
+          if (response.ok) {
+            const data = await response.json();
+            setHasPurchased(data.hasPurchased);
+          }
+        } catch (error) {
+          console.error("Failed to check purchase status:", error);
+        }
+      }
+    };
+
+    checkPurchaseStatus();
+  }, [currentUser?.id, dataProduct?.id]);
 
   const handleOnClickImage = () => {
     setIsOpenModalGallery(true);
@@ -66,17 +94,16 @@ const ViewDetail = ({ dataProduct }: ViewDetailProps) => {
 
   const handleChangeButton = (type: "MINUS" | "PLUS") => {
     if (type === "MINUS") {
-      if (currentQuantity - 1 <= 0) return; // Không cho phép số lượng nhỏ hơn 1
-      setCurrentQuantity((prev) => prev - 1); // Giảm số lượng
+      if (currentQuantity - 1 <= 0) return;
+      setCurrentQuantity((prev) => prev - 1);
     }
     if (type === "PLUS") {
-      // console.log(dataProduct.quantity); Đang là 0 nha, ai ở backend thêm dô mấy cái cho đẹp
       if (
         dataProduct.quantity !== null &&
         currentQuantity >= dataProduct.quantity
       )
-        return; // Không cho phép vượt quá số lượng tồn kho
-      setCurrentQuantity((prev) => prev + 1); // Tăng số lượng
+        return;
+      setCurrentQuantity((prev) => prev + 1);
     }
   };
 
@@ -92,7 +119,6 @@ const ViewDetail = ({ dataProduct }: ViewDetailProps) => {
   };
 
   const handleAddToCart = (quantity: number, product: any) => {
-    // Tạo object sản phẩm cần thêm vào giỏ hàng
     const productDetail = {
       id: product.id,
       name: product.name,
@@ -229,7 +255,6 @@ const ViewDetail = ({ dataProduct }: ViewDetailProps) => {
                     <div className="quantity">
                       <span className="left-side">Số lượng</span>
                       <span className="right-side">
-                        {/* Hiển thị số lượng còn lại trong kho */}
                         <div
                           className="stock-info"
                           style={{
@@ -250,7 +275,7 @@ const ViewDetail = ({ dataProduct }: ViewDetailProps) => {
                         <input
                           type="number"
                           min="1"
-                          max={dataProduct.quantity || undefined} // Giới hạn số lượng tối đa nếu có
+                          max={dataProduct.quantity || undefined}
                           onChange={(event) =>
                             handleChangeInput(event.target.value)
                           }
@@ -285,6 +310,7 @@ const ViewDetail = ({ dataProduct }: ViewDetailProps) => {
                   </Col>
                 </Col>
               </Row>
+
               {/* Phần mô tả sản phẩm */}
               <div
                 style={{
@@ -300,6 +326,11 @@ const ViewDetail = ({ dataProduct }: ViewDetailProps) => {
                     "Không có mô tả cho sản phẩm này."}
                 </p>
               </div>
+
+              {/* Add the Product Reviews component */}
+              {dataProduct && dataProduct.id && (
+                <ProductReviews productId={dataProduct.id} />
+              )}
             </>
           ) : (
             <ProductLoader />

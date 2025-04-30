@@ -1,6 +1,5 @@
 import axios from "./axios.customize";
 import Product, {
-  CreateAProduct,
   DetailAProduct,
   ProductQueryParameters,
 } from "~/types/product";
@@ -32,7 +31,6 @@ export const productApi = {
     return axios.get(`${BASE_URL}/products/${id}`);
   },
   getAllPage: async (params: ProductQueryParameters) => {
-   
     const response = await axios.get(`${BASE_URL}/products/page`, { params });
     return response.data;
   },
