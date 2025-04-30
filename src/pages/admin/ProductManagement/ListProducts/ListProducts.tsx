@@ -42,7 +42,7 @@ function ListProducts() {
     try {
       setLoading(true);
       const currentPage = Math.max(0, page);
-      
+
       const params = {
         pageIndex: currentPage + 1,
         pageSize: rowsPerPage,
@@ -71,20 +71,22 @@ function ListProducts() {
     setPage(newPage);
   };
 
-  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChangeRowsPerPage = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
 
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('vi-VN', {
-      style: 'currency',
-      currency: 'VND'
+    return new Intl.NumberFormat("vi-VN", {
+      style: "currency",
+      currency: "VND",
     }).format(price);
   };
 
   return (
-    <Paper sx={{ width: '100%', overflow: 'hidden' }}>
+    <Paper sx={{ width: "100%", overflow: "hidden" }}>
       <TableContainer sx={{ maxHeight: 640 }}>
         <Table stickyHeader aria-label="product table">
           <TableHead>
@@ -93,23 +95,41 @@ function ListProducts() {
                 <TableSortLabel>Tên sản phẩm</TableSortLabel>
               </TableCell>
               <TableCell sx={{ fontWeight: 600 }}>Mô tả</TableCell>
-              <TableCell sx={{ fontWeight: 600 }} align="right">Giá</TableCell>
-              <TableCell sx={{ fontWeight: 600 }} align="center">Danh mục</TableCell>
-              <TableCell sx={{ fontWeight: 600 }} align="center">Nhà sản xuất</TableCell>
-              <TableCell sx={{ fontWeight: 600 }} align="center">Khuyến mãi</TableCell>
-              <TableCell sx={{ fontWeight: 600 }} align="center">Ảnh</TableCell>
-              <TableCell sx={{ fontWeight: 600 }} align="center">Trạng thái</TableCell>
-              <TableCell sx={{ fontWeight: 600 }} align="center">Thao tác</TableCell>
+              <TableCell sx={{ fontWeight: 600 }} align="right">
+                Giá
+              </TableCell>
+              <TableCell sx={{ fontWeight: 600 }} align="center">
+                Danh mục
+              </TableCell>
+              <TableCell sx={{ fontWeight: 600 }} align="center">
+                Nhà sản xuất
+              </TableCell>
+              <TableCell sx={{ fontWeight: 600 }} align="center">
+                Khuyến mãi
+              </TableCell>
+              <TableCell sx={{ fontWeight: 600 }} align="center">
+                Ảnh
+              </TableCell>
+              <TableCell sx={{ fontWeight: 600 }} align="center">
+                Trạng thái
+              </TableCell>
+              <TableCell sx={{ fontWeight: 600 }} align="center">
+                Thao tác
+              </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={9} align="center">Đang tải dữ liệu...</TableCell>
+                <TableCell colSpan={9} align="center">
+                  Đang tải dữ liệu...
+                </TableCell>
               </TableRow>
             ) : products.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={9} align="center">Không có sản phẩm nào</TableCell>
+                <TableCell colSpan={9} align="center">
+                  Không có sản phẩm nào
+                </TableCell>
               </TableRow>
             ) : (
               products.map((product) => (
@@ -124,22 +144,34 @@ function ListProducts() {
                       </span>
                     </Tooltip>
                   </TableCell>
-                  <TableCell align="right">{formatPrice(product.price)}</TableCell>
-                  <TableCell align="center">{product.categoryName || "-"}</TableCell>
-                  <TableCell align="center">{product.manufacturerName || "-"}</TableCell>
-                  <TableCell align="center">{product.discountName || "-"}</TableCell>
+                  <TableCell align="right">
+                    {formatPrice(product.price)}
+                  </TableCell>
                   <TableCell align="center">
-                    <Box sx={{ display: 'flex', gap: 1 }}>
-                      {product.images?.map((image) => (
-                        <Avatar
-                          key={image.id}
-                          src={getImageUrl(image.url)}
-                          alt={`${product.name}-${image.id}`}
-                          sx={{ width: 56, height: 56 }}
-                          variant="rounded"
-                        />
-                      ))}
-                      {(!product.images || product.images.length === 0) && "-"}
+                    {product.categoryName || "-"}
+                  </TableCell>
+                  <TableCell align="center">
+                    {product.manufacturerName || "-"}
+                  </TableCell>
+                  <TableCell align="center">
+                    {product.discountName || "-"}
+                  </TableCell>
+                  <TableCell align="center">
+                    <Box sx={{ display: "flex", gap: 1 }}>
+                      {product.images && product.images.length > 0
+                        ? product.images.map((image) => {
+                        
+                            return (
+                              <Avatar
+                                key={image.id}
+                                src={`${getImageUrl(image.url)}`}
+                                alt={`${product.name}-${image.id}`}
+                                sx={{ width: 56, height: 56 }}
+                                variant="rounded"
+                              />
+                            );
+                          })
+                        : "-"}
                     </Box>
                   </TableCell>
                   <TableCell align="center">
@@ -158,23 +190,33 @@ function ListProducts() {
                         },
                       }}
                     >
-                      <Tooltip title="Xem chi tiết" onClick={() => { navigate(`detail/${product.id}`); }}>
+                      <Tooltip
+                        title="Xem chi tiết"
+                        onClick={() => {
+                          navigate(`detail/${product.id}`);
+                        }}
+                      >
                         <IconButton>
                           <VisibilityOutlinedIcon />
                         </IconButton>
                       </Tooltip>
                       <Tooltip title="Chỉnh sửa">
-                        <IconButton color="primary" onClick={() => { navigate(`edit/${product.id}`); }}>
+                        <IconButton
+                          color="primary"
+                          onClick={() => {
+                            navigate(`edit/${product.id}`);
+                          }}
+                        >
                           <CreateOutlinedIcon />
                         </IconButton>
                       </Tooltip>
                       <Tooltip title="Xóa">
-                        <IconButton 
+                        <IconButton
                           color="error"
                           onClick={() => {
                             setProductToDelete({
                               id: product.id,
-                              name: product.name
+                              name: product.name,
                             });
                             setDeleteDialogOpen(true);
                           }}
@@ -199,9 +241,11 @@ function ListProducts() {
         onPageChange={handleChangePage}
         onRowsPerPageChange={handleChangeRowsPerPage}
         labelRowsPerPage="Số hàng:"
-        labelDisplayedRows={({ from, to, count }) => `${from}-${to} của ${count}`}
+        labelDisplayedRows={({ from, to, count }) =>
+          `${from}-${to} của ${count}`
+        }
       />
-      
+
       {/* Dialog xóa sản phẩm */}
       {productToDelete && (
         <DeleteProduct

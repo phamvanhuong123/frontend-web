@@ -93,6 +93,7 @@ function CreateProduct() {
 
     const fetchApi = async () => {
       try {
+        debugger
         const formData = new FormData();
 
         formData.append("Name", product.name);
@@ -112,8 +113,7 @@ function CreateProduct() {
         imageFiles.forEach((file, index) => {
           formData.append(`ImageFile${index + 1}`, file);
         });
-
-        const res = await productApi.CreateProduct(formData);
+        const res = await productApi.CreateProductToCloud(formData);
         console.log("Response from server:", res);
 
         toast.success("Thêm sản phẩm thành công", {

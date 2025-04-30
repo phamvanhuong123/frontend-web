@@ -16,6 +16,18 @@ export const productApi = {
   CreateProduct(formData: FormData) {
     return axios.post(`${BASE_URL}/products`, formData);
   },
+  //create product to cloud img
+  CreateProductToCloud(formData: FormData) {
+    debugger
+    return axios.post(`${BASE_URLv2}/products`, formData);
+  },
+  //update product to cloud img
+  updateProductToCloud: async (id: string, formData: FormData) => {
+    for (const [key, value] of formData.entries()) {
+      console.log(`${key}:`, value);
+    }
+    return await axios.post<Product>(`${BASE_URLv2}/products/${id}`, formData);
+  },
   callFetchProductById(id: string) {
     return axios.get(`${BASE_URL}/products/${id}`);
   },

@@ -1,6 +1,9 @@
 export const API_BASE_URL = 'http://localhost:5000';
 
 export const getImageUrl = (imagePath: string) => {
+  if (imagePath.startsWith("http://") || imagePath.startsWith("https://")) {
+    return imagePath;
+  }
     return `${API_BASE_URL}${imagePath}`;
 }; 
 
