@@ -16,7 +16,6 @@ dist-ssr
 .env.test
 .env.development
 .env.production
-environment.ts
 
 package-lock.json
 package.json
