@@ -6,6 +6,7 @@ import History from "~/layout/client/Order/History";
 import PaymentResponse from "~/layout/client/Order/PaymentResponse";
 import Cart from "~/layout/client/cart/cart";
 import OrderDetails from "~/layout/client/Order/OrderDetails";
+import Vouchers from "~/layout/client/Voucher";
 
 const clientRoutes = {
   path: "/",
@@ -18,6 +19,7 @@ const clientRoutes = {
     { path: "history", element: <History /> },
     { path: "orders/payment/response", element: <PaymentResponse /> },
     { path: "cart", element: <Cart /> },
+    { path: "vouchers", element: <Vouchers /> },
   ],
 };
 

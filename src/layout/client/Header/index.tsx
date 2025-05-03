@@ -67,6 +67,10 @@ const Header = (props: {
         ),
       },
       {
+        key: "vouchers",
+        label: <Link to="/vouchers">Kho Voucher</Link>,
+      },
+      {
         key: "history",
         label: <Link to="/history">Lịch sử mua hàng</Link>,
       },
@@ -99,7 +103,12 @@ const Header = (props: {
               <List.Item>
                 <List.Item.Meta
                   avatar={
-                    <Carousel autoplay dots={false} arrows style={{ width: 60 }}>
+                    <Carousel
+                      autoplay
+                      dots={false}
+                      arrows
+                      style={{ width: 60 }}
+                    >
                       {item.detail.image?.map((img: any, idx: number) => (
                         <div key={idx}>
                           <img
@@ -131,10 +140,9 @@ const Header = (props: {
               </List.Item>
             )}
           />
-          {/* Nút điều hướng tới trang Cart */}
           <div
             style={{
-              position: "sticky", // Sử dụng sticky để cố định trong popover
+              position: "sticky",
               bottom: 0,
               left: 0,
               right: 0,
@@ -154,7 +162,8 @@ const Header = (props: {
                     (total, item) => total + item.detail.price * item.quantity,
                     0
                   )
-                  .toLocaleString()}₫
+                  .toLocaleString()}
+                ₫
               </strong>
             </span>
             <button
@@ -259,6 +268,10 @@ const Header = (props: {
         open={openDrawer}
       >
         <p onClick={() => setShowManageAccount(true)}>Quản lý tài khoản</p>
+        <Divider />
+        <p onClick={() => navigate("/vouchers")}>Kho Voucher</p>
+        <Divider />
+        <p onClick={() => navigate("/history")}>Lịch sử mua hàng</p>
         <Divider />
         <p onClick={handleLogout}>Đăng xuất</p>
         <Divider />

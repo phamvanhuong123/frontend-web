@@ -19,6 +19,8 @@ import {
   LoadingOutlined,
   PlusOutlined,
   CheckCircleFilled,
+  PercentageOutlined,
+  CloseCircleOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
@@ -30,31 +32,20 @@ import { doSetSelectedAddressAction } from "~/redux/address/addressSlice";
 import { orderApi } from "~/services/axios.order";
 import { getImageUrl } from "~/config/config";
 import { addressApi } from "~/services/axios.address";
-import "./Payment.css";
 import { paymentApi } from "~/services/axios.payment";
+import { couponApi } from "~/services/axios.coupon";
 import moment from "moment";
+import Coupon from "~/types/coupon";
+import "./Payment.css";
+import Address from "~/types/address";
+
 const { TextArea } = Input;
 
 interface PaymentProps {
   setCurrentStep: (step: number) => void;
 }
 
-interface ShippingAddress {
-  id?: string;
-  userId: string;
-  receiverName: string;
-  receiverPhone: string;
-  streetAddress: string;
-  ward?: string;
-  district?: string;
-  city: string;
-  country: string;
-  postalCode?: string;
-  isDefaultShipping: boolean;
-  isDefaultBilling: boolean;
-}
-
-const formatAddress = (address: ShippingAddress): string => {
+const formatAddress = (address: Address): string => {
   const parts = [
     address.streetAddress,
     address.ward,
@@ -72,16 +63,16 @@ const Payment: React.FC<PaymentProps> = ({ setCurrentStep }) => {
   );
   const user = useSelector((state: any) => state.account.user);
   const [totalPrice, setTotalPrice] = useState(0);
+  const [shippingFee] = useState(30000); // Phí vận chuyển cố định 30k
+  const [discountAmount, setDiscountAmount] = useState(0);
+  const [finalPrice, setFinalPrice] = useState(0);
   const [isSubmit, setIsSubmit] = useState(false);
   const [form] = Form.useForm();
   const [addressForm] = Form.useForm();
 
   const [paymentMethod, setPaymentMethod] = useState("cod");
-  const [shippingAddresses, setShippingAddresses] = useState<ShippingAddress[]>(
-    []
-  );
-  const [selectedAddress, setSelectedAddress] =
-    useState<ShippingAddress | null>(null);
+  const [shippingAddresses, setShippingAddresses] = useState<Address[]>([]);
+  const [selectedAddress, setSelectedAddress] = useState<Address | null>(null);
   const [isAddressModalVisible, setIsAddressModalVisible] = useState(false);
   const [isAddingNewAddress, setIsAddingNewAddress] = useState(false);
 
@@ -98,6 +89,13 @@ const Payment: React.FC<PaymentProps> = ({ setCurrentStep }) => {
   >();
   const [isAddressDefault, setIsAddressDefault] = useState(false);
   const [isAddressDefaultBilling, setIsAddressDefaultBilling] = useState(false);
+
+  // State cho voucher
+  const [savedVouchers, setSavedVouchers] = useState<Coupon[]>([]);
+  const [selectedVoucher, setSelectedVoucher] = useState<Coupon | null>(null);
+  const [isVoucherModalVisible, setIsVoucherModalVisible] = useState(false);
+
+  // Tính tổng giá và áp dụng giảm giá
   useEffect(() => {
     if (selectedProducts && selectedProducts.length > 0) {
       const sum = selectedProducts.reduce(
@@ -105,24 +103,63 @@ const Payment: React.FC<PaymentProps> = ({ setCurrentStep }) => {
         0
       );
       setTotalPrice(sum);
+
+      // Áp dụng giảm giá từ voucher
+      if (selectedVoucher) {
+        if (sum < selectedVoucher.minimumSpend) {
+          message.warning(
+            `Đơn hàng chưa đạt giá trị tối thiểu ${selectedVoucher.minimumSpend}k để sử dụng voucher!`
+          );
+          setSelectedVoucher(null);
+          setDiscountAmount(0);
+          setFinalPrice(sum + shippingFee); // Bao gồm phí vận chuyển
+        } else {
+          let discount = 0;
+          if (selectedVoucher.discountType === "PERCENTAGE") {
+            discount = (sum * selectedVoucher.value) / 100;
+            const maxDiscount = selectedVoucher.value * 1000; // Giảm tối đa
+            discount = Math.min(discount, maxDiscount);
+          } else {
+            discount = selectedVoucher.value; // Giảm giá cố định
+          }
+          setDiscountAmount(discount);
+          setFinalPrice(sum + shippingFee - discount); // Bao gồm phí vận chuyển
+        }
+      } else {
+        setDiscountAmount(0);
+        setFinalPrice(sum + shippingFee); // Bao gồm phí vận chuyển
+      }
     } else {
       setTotalPrice(0);
+      setDiscountAmount(0);
+      setFinalPrice(0);
     }
-  }, [selectedProducts]);
+  }, [selectedProducts, selectedVoucher, shippingFee]);
 
-  // Fetch user's shipping addresses
+  // Lấy danh sách voucher đã lưu
   useEffect(() => {
-    console.log("Product", selectedProducts);
+    const fetchSavedVouchers = async () => {
+      if (!user?.id) return;
+      try {
+        const response = await couponApi.getSavedCoupons(user.id);
+        setSavedVouchers(response.data);
+      } catch {
+        message.error("Không thể tải danh sách voucher đã lưu!");
+      }
+    };
+
+    fetchSavedVouchers();
+  }, [user?.id]);
+
+  // Lấy danh sách địa chỉ giao hàng
+  useEffect(() => {
     const fetchAddresses = async () => {
       if (!user?.id) return;
 
       try {
         const response = await addressApi.getByUserId(user.id);
-
-        console.log("Địa chỉ giao hàng", response);
-
         if (response) {
-          const addresses: ShippingAddress[] = response.map((addr: any) => ({
+          const addresses: Address[] = response.map((addr: any) => ({
             id: addr.id || addr.Id,
             userId: addr.userId || addr.UserId,
             receiverName: addr.receiverName || addr.ReceiverName,
@@ -138,8 +175,6 @@ const Payment: React.FC<PaymentProps> = ({ setCurrentStep }) => {
           }));
 
           setShippingAddresses(addresses);
-
-          // Find default shipping address or first address
           const defaultAddress = addresses.find(
             (addr) => addr.isDefaultShipping
           );
@@ -224,7 +259,7 @@ const Payment: React.FC<PaymentProps> = ({ setCurrentStep }) => {
     });
   };
 
-  const handleSelectAddress = (address: ShippingAddress) => {
+  const handleSelectAddress = (address: Address) => {
     setSelectedAddress(address);
     dispatch(
       doSetSelectedAddressAction({
@@ -239,18 +274,14 @@ const Payment: React.FC<PaymentProps> = ({ setCurrentStep }) => {
   const handleSetDefaultAddress = async (addressId: string) => {
     try {
       await addressApi.setDefaultAddress(addressId);
-
       const updatedAddresses = shippingAddresses.map((addr) => ({
         ...addr,
         isDefaultShipping: addr.id === addressId,
       }));
-
       setShippingAddresses(updatedAddresses);
-
       if (selectedAddress?.id === addressId) {
         setSelectedAddress({ ...selectedAddress, isDefaultShipping: true });
       }
-
       message.success("Đã thiết lập địa chỉ mặc định");
     } catch (error) {
       console.error("Error setting default address:", error);
@@ -264,20 +295,16 @@ const Payment: React.FC<PaymentProps> = ({ setCurrentStep }) => {
   const handleDeleteAddress = async (addressId: string) => {
     try {
       await addressApi.delete(addressId);
-
       const updatedAddresses = shippingAddresses.filter(
         (addr) => addr.id !== addressId
       );
-
       setShippingAddresses(updatedAddresses);
-
       if (selectedAddress?.id === addressId) {
         const defaultAddress = updatedAddresses.find(
           (addr) => addr.isDefaultShipping
         );
         setSelectedAddress(defaultAddress || updatedAddresses[0] || null);
       }
-
       message.success("Đã xóa địa chỉ");
     } catch (error) {
       console.error("Error deleting address:", error);
@@ -291,14 +318,13 @@ const Payment: React.FC<PaymentProps> = ({ setCurrentStep }) => {
   const handleAddAddress = async () => {
     try {
       const values = await addressForm.validateFields();
-
       const cityName = provinces.find((c) => c.code === values.city)?.name;
       const districtName = districts.find(
         (d) => d.code === values.district
       )?.name;
       const wardName = wards.find((w) => w.code === values.ward)?.name;
 
-      const newAddress: ShippingAddress = {
+      const newAddress: Address = {
         userId: user?.id,
         receiverName: values.receiverName,
         receiverPhone: values.receiverPhone,
@@ -317,13 +343,11 @@ const Payment: React.FC<PaymentProps> = ({ setCurrentStep }) => {
       if (response) {
         const savedAddress = response;
         const updatedAddresses = [...shippingAddresses, savedAddress];
-
         setShippingAddresses(updatedAddresses);
         setSelectedAddress(savedAddress);
         setIsAddingNewAddress(false);
         setIsAddressModalVisible(false);
         addressForm.resetFields();
-
         message.success("Đã thêm địa chỉ mới");
       }
     } catch (error) {
@@ -333,6 +357,30 @@ const Payment: React.FC<PaymentProps> = ({ setCurrentStep }) => {
         description: "Không thể thêm địa chỉ mới",
       });
     }
+  };
+
+  // Hiển thị modal chọn voucher
+  const showVoucherModal = () => {
+    setIsVoucherModalVisible(true);
+  };
+
+  const handleVoucherModalCancel = () => {
+    setIsVoucherModalVisible(false);
+  };
+
+  // Chọn voucher
+  const handleSelectVoucher = (voucher: Coupon) => {
+    setSelectedVoucher(voucher);
+    setIsVoucherModalVisible(false);
+    message.success(`Đã áp dụng voucher ${voucher.code}`);
+  };
+
+  // Hủy chọn voucher
+  const handleRemoveVoucher = () => {
+    setSelectedVoucher(null);
+    setDiscountAmount(0);
+    setFinalPrice(totalPrice + shippingFee); // Bao gồm phí vận chuyển
+    message.info("Đã hủy voucher");
   };
 
   const onFinish = async () => {
@@ -361,29 +409,24 @@ const Payment: React.FC<PaymentProps> = ({ setCurrentStep }) => {
       billingAddressId: selectedAddress.isDefaultBilling
         ? selectedAddress.id
         : undefined,
-      totalAmount: totalPrice,
+      totalAmount: finalPrice,
       notes: form.getFieldValue("notes"),
       orderItems: orderItems,
-      status: "PENDING", // Enum value for pending
+      status: "PENDING",
       paymentMethod: paymentMethod,
     };
 
     try {
       if (paymentMethod === "vnpay") {
-        // Handle VNPay payment logic here
-        // For example, redirect to VNPay payment page
-        // get url
         const paymentData = {
           orderCode: orderCode,
-          // id:
           fullName: user?.fullName,
           description: "Thanh toán đơn hàng",
-          amount: totalPrice,
+          amount: finalPrice,
           createdDate: moment().format("YYYY-MM-DDTHH:mm:ss"),
         };
 
         const vnPayUrl = await paymentApi.createVnPayPayment(paymentData);
-        console.log("vnPayUrl", vnPayUrl);
         if (vnPayUrl?.url) {
           window.location.href = vnPayUrl.url;
         } else {
@@ -396,7 +439,7 @@ const Payment: React.FC<PaymentProps> = ({ setCurrentStep }) => {
       const res = await orderApi.createOrder(orderData);
       if (res?.data) {
         message.success("Đặt hàng thành công!");
-        dispatch(doPlaceOrderAction({ orderItems, totalAmount: totalPrice }));
+        dispatch(doPlaceOrderAction({ orderItems, totalAmount: finalPrice }));
         setCurrentStep(2);
       } else {
         notification.error({
@@ -421,6 +464,7 @@ const Payment: React.FC<PaymentProps> = ({ setCurrentStep }) => {
   const handleAddressDefaultBilling = () => {
     setIsAddressDefaultBilling((prev) => !prev);
   };
+
   return (
     <Row gutter={[20, 20]}>
       <Col md={16} xs={24}>
@@ -436,16 +480,10 @@ const Payment: React.FC<PaymentProps> = ({ setCurrentStep }) => {
                   <strong>{selectedAddress.receiverPhone}</strong>
                 </span>
                 <div className="address">
-                  {/* {selectedAddress.isDefaultShipping && (
-                    <p className="default-tag">Mặc định</p>
-                  )} */}
                   <span className="address-home">Nhà</span>
                   {formatAddress(selectedAddress)}
                 </div>
               </div>
-              {/* <div className="address-content">
-                
-              </div> */}
               <Button type="link" onClick={showAddressModal}>
                 Thay đổi
               </Button>
@@ -513,6 +551,44 @@ const Payment: React.FC<PaymentProps> = ({ setCurrentStep }) => {
       </Col>
       <Col md={8} xs={24}>
         <div className="order-sum">
+          {/* Voucher Selection */}
+          <div className="voucher-section">
+            <div className="voucher-header">
+              <span>
+                <PercentageOutlined
+                  style={{ marginRight: 8, color: "#F28C38" }}
+                />
+                Voucher Giảm Giá
+              </span>
+              <button
+                type="default" // Đảm bảo type là default để tránh style mặc định của Ant Design
+                className="select-voucher-button"
+                onClick={showVoucherModal}
+              >
+                {selectedVoucher ? "Thay đổi" : "Chọn voucher"}
+              </button>
+            </div>
+            {selectedVoucher && (
+              <div className="selected-voucher-card">
+                <div className="voucher-info">
+                  <span className="voucher-discount">
+                    {selectedVoucher.discountType === "PERCENTAGE"
+                      ? `Giảm ${selectedVoucher.value}% (Tối đa ${selectedVoucher.value * 1000}k)`
+                      : `Giảm ${selectedVoucher.value}k`}
+                  </span>
+                  <span className="voucher-condition">
+                    Đơn tối thiểu {selectedVoucher.minimumSpend}k
+                  </span>
+                </div>
+                <CloseCircleOutlined
+                  className="remove-voucher-icon"
+                  onClick={handleRemoveVoucher}
+                />
+              </div>
+            )}
+          </div>
+          <Divider style={{ margin: "5px 0" }} />
+
           <div className="info">
             <div className="method">
               <div>Hình thức thanh toán</div>
@@ -527,19 +603,49 @@ const Payment: React.FC<PaymentProps> = ({ setCurrentStep }) => {
           </div>
           <Divider style={{ margin: "5px 0" }} />
           <div className="calculate">
-            <span>Tổng tiền</span>
-            <span className="sum-final">
-              {new Intl.NumberFormat("vi-VN", {
-                style: "currency",
-                currency: "VND",
-              }).format(totalPrice || 0)}
-            </span>
+            <div className="calculate-row">
+              <span>Tổng tiền hàng:</span>
+              <span>
+                {new Intl.NumberFormat("vi-VN", {
+                  style: "currency",
+                  currency: "VND",
+                }).format(totalPrice || 0)}
+              </span>
+            </div>
+            <div className="calculate-row">
+              <span>Tổng tiền phí vận chuyển:</span>
+              <span>
+                {new Intl.NumberFormat("vi-VN", {
+                  style: "currency",
+                  currency: "VND",
+                }).format(shippingFee)}
+              </span>
+            </div>
+            <div className="calculate-row">
+              <span>Tổng tiền giảm giá:</span>
+              <span className="discount-text">
+                -{" "}
+                {new Intl.NumberFormat("vi-VN", {
+                  style: "currency",
+                  currency: "VND",
+                }).format(discountAmount || 0)}
+              </span>
+            </div>
+            <div className="calculate-row">
+              <span>Tổng thanh toán:</span>
+              <span className="sum-final">
+                {new Intl.NumberFormat("vi-VN", {
+                  style: "currency",
+                  currency: "VND",
+                }).format(finalPrice || 0)}
+              </span>
+            </div>
           </div>
           <Divider style={{ margin: "5px 0" }} />
           <button onClick={onFinish} disabled={isSubmit || !selectedAddress}>
             {isSubmit && (
               <span>
-                <LoadingOutlined /> &nbsp;
+                <LoadingOutlined />
               </span>
             )}
             Đặt Hàng ({selectedProducts?.length ?? 0})
@@ -784,12 +890,82 @@ const Payment: React.FC<PaymentProps> = ({ setCurrentStep }) => {
           </Form>
         )}
       </Modal>
+
+      {/* Voucher Selection Modal */}
+      <Modal
+        title="Chọn Voucher Giảm Giá"
+        open={isVoucherModalVisible}
+        onCancel={handleVoucherModalCancel}
+        footer={null}
+        width={700}
+      >
+        <div className="voucher-modal-list">
+          {savedVouchers.length > 0 ? (
+            savedVouchers.map((voucher) => {
+              const isActive =
+                voucher.isActive &&
+                new Date(voucher.endTime || "") > new Date();
+              const discountText =
+                voucher.discountType === "PERCENTAGE"
+                  ? `Giảm ${voucher.value}% (Tối đa ${voucher.value * 1000}k)`
+                  : `Giảm ${voucher.value}k`;
+              const canApply = isActive && totalPrice >= voucher.minimumSpend;
+
+              return (
+                <div
+                  key={voucher.id}
+                  className={`voucher-card-modal ${
+                    canApply ? "voucher-active" : "voucher-inactive"
+                  }`}
+                >
+                  <div className="voucher-left-modal">
+                    <div className="voucher-icon-modal">🎟️</div>
+                    <div className="voucher-category-modal">
+                      {voucher.category || "Tổng Hợp"}
+                    </div>
+                  </div>
+                  <div className="voucher-middle-modal">
+                    <div className="voucher-discount-modal">{discountText}</div>
+                    <div className="voucher-condition-modal">
+                      Đơn tối thiểu {voucher.minimumSpend}k
+                    </div>
+                    <div className="voucher-expiry-modal">
+                      HSD:{" "}
+                      {voucher.endTime
+                        ? new Date(voucher.endTime).toLocaleDateString("vi-VN")
+                        : "N/A"}
+                      {!isActive && (
+                        <span className="expired-tag"> (Hết hạn)</span>
+                      )}
+                      {isActive && totalPrice < voucher.minimumSpend && (
+                        <span className="not-eligible-tag">
+                          {" "}
+                          (Chưa đủ điều kiện)
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <div className="voucher-right-modal">
+                    <Button
+                      className="apply-voucher-button"
+                      onClick={() => handleSelectVoucher(voucher)}
+                      disabled={!canApply}
+                    >
+                      Áp dụng
+                    </Button>
+                  </div>
+                </div>
+              );
+            })
+          ) : (
+            <div className="no-vouchers">
+              <p>Bạn chưa có voucher nào!</p>
+            </div>
+          )}
+        </div>
+      </Modal>
     </Row>
   );
-};
-
-const setCurrentStep = (step: number) => {
-  console.log(`Navigating to step: ${step}`);
 };
 
 export default Payment;
