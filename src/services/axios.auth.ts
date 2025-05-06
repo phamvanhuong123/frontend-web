@@ -12,13 +12,13 @@ export const authApi = {
       Password: password,
     });
   },
-  callLogout () {
+  callLogout() {
     return axios.post(`${url}/logout`)
-    .finally(() => {
-      localStorage.removeItem('access_token');
-    });
+      .finally(() => {
+        localStorage.removeItem('access_token');
+      });
   },
-  callRegister (data: {
+  callRegister(data: {
     Email: string;
     Password: string;
     Name: string;

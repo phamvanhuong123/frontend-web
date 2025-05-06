@@ -8,14 +8,14 @@ import { authApi } from "~/services/axios.auth";
 
 const LoginPage = () => {
   const navigate = useNavigate();
-  const location = useLocation(); 
+  const location = useLocation();
   const [isSubmit, setIsSubmit] = useState(false);
   const dispatch = useDispatch();
 
   useEffect(() => {
     const urlParams = new URLSearchParams(location.search);
     const code = urlParams.get("code");
-  
+
     if (code) {
       authApi.callGoogleCallback(code).then(res => {
         localStorage.setItem("access_token", res.data.accessToken);
@@ -26,9 +26,9 @@ const LoginPage = () => {
       });
     }
   }, [location.search]);
-  
-  const GOOGLE_LOGIN_URL = "https://localhost:7074/api/v1/ecommerce/auth/login-google";
-  const REDIRECT_URI = "http://localhost:5173/login";
+
+  const GOOGLE_LOGIN_URL = `${import.meta.env.VITE_API_URL}/api/v1/ecommerce/auth/login-google`;
+  const REDIRECT_URI = `${import.meta.env.VITE_REDIRECT_URI}/login`;
 
   const handleGoogleLogin = () => {
     const loginUrl = `${GOOGLE_LOGIN_URL}?redirect_uri=${encodeURIComponent(REDIRECT_URI)}`;

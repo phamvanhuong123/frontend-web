@@ -20,7 +20,6 @@ import dayjs from "dayjs";
 import "./ProductReviews.scss";
 import { Review, CreateReviewRequest } from "../../../types/review";
 import { reviewApi } from "~/services/axios.review";
-// import * as signalR from "@microsoft/signalr";
 import {
   HubConnectionBuilder,
   LogLevel,
@@ -60,7 +59,9 @@ const ProductReviews = ({ productId }: { productId: string }) => {
   // Kết nối SignalR
   useEffect(() => {
     const connection = new HubConnectionBuilder()
-      .withUrl("https://localhost:7074/reviewHub") // Thay bằng URL backend
+      .withUrl(`${import.meta.env.VITE_API_URL}/reviewHub`, {
+        accessTokenFactory: () => localStorage.getItem("access_token") || "",
+      })
       .configureLogging(LogLevel.Information)
       .withAutomaticReconnect()
       .build();

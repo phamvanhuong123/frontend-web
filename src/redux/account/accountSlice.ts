@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 export interface IUser {
-  _id: string;
+  id: string;
   email: string;
   name: string;
   phoneNumber: string;
@@ -41,8 +41,9 @@ export const accountSlice = createSlice({
       state.accessToken = action.payload.accessToken;
       state.user = action.payload.userInfo;
       state.isAuthenticated = true;
-      state.tempAvatar = undefined; // Reset tempAvatar khi login
+      localStorage.setItem("access_token", action.payload.accessToken);
     },
+    
     doLogoutAction: (state) => {
       return {
         ...state,

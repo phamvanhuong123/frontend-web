@@ -24,7 +24,7 @@ import MobileFilter from "./MobileFilter";
 import { PaginationResponse, ProductQueryParameters } from "~/types/product";
 import { Carousel } from "antd";
 import { LeftOutlined, RightOutlined } from "@ant-design/icons";
-import ChatBotGMN from "~/components/ChatBotGMN/ChatBotGMN"; // Import ChatBot component
+import ChatBot from "~/components/ChatBot/ChatBot";
 
 const Home = () => {
   const [searchTerm, setSearchTerm] =
@@ -33,9 +33,7 @@ const Home = () => {
   const [listCategory, setListCategory] = useState<
     { label: string; value: string }[]
   >([]);
-  const [listProduct, setListProduct] = useState<
-    { price: number; rating?: number; sold?: number; name: string; images?: { url: string }[]; id?: string | number; [key: string]: any }[]
-  >([]);
+  const [listProduct, setListProduct] = useState<any[]>([]);
   const [current, setCurrent] = useState(1);
   const [pageSize, setPageSize] = useState(12);
   const [total, setTotal] = useState(0);
@@ -51,7 +49,7 @@ const Home = () => {
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc' | null>('desc');
 
   const [showMobileFilter, setShowMobileFilter] = useState(false);
-  const [showChatBot, setShowChatBot] = useState(false); // State để mở/đóng ChatBot
+  const [showChatBot, setShowChatBot] = useState(false);
 
   const [form] = Form.useForm();
   const navigate = useNavigate();
@@ -66,13 +64,11 @@ const Home = () => {
         sortBy: sortBy || null,
         sortOrder: sortOrder || null,
       };
-      // Xử lý lọc theo danh mục
 
       if (formFilterValues.category && formFilterValues.category.length > 0) {
         params.categoryId = formFilterValues.category;
       }
 
-      // Xử lý lọc theo khoảng giá
       if (formFilterValues.range?.from !== undefined && formFilterValues.range.from !== null) {
         params.minPrice = formFilterValues.range.from;
       }
@@ -83,9 +79,9 @@ const Home = () => {
 
       const res: PaginationResponse<any> = await productApi.getAllPage(params);
 
-      if (res) {
-        setListProduct(res.items);
-        setTotal(res.totalCount);
+      if (res && res.items) {
+        setListProduct(res.items || []);
+        setTotal(res.totalCount || 0);
       } else {
         setListProduct([]);
         setTotal(0);
@@ -100,13 +96,21 @@ const Home = () => {
   };
 
   const initCategory = async () => {
-    const res = await callFetchCategory();
-    if (res && res.data) {
-      const categories = res.data.map((item: any) => ({
-        label: item.name || item,
-        value: String(item.id),
-      }));
-      setListCategory(categories);
+    try {
+      const res = await callFetchCategory();
+      if (res && res.data) {
+        // Kiểm tra xem res.data có phải là mảng không
+        const categories = Array.isArray(res.data)
+          ? res.data.map((item: any) => ({
+            label: item.name || item,
+            value: String(item.id || item)
+          }))
+          : [];
+        setListCategory(categories);
+      }
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+      setListCategory([]);
     }
   };
 
@@ -520,48 +524,40 @@ const Home = () => {
         </div>
       </div>
 
-      {/* Bóng chat */}
+      {/* Chat button */}
       <div
-        className="chat-bubble-button"
+        className="chat-button"
         onClick={() => setShowChatBot(!showChatBot)}
         style={{
-          position: "fixed",
-          bottom: "20px",
-          right: "20px",
-          zIndex: 1000,
-          cursor: "pointer",
-          backgroundColor: "#1890ff",
-          color: "#fff",
-          borderRadius: "50%",
-          width: "60px",
-          height: "60px",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+          position: 'fixed',
+          bottom: '20px',
+          right: '20px',
+          width: '50px',
+          height: '50px',
+          borderRadius: '50%',
+          background: '#1890ff',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          cursor: 'pointer',
+          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
+          zIndex: 1000
         }}
       >
         💬
       </div>
 
-      {/* Hiển thị ChatBot */}
+      {/* ChatBot component */}
       {showChatBot && (
-        <div
-          style={{
-            position: "fixed",
-            bottom: "80px",
-            right: "20px",
-            zIndex: 1000,
-            width: "400px",
-            height: "500px",
-            backgroundColor: "#fff",
-            border: "1px solid #ddd",
-            borderRadius: "8px",
-            boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-            overflow: "hidden",
-          }}
-        >
-          <ChatBotGMN />
+        <div style={{
+          position: 'fixed',
+          bottom: '80px',
+          right: '20px',
+          width: '350px',
+          height: '500px',
+          zIndex: 1000
+        }}>
+          <ChatBot />
         </div>
       )}
     </>

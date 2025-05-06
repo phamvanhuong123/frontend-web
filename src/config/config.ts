@@ -1,4 +1,4 @@
-export const API_BASE_URL = "https://localhost:7074";
+export const API_BASE_URL = import.meta.env.VITE_API_URL || "https://localhost:7074";
 
 export const getImageUrl = (imagePath: string) => {
   if (imagePath.startsWith("http://") || imagePath.startsWith("https://")) {
