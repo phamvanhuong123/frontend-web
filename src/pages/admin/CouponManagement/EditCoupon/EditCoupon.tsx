@@ -115,7 +115,6 @@ function EditCoupon() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Submitting coupon:", coupon); // Debugging line
 
     // Kiểm tra các trường bắt buộc
     if (

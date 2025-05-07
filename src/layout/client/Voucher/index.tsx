@@ -78,31 +78,19 @@ const Vouchers = () => {
   };
 
   // Lưu voucher
-  const saveVoucher = async (couponCode: string) => {
+  const saveVoucher = async (coupon: Coupon) => {
     if (!user?.id) {
       message.warning("Vui lòng đăng nhập để lưu voucher!");
       return;
     }
     setLoading(true);
     try {
-      const response = await couponApi.saveCoupon(user.id, couponCode);
+      const response = await couponApi.saveCoupon(user.id, coupon.code);
 
-      // Cập nhật số lượng của voucher còn lại : usageLimit - 1
-      setAllVouchers((prev) =>
-        prev.map((coupon) => {
-          if (coupon.code === couponCode) {
-            couponApi.update(coupon.id, {
-              ...coupon,
-              usageLimit: (coupon.usageLimit || 0) - 1,
-            });
-            return {
-              ...coupon,
-              usageLimit: (coupon.usageLimit || 0) - 1,
-            };
-          }
-          return coupon;
-        })
-      );
+      await couponApi.update(coupon.id, {
+        ...coupon, // Giữ nguyên các thuộc tính của coupon
+        usageLimit: (coupon.usageLimit ?? 0) - 1, // Giảm số lượng voucher đã lưu
+      });
 
       message.success(response.data.message);
       fetchSavedVouchers(); // Cập nhật danh sách voucher đã lưu
@@ -177,7 +165,7 @@ const Vouchers = () => {
           {!isSavedTab && !isSaved && (
             <Button
               className="voucher-button"
-              onClick={() => saveVoucher(coupon.code)}
+              onClick={() => saveVoucher(coupon)}
               disabled={!isActive}
               loading={loading}
             >

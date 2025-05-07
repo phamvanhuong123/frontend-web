@@ -44,7 +44,7 @@ const Header = (props: {
     await authApi.callLogout();
     dispatch(doLogoutAction());
     message.success("Đăng xuất thành công");
-    navigate("/");
+    navigate("/login");
   };
 
   const isAdminOrStaff = () => {

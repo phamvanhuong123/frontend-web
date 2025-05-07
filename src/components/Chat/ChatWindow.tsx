@@ -161,7 +161,6 @@ const ChatWindow: React.FC = () => {
   
   // Gửi tin nhắn
   const handleSendMessage = async () => {
-    debugger
     if (!newMessage.trim() || !selectedUserId) return;
 
     setSending(true);

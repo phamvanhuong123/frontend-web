@@ -11,13 +11,20 @@ import axios from "axios";
 import "./PaymentResponse.css";
 import VnPayResponse from "~/types/payment";
 import { paymentApi } from "~/services/axios.payment";
+import { useDispatch, useSelector } from "react-redux";
+import couponApi from "~/services/axios.coupon";
+import { doDeleteVoucherSelectedAction } from "~/redux/order/orderSlice";
 
 const PaymentResponse = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [response, setResponse] = useState<VnPayResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const selectedVoucher = useSelector(
+    (state: any) => state.order.selectedCoupon
+  );
 
   useEffect(() => {
     const queryParams = new URLSearchParams(location.search);
@@ -35,6 +42,14 @@ const PaymentResponse = () => {
         const res = await paymentApi.ProcessPaymentResponse(
           Object.fromEntries(queryParams)
         );
+        if (
+          selectedVoucher &&
+          queryParams.get("vnp_TransactionStatus") == "00"
+        ) {
+          // Nếu thanh toán thành công và có voucher đã chọn, xóa voucher đã chọn
+          await couponApi.useAndDelete(selectedVoucher.id);
+          dispatch(doDeleteVoucherSelectedAction());
+        }
         setResponse({
           success: res.success,
           paymentMethod: queryParams.get("vnp_CardType") || "",

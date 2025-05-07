@@ -27,6 +27,7 @@ import { useEffect, useState } from "react";
 import {
   doDeleteItemCartAction,
   doPlaceOrderAction,
+  doSelectVoucherAction,
 } from "~/redux/order/orderSlice";
 import { doSetSelectedAddressAction } from "~/redux/address/addressSlice";
 import { orderApi } from "~/services/axios.order";
@@ -94,7 +95,6 @@ const Payment: React.FC<PaymentProps> = ({ setCurrentStep }) => {
   const [savedVouchers, setSavedVouchers] = useState<Coupon[]>([]);
   const [selectedVoucher, setSelectedVoucher] = useState<Coupon | null>(null);
   const [isVoucherModalVisible, setIsVoucherModalVisible] = useState(false);
-
   // Tính tổng giá và áp dụng giảm giá
   useEffect(() => {
     if (selectedProducts && selectedProducts.length > 0) {
@@ -405,7 +405,7 @@ const Payment: React.FC<PaymentProps> = ({ setCurrentStep }) => {
     }));
 
     if (selectedVoucher) {
-      await couponApi.useAndDelete(selectedVoucher.id);
+      dispatch(doSelectVoucherAction(selectedVoucher));
     }
 
     const orderCode = `ORDER-${Date.now()}`;
@@ -445,6 +445,9 @@ const Payment: React.FC<PaymentProps> = ({ setCurrentStep }) => {
         }
       }
       const res = await orderApi.createOrder(orderData);
+      if (paymentMethod !== "vnpay" && selectedVoucher) {
+        await couponApi.useAndDelete(selectedVoucher.id);
+      }
       if (res?.data) {
         message.success("Đặt hàng thành công!");
         dispatch(doPlaceOrderAction({ orderItems, totalAmount: finalPrice }));

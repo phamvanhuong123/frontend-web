@@ -19,12 +19,29 @@ export interface CartItem {
   };
 }
 
+export interface Coupon {
+  id: string;
+  code: string;
+  description?: string;
+  discountType: "PERCENTAGE" | "FIXED_AMOUNT" | number; // Sử dụng chuỗi hoặc số
+  value: number;
+  minimumSpend: number;
+  startTime?: string;
+  endTime?: string;
+  usageLimit?: number;
+  usageLimitPerUser?: number;
+  isActive: boolean;
+  userId?: string | null;
+}
+
 const initialState: {
   carts: CartItem[];
   selectedProducts?: CartItem[];
+  selectedCoupon?: Coupon;
 } = {
   carts: [],
   selectedProducts: [],
+  selectedCoupon: undefined,
 };
 
 export const orderSlice = createSlice({
@@ -85,6 +102,25 @@ export const orderSlice = createSlice({
       // Cập nhật giỏ hàng
       state.carts = carts;
     },
+    doSelectVoucherAction: (state, action) => {
+      const { id, code, description, discountType, value, minimumSpend } =
+        action.payload;
+      const selectedCoupon: Coupon = {
+        id,
+        code,
+        description,
+        discountType,
+        value,
+        minimumSpend,
+        isActive: true,
+      };
+      state.selectedCoupon = selectedCoupon;
+      message.success("Voucher đã được chọn thành công");
+    },
+    doDeleteVoucherSelectedAction: (state) => {
+      state.selectedCoupon = undefined;
+      message.success("Voucher đã được xóa khỏi Giỏ hàng");
+    },
 
     // Xóa sản phẩm khỏi giỏ hàng
     doDeleteItemCartAction: (state, action) => {
@@ -121,6 +157,8 @@ export const {
   doDeleteItemCartAction,
   doPlaceOrderAction,
   doSetSelectedProductsAction,
+  doSelectVoucherAction,
+  doDeleteVoucherSelectedAction,
 } = orderSlice.actions;
 
 export default orderSlice.reducer;
