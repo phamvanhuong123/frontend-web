@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Input, Button, Avatar, message, Spin } from "antd";
-import { SendOutlined, UserOutlined } from "@ant-design/icons";
+import { SendOutlined, UserOutlined, MessageOutlined } from "@ant-design/icons";
 import { useSelector } from "react-redux";
 import { chatApi } from "../../services/axios.chat";
 import * as signalR from "@microsoft/signalr";
@@ -9,280 +9,310 @@ import "./ChatBot.scss";
 
 const { TextArea } = Input;
 
-interface Message {
-  id: string;
-  content: string;
-  senderId: string;
-  receiverId?: string;
-  senderName?: string;
-  sentAt: string;
-  chatId?: string;
-  isRead?: boolean;
+interface ChatBotProps {
+  onNewMessage?: () => void; // Add prop to notify parent about new messages
 }
 
-const ChatBot = () => {
-  const { isAuthenticated, user } = useSelector((state: RootState) => state.account);
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [newMessage, setNewMessage] = useState("");
-  const [staffId, setStaffId] = useState<string | null>(null);
-  const [chatId, setChatId] = useState<string | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const connectionRef = useRef<signalR.HubConnection | null>(null);
+interface Participant {
+    userId: string;
+}
 
-  // Khởi tạo chat khi component mount
-  useEffect(() => {
-    if (!isAuthenticated || !user?.id) {
-      message.warning("Vui lòng đăng nhập để sử dụng tính năng chat");
-      return;
-    }
+interface Chat {
+    id: string;
+    title: string;
+    participants: Participant[];
+    messages: Message[];
+}
 
-    initializeChat(user.id);
+interface Message {
+    id: string;
+    content: string;
+    senderId: string;
+    receiverId?: string;
+    senderName?: string;
+    sentAt: string;
+    chatId?: string;
+    isRead?: boolean;
+}
 
-    return () => {
-      // Đóng kết nối SignalR khi component unmount
-      if (connectionRef.current) {
-        connectionRef.current.stop().catch(err => console.error("Error stopping SignalR:", err));
-      }
-    };
-  }, [isAuthenticated, user]);
+const ChatBot = ({ onNewMessage }: ChatBotProps) => {
+    const { isAuthenticated, user } = useSelector((state: RootState) => state.account);
 
-  // Thiết lập SignalR khi có chatId
-  useEffect(() => {
-    if (chatId) {
-      setupSignalR();
-    }
-  }, [chatId]);
+    const [messages, setMessages] = useState<Message[]>([]);
+    const [newMessage, setNewMessage] = useState("");
+    const [staffId, setStaffId] = useState<string | null>(null);
+    const [chatId, setChatId] = useState<string | null>(null);
+    const [loading, setLoading] = useState<boolean>(true);
 
-  // Scroll xuống cuối khi có tin nhắn mới
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+    const isInitializing = useRef(false);
+    const isInitialized = useRef(false);
+    const [chatInitialized, setChatInitialized] = useState(false);
 
-  const initializeChat = async (currentUserId: string) => {
-    setLoading(true);
-    try {
-      // Tạo chat mới với nhân viên
-      const chatRes = await chatApi.createStaffChat();
-      if (!chatRes?.data) {
-        throw new Error("Không thể tạo cuộc trò chuyện");
-      }
+    const messagesEndRef = useRef<HTMLDivElement>(null);
+    const connectionRef = useRef<signalR.HubConnection | null>(null);
 
-      const chat = chatRes.data;
-      setChatId(chat.id);
-
-      // Tìm nhân viên hỗ trợ trong danh sách người tham gia
-      if (chat.participants && chat.participants.length > 0) {
-        const supportStaff = chat.participants.filter(
-          (p: { userId: string }) => p.userId !== currentUserId
-        );
-
-        if (supportStaff.length > 0) {
-          const firstStaff = supportStaff[0];
-          setStaffId(firstStaff.userId);
-
-          // Tải tin nhắn nếu có
-          if (chat.messages && chat.messages.length > 0) {
-            setMessages(chat.messages);
-          } else {
-            await fetchMessages(firstStaff.userId);
-          }
+    useEffect(() => {
+        if (!isAuthenticated || !user?.id || chatInitialized) {
+            setLoading(false);
+            return;
         }
-      }
-    } catch (error) {
-      console.error("Error initializing chat:", error);
-      message.error("Không thể kết nối với nhân viên hỗ trợ");
-    } finally {
-      setLoading(false);
-    }
-  };
 
-  const fetchMessages = async (staffUserId: string) => {
-    try {
-         const chatIdRes = await chatApi.getChatId(staffUserId);
-            const chatId = chatIdRes.data?.chatId;
-            if (!chatId) throw new Error("Không tìm thấy chatId");
-        
-            setChatId(chatId);
-        
-            // Lấy tin nhắn
-            const res = await chatApi.getConversationByChatId(chatId);
-            if (res.data) {
-              const formatted = res.data.map((m: Message) => ({
-                ...m,
-                content: m.content // 💡 mapping thủ công cho thống nhất
-              }));
-              setMessages(formatted);
-            
-      }
-    } catch (error) {
-      console.error("Error fetching messages:", error);
-      message.error("Không thể tải tin nhắn");
-    }
-  };
+        if (isInitializing.current) {
+            return;
+        }
 
-  const setupSignalR = () => {
-    if (!chatId || !localStorage.getItem("access_token")) return;
+        isInitializing.current = true;
 
-    // Tạo kết nối SignalR
-    const connection = new signalR.HubConnectionBuilder()
-      .withUrl(`${import.meta.env.VITE_API_URL}/chathub`, {
-        accessTokenFactory: () => localStorage.getItem("access_token") || "",
-      })
-      .configureLogging(signalR.LogLevel.Information)
-      .withAutomaticReconnect()
-      .build();
-
-    // Xử lý sự kiện nhận tin nhắn
-    connection.on("ReceiveMessage", (message: Message) => {
-      setMessages((prevMessages) => {
-        const updatedMessages = [...prevMessages, message];
-        return updatedMessages;
-      });
-    });
-    
-    // Kết nối và tham gia vào chat
-    connection
-      .start()
-      .then(() => {
-        console.log("SignalR connected");
-        connection.invoke("JoinChat", chatId).catch(err => {
-          console.error("Error joining chat:", err);
-        });
-      })
-      .catch((err) => console.error("SignalR connection error:", err));
-
-    connectionRef.current = connection;
-  };
-
-  const handleSendMessage = async () => {
-    if (!newMessage.trim() || !isAuthenticated) return;
-  
-    try {
-      const messageData = {
-        Content: newMessage,
-        receiverId: staffId || undefined,
-        chatId: chatId || undefined
-      };
-  
-      const res = await chatApi.sendMessage(messageData);
-  
-      if (res?.data) {
-        const sentMessage = res.data;
-  
-        // Hiển thị ngay trên giao diện
-        setMessages((prev) => [...prev, sentMessage]);
-  
-        if (!chatId && sentMessage.chatId) {
-          setChatId(sentMessage.chatId);
-          if (connectionRef.current) {
+        const initializeChat = async (currentUserId: string) => {
+            setLoading(true);
             try {
-              await connectionRef.current.invoke("JoinChat", sentMessage.chatId);
-              console.log("Joined chat via SignalR:", sentMessage.chatId);
-            } catch (err) {
-              console.error("Error joining SignalR chat:", err);
+                const chatRes = await chatApi.createStaffChat();
+
+                if (!chatRes?.data || !chatRes.data.id) {
+                    throw new Error("Không thể tạo hoặc tìm thấy cuộc trò chuyện");
+                }
+
+                const chat: Chat = chatRes.data;
+                setChatId(chat.id);
+
+                const supportStaff = chat.participants.find(
+                    (p: Participant) => p.userId !== currentUserId
+                );
+
+                if (supportStaff) {
+                    setStaffId(supportStaff.userId);
+                }
+
+                if (chat.messages && chat.messages.length > 0) {
+                    setMessages(chat.messages);
+                } else {
+                    setMessages([]);
+                }
+
+                isInitialized.current = true;
+                setChatInitialized(true);
+            } catch (error) {
+                console.error("Error initializing chat:", error);
+                message.error("Không thể kết nối với nhân viên hỗ trợ");
+                setChatId(null);
+                setStaffId(null);
+            } finally {
+                setLoading(false);
+                isInitializing.current = false;
             }
-          }
+        };
+
+        initializeChat(user.id);
+    }, [isAuthenticated, user, chatInitialized]);
+
+    useEffect(() => {
+        if (!chatId || !localStorage.getItem("access_token")) {
+            if (connectionRef.current) {
+                connectionRef.current.stop().catch(err => console.error("Error stopping old SignalR:", err));
+                connectionRef.current = null;
+            }
+            return;
         }
-  
-        setNewMessage(""); // Reset input
-      }
-    } catch (error) {
-      console.error("Error sending message:", error);
-      message.error("Không thể gửi tin nhắn");
-    }
-  };
-  
-  
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
+        if (connectionRef.current && connectionRef.current.state !== signalR.HubConnectionState.Disconnected) {
+            connectionRef.current.stop().catch(err => console.error("Error stopping existing SignalR:", err));
+            connectionRef.current = null;
+        }
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSendMessage();
-    }
-  };
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl(`${import.meta.env.VITE_API_URL}/chathub`, {
+                accessTokenFactory: () => localStorage.getItem("access_token") || "",
+            })
+            .configureLogging(signalR.LogLevel.Information)
+            .withAutomaticReconnect()
+            .build();
 
-  // Sắp xếp tin nhắn từ cũ đến mới, tin nhắn mới nhất sẽ ở dưới cùng
-const sortedMessages = [...messages].sort((a, b) => {
-  return new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime();
-});
+        connection.on("ReceiveMessage", (message: Message) => {
+            setMessages((prevMessages) => {
+                const messageExists = prevMessages.some(msg => msg.id === message.id);
+                if (messageExists) {
+                    return prevMessages;
+                }
+                if (message.chatId === chatId) {
+                    // Notify parent about new message if it's not from current user
+                    if (message.senderId !== user?.id && onNewMessage) {
+                        onNewMessage();
+                    }
+                    return [...prevMessages, message];
+                }
+                return prevMessages;
+            });
+        });
 
+        connection.onreconnecting(error => {
+            console.warn("SignalR reconnecting:", error);
+        });
 
-  // Nếu người dùng chưa đăng nhập
-  if (!isAuthenticated || !user?.id) {
-    return (
-      <div className="chat-container">
-        <div className="chat-header">
-          <h3>Chat với nhân viên hỗ trợ</h3>
-        </div>
-        <div className="chat-messages" style={{ justifyContent: 'center', alignItems: 'center', display: 'flex' }}>
-          <p>Vui lòng đăng nhập để sử dụng tính năng chat</p>
-        </div>
-      </div>
-    );
-  }
+        connection.onreconnected(connectionId => {
+            if (chatId && connection.state === signalR.HubConnectionState.Connected) {
+                connection.invoke("JoinChat", chatId).catch(err => {
+                    console.error("Error re-joining chat after reconnect:", err);
+                });
+            }
+        });
 
-  return (
-    <div className="chat-container">
-      <div className="chat-header">
-        <h3>Chat với nhân viên hỗ trợ</h3>
-      </div>
+        connection.onclose(error => {
+            console.error("SignalR connection closed:", error);
+        });
 
-      <div className="chat-messages">
-        {loading ? (
-          <div className="loading-container">
-            <Spin tip="Đang kết nối với nhân viên hỗ trợ..." />
-          </div>
-        ) : messages.length === 0 ? (
-          <div className="empty-message">
-            <p>Chưa có tin nhắn. Hãy bắt đầu cuộc trò chuyện!</p>
-          </div>
-        ) : (
-          sortedMessages.map((msg, index) => (
-            <div
-              key={msg.id || index}
-              className={`message ${msg.senderId === user.id ? 'sent' : 'received'}`}
-            >
-              <Avatar
-                icon={<UserOutlined />}
-                style={{ backgroundColor: msg.senderId === user.id ? '#1890ff' : '#f56a00' }}
-              />
-              <div className="message-content">
-                <div className="message-text">{msg.content}</div>
-                <div className="message-time">
-                  {new Date(msg.sentAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+        connection
+            .start()
+            .then(() => {
+                if (chatId && connection.state === signalR.HubConnectionState.Connected) {
+                    connection.invoke("JoinChat", chatId).catch(err => {
+                        console.error("Error joining chat:", err);
+                    });
+                }
+            })
+            .catch((err) => {
+                console.error("SignalR connection error:", err);
+            });
+
+        connectionRef.current = connection;
+
+        return () => {
+            if (connection) {
+                if (chatId && connection.state === signalR.HubConnectionState.Connected) {
+                    connection.invoke("LeaveChat", chatId).catch(err => {
+                        console.error("Error leaving chat on cleanup:", err);
+                    });
+                }
+                connection.stop().catch(err => console.error("Error stopping SignalR on cleanup:", err));
+                connectionRef.current = null;
+            }
+        };
+    }, [chatId, user?.id, onNewMessage]);
+
+    useEffect(() => {
+        scrollToBottom();
+    }, [messages]);
+
+    const scrollToBottom = () => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    };
+
+    const handleSendMessage = async () => {
+        if (!newMessage.trim() || !isAuthenticated || !chatId) {
+            if (!chatId) message.warning("Đang chờ kết nối chat, vui lòng đợi giây lát.");
+            return;
+        }
+
+        const messageToSend = newMessage.trim();
+        setNewMessage(""); // Reset input immediately for better UX
+
+        try {
+            const messageData = {
+                Content: messageToSend,
+                ChatId: chatId,
+                receiverId: staffId || undefined,
+            };
+
+            const res = await chatApi.sendMessage(messageData);
+
+            if (!res?.data) {
+                console.warn("API sent message but didn't return data.");
+            }
+        } catch (error) {
+            console.error("Error sending message:", error);
+            message.error("Không thể gửi tin nhắn");
+            setNewMessage(messageToSend); // Restore message if failed
+        }
+    };
+
+    const handleKeyPress = (e: React.KeyboardEvent) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            handleSendMessage();
+        }
+    };
+
+    const sortedMessages = [...messages].sort((a, b) => {
+        return new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime();
+    });
+
+    if (!isAuthenticated || !user?.id) {
+        return (
+            <div className="chat-container">
+                <div className="chat-header">
+                    <h3>Chat với nhân viên hỗ trợ</h3>
                 </div>
-              </div>
+                <div className="chat-messages" style={{ justifyContent: 'center', alignItems: 'center', display: 'flex' }}>
+                    <p>Vui lòng đăng nhập để sử dụng tính năng chat</p>
+                </div>
             </div>
-          ))
-        )}
-        <div ref={messagesEndRef} />
-      </div>
+        );
+    }
 
-      <div className="chat-input">
-        <TextArea
-          rows={2}
-          value={newMessage}
-          onChange={(e) => setNewMessage(e.target.value)}
-          onKeyPress={handleKeyPress}
-          placeholder="Nhập tin nhắn..."
-          disabled={loading}
-        />
-        <Button
-          type="primary"
-          onClick={handleSendMessage}
-          icon={<SendOutlined />}
-          disabled={loading || !newMessage.trim()}
-        >
-          Gửi
-        </Button>
-      </div>
-    </div>
-  );
+    return (
+        <div className="chat-container">
+            <div className="chat-header">
+                <h3>Chat với nhân viên hỗ trợ</h3>
+            </div>
+
+            <div className="chat-messages">
+                {loading && !chatId && !messages.length ? (
+                     <div className="loading-container">
+                         <Spin tip="Đang kết nối với nhân viên hỗ trợ..." />
+                     </div>
+                ) : messages.length === 0 && !loading && chatId ? (
+                     <div className="welcome-message">
+                         <MessageOutlined className="welcome-icon" />
+                         <h3>Chào mừng bạn đến với hỗ trợ trực tuyến</h3>
+                         <p>Hãy bắt đầu cuộc trò chuyện với nhân viên hỗ trợ của chúng tôi. 
+                            Chúng tôi sẽ phản hồi trong thời gian sớm nhất!</p>
+                     </div>
+                ) : messages.length === 0 && !loading && !chatId && isInitialized.current ? (
+                     <div className="empty-message">
+                          <p>Không thể thiết lập cuộc trò chuyện lúc này.</p>
+                     </div>
+                ) : (
+                    sortedMessages.map((msg, index) => (
+                        <div
+                            key={msg.id || index}
+                            className={`message ${msg.senderId === user.id ? 'sent' : 'received'}`}
+                        >
+                            <Avatar
+                                icon={<UserOutlined />}
+                                style={{ backgroundColor: msg.senderId === user.id ? '#1890ff' : '#f56a00' }}
+                                className={msg.senderId === user.id ? 'user-avatar' : 'staff-avatar'}
+                            />
+                            <div className="message-content">
+                                <div className="message-text">{msg.content}</div>
+                                <div className="message-time">
+                                     {new Date(msg.sentAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
+                                </div>
+                            </div>
+                        </div>
+                    ))
+                )}
+                <div ref={messagesEndRef} />
+            </div>
+
+            <div className="chat-input">
+                <TextArea
+                    rows={2}
+                    value={newMessage}
+                    onChange={(e) => setNewMessage(e.target.value)}
+                    onKeyPress={handleKeyPress}
+                    placeholder={loading || !chatId ? "Đang kết nối..." : "Nhập tin nhắn..."}
+                    disabled={loading || !chatId}
+                />
+                <Button
+                    type="primary"
+                    onClick={handleSendMessage}
+                    icon={<SendOutlined />}
+                    disabled={loading || !newMessage.trim() || !chatId}
+                >
+                    Gửi
+                </Button>
+            </div>
+        </div>
+    );
 };
 
 export default ChatBot;

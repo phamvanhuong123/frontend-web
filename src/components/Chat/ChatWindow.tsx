@@ -14,7 +14,6 @@ import {
 import {
   UserOutlined,
   SendOutlined,
-  SoundOutlined,
   BellOutlined,
   BellFilled,
 } from "@ant-design/icons";
@@ -53,6 +52,7 @@ const ChatWindow: React.FC = () => {
   const [sending, setSending] = useState<boolean>(false);
   const [soundEnabled, setSoundEnabled] = useState<boolean>(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const pendingSentMessages = useRef<Set<string>>(new Set()); // Để theo dõi các tin nhắn đang chờ xử lý
 
   // Kết nối SignalR và lấy danh sách cuộc trò chuyện
   useEffect(() => {
@@ -73,7 +73,25 @@ const ChatWindow: React.FC = () => {
           (message.senderId === selectedUserId ||
             message.receiverId === selectedUserId)
         ) {
-          setMessages((prev) => [...prev, message]);
+          // Kiểm tra nếu tin nhắn này là tin nhắn được gửi bởi chính người dùng hiện tại
+          const isOwnMessage = message.receiverId === selectedUserId;
+          
+          // Nếu là tin nhắn của mình và đã nằm trong danh sách đang chờ, bỏ qua
+          if (isOwnMessage && message.id && pendingSentMessages.current.has(message.id)) {
+            // Xóa ID ra khỏi danh sách đang chờ vì đã xử lý
+            pendingSentMessages.current.delete(message.id);
+            return;
+          }
+
+          setMessages((prev) => {
+            // Kiểm tra xem tin nhắn đã tồn tại chưa
+            const exists = prev.some(m => m.id === message.id || 
+              (m.content === message.content && 
+               m.senderId === message.senderId && 
+               m.receiverId === message.receiverId));
+            
+            return exists ? prev : [...prev, message];
+          });
 
           // Đánh dấu tin nhắn là đã đọc nếu đang mở cuộc trò chuyện
           if (message.senderId === selectedUserId) {
@@ -86,13 +104,15 @@ const ChatWindow: React.FC = () => {
         // Cập nhật danh sách cuộc trò chuyện và số tin nhắn chưa đọc
         fetchConversations();
 
-        // Phát âm thông báo khi có tin nhắn mới
-        const audio = new Audio("/message-sound.mp3");
-        audio
-          .play()
-          .catch((err) =>
-            console.error("Error playing notification sound:", err)
-          );
+        // Phát âm thông báo khi có tin nhắn mới và chỉ khi tin nhắn không phải từ người dùng hiện tại
+        if (soundEnabled && message.senderId !== selectedUserId) {
+          const audio = new Audio("/message-sound.mp3");
+          audio
+            .play()
+            .catch((err) =>
+              console.error("Error playing notification sound:", err)
+            );
+        }
       });
 
       try {
@@ -125,7 +145,7 @@ const ChatWindow: React.FC = () => {
           .catch((err) => console.error("SignalR disconnect error:", err));
       }
     };
-  }, [selectedUserId]); // Thêm selectedUserId vào dependencies
+  }, [selectedUserId, soundEnabled]); // Thêm soundEnabled vào dependencies
 
   // Lấy danh sách cuộc trò chuyện từ API
   const fetchConversations = async () => {
@@ -173,10 +193,11 @@ const ChatWindow: React.FC = () => {
             console.error("Error joining chat:", err);
           }
         }
-
-        // Đánh dấu đã đọc
-        await chatApi.markAsRead(userId);
-        fetchConversations();
+        setTimeout(() => {
+          chatApi.markAsRead(userId)
+            .then(() => fetchConversations())
+            .catch(err => console.error("Error marking as read:", err));
+        }, 3000);
       }
     } catch (error) {
       console.error("Error fetching conversation:", error);
@@ -191,11 +212,26 @@ const ChatWindow: React.FC = () => {
     if (!newMessage.trim() || !selectedUserId) return;
 
     setSending(true);
+    const messageContent = newMessage.trim();
+    setNewMessage(""); // Clear input ngay lập tức để tránh gửi trùng
+
+    // Tạo tin nhắn tạm để hiển thị ngay lập tức
+    const tempMessage: Message = {
+      senderId: "current-user", // ID người dùng hiện tại - bạn cần thay thế bằng ID thật
+      receiverId: selectedUserId,
+      content: messageContent,
+      sentAt: new Date().toISOString(),
+      isRead: false,
+      chatId: chatId || undefined,
+    };
+
+    // Thêm tin nhắn tạm vào UI
+    setMessages(prev => [...prev, tempMessage]);
 
     try {
       const messageToSend = {
         receiverId: selectedUserId,
-        Content: newMessage,
+        Content: messageContent,
         chatId: chatId || undefined,
       };
 
@@ -204,9 +240,12 @@ const ChatWindow: React.FC = () => {
       const res = await chatApi.sendMessage(messageToSend);
 
       if (res?.data) {
-        // Thêm tin nhắn vào danh sách
         const newMsg = res.data;
-        setMessages((prev) => [...prev, newMsg]);
+        
+        // Lưu ID tin nhắn đã gửi để tránh trùng lặp
+        if (newMsg.id) {
+          pendingSentMessages.current.add(newMsg.id);
+        }
 
         // Cập nhật chatId nếu là tin nhắn đầu tiên
         if (!chatId && newMsg.chatId) {
@@ -223,7 +262,10 @@ const ChatWindow: React.FC = () => {
           }
         }
 
-        setNewMessage("");
+        // Thay thế tin nhắn tạm bằng tin nhắn thật từ server
+        setMessages(prev => prev.map(msg => 
+          (msg === tempMessage) ? newMsg : msg
+        ));
 
         // Cập nhật lại danh sách cuộc trò chuyện
         fetchConversations();
@@ -231,6 +273,9 @@ const ChatWindow: React.FC = () => {
     } catch (err) {
       console.error("Error sending message:", err);
       message.error("Không thể gửi tin nhắn");
+      
+      // Xóa tin nhắn tạm nếu gửi thất bại
+      setMessages(prev => prev.filter(msg => msg !== tempMessage));
     } finally {
       setSending(false);
     }
@@ -264,7 +309,7 @@ const ChatWindow: React.FC = () => {
     }
   };
 
-  // time cho chhat
+  // time cho chat
   const renderLastMessageTime = (timestamp?: string): string => {
     if (!timestamp) return "";
 
@@ -401,7 +446,7 @@ const ChatWindow: React.FC = () => {
                             5 * 60 * 1000);
 
                       return (
-                        <React.Fragment key={msg.id || idx}>
+                        <React.Fragment key={msg.id || `temp-${idx}`}>
                           {showTime && msg.sentAt && (
                             <div className="time-divider">
                               <span>{formatTime(msg.sentAt)}</span>
