@@ -1,15 +1,17 @@
-import { Button, Divider, Form, Input, message, notification } from "antd";
+import { Button, Form, Input, message, notification } from "antd";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import "./login.scss";
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { doLoginAction } from "../../../redux/account/accountSlice";
 import { authApi } from "~/services/axios.auth";
+import { GoogleOutlined, UserOutlined, LockOutlined, MailOutlined } from '@ant-design/icons';
+import "./login.scss";
 
 const LoginPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [isSubmit, setIsSubmit] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -17,20 +19,32 @@ const LoginPage = () => {
     const code = urlParams.get("code");
 
     if (code) {
-      authApi.callGoogleCallback(code).then(res => {
-        localStorage.setItem("access_token", res.data.accessToken);
-        dispatch(doLoginAction({ accessToken: res.data.accessToken, userInfo: res.data.user }));
-        navigate("/");
-      }).catch(() => {
-        message.error("Xác thực Google thất bại");
-      });
+      setIsGoogleLoading(true);
+      authApi.callGoogleCallback(code)
+        .then(res => {
+          localStorage.setItem("access_token", res.data.accessToken);
+          dispatch(doLoginAction({ accessToken: res.data.accessToken, userInfo: res.data.user }));
+          message.success("Đăng nhập bằng Google thành công!");
+          navigate("/");
+        })
+        .catch(() => {
+          notification.error({
+            message: "Đăng nhập thất bại",
+            description: "Xác thực Google không thành công. Vui lòng thử lại.",
+            duration: 5,
+          });
+        })
+        .finally(() => {
+          setIsGoogleLoading(false);
+        });
     }
-  }, [location.search]);
+  }, [location.search, dispatch, navigate]);
 
   const GOOGLE_LOGIN_URL = `${import.meta.env.VITE_API_URL}/api/v1/ecommerce/auth/login-google`;
   const REDIRECT_URI = `${import.meta.env.VITE_REDIRECT_URI}/login`;
 
   const handleGoogleLogin = () => {
+    setIsGoogleLoading(true);
     const loginUrl = `${GOOGLE_LOGIN_URL}?redirect_uri=${encodeURIComponent(REDIRECT_URI)}`;
     window.location.href = loginUrl;
   };
@@ -42,22 +56,20 @@ const LoginPage = () => {
       const res = await authApi.callLogin(email, password);
       if (res?.data) {
         localStorage.setItem("access_token", res.data.accessToken);
-
         dispatch(
           doLoginAction({
             accessToken: res.data.accessToken,
             userInfo: res.data.user,
           })
         );
-
         message.success("Đăng nhập thành công!");
         navigate("/");
       }
-    } catch (error: any) {
+    } catch (error) {
       notification.error({
         message: "Đăng nhập thất bại",
         description:
-          error.response?.data?.message || "Email hoặc mật khẩu không đúng",
+          (error as any)?.response?.data?.message || "Email hoặc mật khẩu không đúng",
         duration: 5,
       });
     } finally {
@@ -66,62 +78,93 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="login-page">
-      <main className="main">
-        <div className="container">
-          <section className="wrapper">
-            <div className="heading">
-              <h2 className="text text-large">Đăng Nhập</h2>
-              <Divider />
-            </div>
-            <Form name="login-form" onFinish={onFinish} autoComplete="off">
-              <Form.Item
-                labelCol={{ span: 24 }}
-                label="Email"
-                name="email"
-                rules={[
-                  { required: true, message: "Email không được để trống!" },
-                  { type: "email", message: "Email không hợp lệ!" },
-                ]}
-              >
-                <Input />
-              </Form.Item>
-
-              <Form.Item
-                labelCol={{ span: 24 }}
-                label="Mật khẩu"
-                name="password"
-                rules={[
-                  { required: true, message: "Mật khẩu không được để trống!" },
-                ]}
-              >
-                <Input.Password />
-              </Form.Item>
-
-              <Form.Item>
-                <Button type="primary" htmlType="submit" loading={isSubmit}>
-                  Đăng nhập
-                </Button>
-              </Form.Item>
-              <Divider>Hoặc</Divider>
-              <p className="text text-normal">
-                Chưa có tài khoản?
-                <span>
-                  <Link to="/register"> Đăng Ký </Link>
-                </span>
-                <Button type="link" onClick={handleGoogleLogin}>
-                  With Google
-                </Button>
-              </p>
-              <br />
-              <p className="text" style={{ color: "#9d9d9d" }}>
-                p/s: Để test, sử dụng tài khoản{" "}
-                <strong>dinhkhang@gmail.com</strong> / <strong>abc</strong>
-              </p>
-            </Form>
-          </section>
+    <div className="login-container">
+      <div className="login-card">
+        <div className="login-header">
+          <h1 className="login-title">Đăng Nhập</h1>
+          <p className="login-subtitle">Chào mừng trở lại! Vui lòng đăng nhập để tiếp tục.</p>
         </div>
-      </main>
+        
+        <div className="login-social">
+          <Button 
+            className="google-login-btn" 
+            onClick={handleGoogleLogin} 
+            loading={isGoogleLoading}
+            icon={<GoogleOutlined />}
+            size="large"
+          >
+            Đăng nhập với Google
+          </Button>
+        </div>
+        
+        <div className="login-divider">
+          <span>hoặc đăng nhập với email</span>
+        </div>
+        
+        <Form 
+          name="login-form" 
+          onFinish={onFinish} 
+          autoComplete="off"
+          layout="vertical"
+          size="large"
+          className="login-form"
+        >
+          <Form.Item
+            name="email"
+            rules={[
+              { required: true, message: "Email không được để trống!" },
+              { type: "email", message: "Email không hợp lệ!" },
+            ]}
+          >
+            <Input 
+              prefix={<MailOutlined className="input-icon" />} 
+              placeholder="Email" 
+            />
+          </Form.Item>
+
+          <Form.Item
+            name="password"
+            rules={[
+              { required: true, message: "Mật khẩu không được để trống!" },
+            ]}
+          >
+            <Input.Password 
+              prefix={<LockOutlined className="input-icon" />} 
+              placeholder="Mật khẩu" 
+            />
+          </Form.Item>
+
+          <div className="login-options">
+            <Link to="/forgot-password" className="forgot-password">
+              Quên mật khẩu?
+            </Link>
+          </div>
+
+          <Form.Item className="login-button-container">
+            <Button 
+              type="primary" 
+              htmlType="submit" 
+              loading={isSubmit}
+              className="login-button"
+              block
+            >
+              Đăng nhập
+            </Button>
+          </Form.Item>
+        </Form>
+        
+        <div className="login-footer">
+          <p>
+            Chưa có tài khoản?{" "}
+            <Link to="/register" className="register-link">
+              Đăng ký ngay
+            </Link>
+          </p>
+          <p className="test-account">
+            Tài khoản test: <strong>dinhkhang@gmail.com</strong> / <strong>abc</strong>
+          </p>
+        </div>
+      </div>
     </div>
   );
 };
