@@ -93,7 +93,6 @@ function CreateProduct() {
 
     const fetchApi = async () => {
       try {
-        debugger
         const formData = new FormData();
 
         formData.append("Name", product.name);
@@ -279,9 +278,8 @@ function CreateProduct() {
                       sx={{
                         position: "relative",
                         boxShadow: "rgba(99, 99, 99, 0.2) 0px 2px 8px 0px",
-                        width : 'calc(50% - 10px)'
+                        width: "calc(50% - 10px)",
                       }}
-                      
                     >
                       <img
                         src={preview}

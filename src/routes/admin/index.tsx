@@ -26,6 +26,10 @@ import DetailPost from "~/pages/admin/PostManagement/DetailPost/DetailPost";
 import DeletePost from "~/pages/admin/PostManagement/DeletePost/DeletePost";
 import DetailProduct from "~/pages/admin/ProductManagement/DetailProduct/DetailProduct";
 import EditProduct from "~/pages/admin/ProductManagement/EditProduct/EditProduct";
+import CouponManagement from "~/pages/admin/CouponManagement/CouponManagement";
+import CreateCoupon from "~/pages/admin/CouponManagement/CreateCoupon/CreateCoupon";
+import EditCoupon from "~/pages/admin/CouponManagement/EditCoupon/EditCoupon";
+import DetailCoupon from "~/pages/admin/CouponManagement/DetailCoupon/DetailCoupon";
 
 const adminRoutes = {
   path: "/admin",
@@ -58,6 +62,10 @@ const adminRoutes = {
     { path: "posts/edit/:id", element: <EditPost /> },
     { path: "posts/delete/:id", element: <DeletePost /> },
     { path: "posts/:id", element: <DetailPost /> },
+    { path: "coupons", element: <CouponManagement /> },
+    { path: "coupons/create", element: <CreateCoupon /> },
+    { path: "coupons/edit/:id", element: <EditCoupon /> },
+    { path: "coupons/detail/:id", element: <DetailCoupon /> },
   ],
 };
 

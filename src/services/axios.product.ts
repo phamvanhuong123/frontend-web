@@ -17,7 +17,6 @@ export const productApi = {
   },
   //create product to cloud img
   CreateProductToCloud(formData: FormData) {
-    debugger
     return axios.post(`${BASE_URLv2}/products`, formData);
   },
   //update product to cloud img

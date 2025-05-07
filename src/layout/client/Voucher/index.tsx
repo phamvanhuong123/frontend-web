@@ -56,7 +56,7 @@ const Vouchers = () => {
   const fetchAllVouchers = async () => {
     setLoading(true);
     try {
-      const response = await couponApi.getAllCoupons(true, user?.id);
+      const response = await couponApi.getActiveCoupons(true, user?.id);
       setAllVouchers(response.data);
     } catch {
       message.error("Không thể tải danh sách voucher!");
@@ -86,17 +86,27 @@ const Vouchers = () => {
     setLoading(true);
     try {
       const response = await couponApi.saveCoupon(user.id, couponCode);
+
       // Cập nhật số lượng của voucher còn lại : usageLimit - 1
       setAllVouchers((prev) =>
-        prev.map((coupon) =>
-          coupon.code === couponCode
-            ? { ...coupon, usageLimit: (coupon.usageLimit ?? 0) - 1 }
-            : coupon
-        )
+        prev.map((coupon) => {
+          if (coupon.code === couponCode) {
+            couponApi.update(coupon.id, {
+              ...coupon,
+              usageLimit: (coupon.usageLimit || 0) - 1,
+            });
+            return {
+              ...coupon,
+              usageLimit: (coupon.usageLimit || 0) - 1,
+            };
+          }
+          return coupon;
+        })
       );
 
       message.success(response.data.message);
       fetchSavedVouchers(); // Cập nhật danh sách voucher đã lưu
+      fetchAllVouchers(); // Cập nhật danh sách tất cả voucher
     } catch (error: any) {
       message.error(error.response?.data?.message || "Không thể lưu voucher!");
     }
@@ -137,13 +147,13 @@ const Vouchers = () => {
         ? `Giảm ${coupon.value}% Giảm tối đa ${coupon.value * 1000}k`
         : `Giảm ${coupon.value}k`;
     const conditionText = `Đơn Tối Thiểu ${coupon.minimumSpend}k`;
-    const categoryText = coupon.category || "Tổng Hợp";
+    // const categoryText = coupon.category || "Tổng Hợp";
 
     return (
       <div key={coupon.id} className="voucher-card">
         <div className="voucher-left">
           <div className="voucher-icon">🎟️</div>
-          <div className="voucher-category">{categoryText}</div>
+          <div className="voucher-category">{coupon.code}</div>
         </div>
         <div className="voucher-middle">
           <div className="voucher-discount">{discountText}</div>

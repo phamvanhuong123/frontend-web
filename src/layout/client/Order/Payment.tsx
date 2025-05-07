@@ -115,12 +115,13 @@ const Payment: React.FC<PaymentProps> = ({ setCurrentStep }) => {
           setFinalPrice(sum + shippingFee); // Bao gồm phí vận chuyển
         } else {
           let discount = 0;
+
           if (selectedVoucher.discountType === "PERCENTAGE") {
             discount = (sum * selectedVoucher.value) / 100;
             const maxDiscount = selectedVoucher.value * 1000; // Giảm tối đa
             discount = Math.min(discount, maxDiscount);
           } else {
-            discount = selectedVoucher.value; // Giảm giá cố định
+            discount = selectedVoucher.value * 1000; // Giảm giá cố định
           }
           setDiscountAmount(discount);
           setFinalPrice(sum + shippingFee - discount); // Bao gồm phí vận chuyển
@@ -370,7 +371,10 @@ const Payment: React.FC<PaymentProps> = ({ setCurrentStep }) => {
 
   // Chọn voucher
   const handleSelectVoucher = (voucher: Coupon) => {
-    setSelectedVoucher(voucher);
+    setSelectedVoucher({
+      ...voucher,
+      discountType: voucher.discountType === 0 ? "PERCENTAGE" : "FIXED_AMOUNT",
+    });
     setIsVoucherModalVisible(false);
     message.success(`Đã áp dụng voucher ${voucher.code}`);
   };
@@ -399,6 +403,10 @@ const Payment: React.FC<PaymentProps> = ({ setCurrentStep }) => {
       quantity: item.quantity,
       price: item.detail.price,
     }));
+
+    if (selectedVoucher) {
+      await couponApi.useAndDelete(selectedVoucher.id);
+    }
 
     const orderCode = `ORDER-${Date.now()}`;
 
@@ -561,7 +569,6 @@ const Payment: React.FC<PaymentProps> = ({ setCurrentStep }) => {
                 Voucher Giảm Giá
               </span>
               <button
-                type="default" // Đảm bảo type là default để tránh style mặc định của Ant Design
                 className="select-voucher-button"
                 onClick={showVoucherModal}
               >
@@ -921,7 +928,7 @@ const Payment: React.FC<PaymentProps> = ({ setCurrentStep }) => {
                   <div className="voucher-left-modal">
                     <div className="voucher-icon-modal">🎟️</div>
                     <div className="voucher-category-modal">
-                      {voucher.category || "Tổng Hợp"}
+                      {voucher.code || "Tổng Hợp"}
                     </div>
                   </div>
                   <div className="voucher-middle-modal">

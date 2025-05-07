@@ -2,7 +2,7 @@ interface Coupon {
   id: string;
   code: string;
   description?: string;
-  discountType: "PERCENTAGE" | "FIXED_AMOUNT";
+  discountType: "PERCENTAGE" | "FIXED_AMOUNT" | number; // Sử dụng chuỗi hoặc số
   value: number;
   minimumSpend: number;
   startTime?: string;
@@ -10,7 +10,7 @@ interface Coupon {
   usageLimit?: number;
   usageLimitPerUser?: number;
   isActive: boolean;
-  userId?: string;
+  userId?: string | null;
 }
 
 export default Coupon;
