@@ -135,9 +135,12 @@ const ChatBot = () => {
 
     // Xử lý sự kiện nhận tin nhắn
     connection.on("ReceiveMessage", (message: Message) => {
-      setMessages((prev) => [...prev, message]);
+      setMessages((prevMessages) => {
+        const updatedMessages = [...prevMessages, message];
+        return updatedMessages;
+      });
     });
-
+    
     // Kết nối và tham gia vào chat
     connection
       .start()
@@ -157,7 +160,7 @@ const ChatBot = () => {
   
     try {
       const messageData = {
-        Content: newMessage, // ✅ đúng key backend mong đợi
+        Content: newMessage,
         receiverId: staffId || undefined,
         chatId: chatId || undefined
       };
@@ -167,14 +170,11 @@ const ChatBot = () => {
       if (res?.data) {
         const sentMessage = res.data;
   
-        // ✅ Hiển thị ngay trên giao diện
+        // Hiển thị ngay trên giao diện
         setMessages((prev) => [...prev, sentMessage]);
   
-        // ✅ Nếu lần đầu chat, lưu chatId lại
         if (!chatId && sentMessage.chatId) {
           setChatId(sentMessage.chatId);
-  
-          // ✅ Tham gia vào SignalR room nếu chưa
           if (connectionRef.current) {
             try {
               await connectionRef.current.invoke("JoinChat", sentMessage.chatId);
@@ -185,13 +185,14 @@ const ChatBot = () => {
           }
         }
   
-        setNewMessage(""); // ✅ Reset input
+        setNewMessage(""); // Reset input
       }
     } catch (error) {
       console.error("Error sending message:", error);
       message.error("Không thể gửi tin nhắn");
     }
   };
+  
   
 
   const scrollToBottom = () => {
@@ -204,6 +205,12 @@ const ChatBot = () => {
       handleSendMessage();
     }
   };
+
+  // Sắp xếp tin nhắn từ cũ đến mới, tin nhắn mới nhất sẽ ở dưới cùng
+const sortedMessages = [...messages].sort((a, b) => {
+  return new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime();
+});
+
 
   // Nếu người dùng chưa đăng nhập
   if (!isAuthenticated || !user?.id) {
@@ -235,7 +242,7 @@ const ChatBot = () => {
             <p>Chưa có tin nhắn. Hãy bắt đầu cuộc trò chuyện!</p>
           </div>
         ) : (
-          messages.map((msg, index) => (
+          sortedMessages.map((msg, index) => (
             <div
               key={msg.id || index}
               className={`message ${msg.senderId === user.id ? 'sent' : 'received'}`}

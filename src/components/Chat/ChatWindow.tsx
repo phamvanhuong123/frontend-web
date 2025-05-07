@@ -1,9 +1,24 @@
-import React, { useEffect, useState, useRef } from 'react';
-import * as signalR from '@microsoft/signalr';
-import { chatApi } from '../../services/axios.chat';
-import { Spin, Input, Button, Avatar, Empty, message, Badge, Tooltip } from 'antd';
-import { UserOutlined, SendOutlined, SoundOutlined, BellOutlined, BellFilled } from '@ant-design/icons';
-import './ChatWindow.scss';
+import React, { useEffect, useState, useRef } from "react";
+import * as signalR from "@microsoft/signalr";
+import { chatApi } from "../../services/axios.chat";
+import {
+  Spin,
+  Input,
+  Button,
+  Avatar,
+  Empty,
+  message,
+  Badge,
+  Tooltip,
+} from "antd";
+import {
+  UserOutlined,
+  SendOutlined,
+  SoundOutlined,
+  BellOutlined,
+  BellFilled,
+} from "@ant-design/icons";
+import "./ChatWindow.scss";
 
 interface Message {
   id?: string;
@@ -26,12 +41,14 @@ interface Conversation {
 }
 
 const ChatWindow: React.FC = () => {
-  const [connection, setConnection] = useState<signalR.HubConnection | null>(null);
+  const [connection, setConnection] = useState<signalR.HubConnection | null>(
+    null
+  );
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [chatId, setChatId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
-  const [newMessage, setNewMessage] = useState('');
+  const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState<boolean>(true);
   const [sending, setSending] = useState<boolean>(false);
   const [soundEnabled, setSoundEnabled] = useState<boolean>(true);
@@ -42,22 +59,26 @@ const ChatWindow: React.FC = () => {
     const connectSignalR = async () => {
       const conn = new signalR.HubConnectionBuilder()
         .withUrl(`${import.meta.env.VITE_API_URL}/chathub`, {
-          accessTokenFactory: () => localStorage.getItem('access_token') || ''
+          accessTokenFactory: () => localStorage.getItem("access_token") || "",
         })
         .withAutomaticReconnect()
         .build();
 
-      conn.on('ReceiveMessage', (message: Message) => {
-        console.log('Received message:', message);
+      conn.on("ReceiveMessage", (message: Message) => {
+        console.log("Received message:", message);
 
         // Cập nhật tin nhắn nếu đang ở trong cuộc trò chuyện này
-        if (selectedUserId && (message.senderId === selectedUserId || message.receiverId === selectedUserId)) {
-          setMessages(prev => [...prev, message]);
+        if (
+          selectedUserId &&
+          (message.senderId === selectedUserId ||
+            message.receiverId === selectedUserId)
+        ) {
+          setMessages((prev) => [...prev, message]);
 
           // Đánh dấu tin nhắn là đã đọc nếu đang mở cuộc trò chuyện
           if (message.senderId === selectedUserId) {
-            chatApi.markAsRead(selectedUserId).catch(err => {
-              console.error('Error marking message as read:', err);
+            chatApi.markAsRead(selectedUserId).catch((err) => {
+              console.error("Error marking message as read:", err);
             });
           }
         }
@@ -66,20 +87,24 @@ const ChatWindow: React.FC = () => {
         fetchConversations();
 
         // Phát âm thông báo khi có tin nhắn mới
-        const audio = new Audio('/message-sound.mp3');
-        audio.play().catch(err => console.error('Error playing notification sound:', err));
+        const audio = new Audio("/message-sound.mp3");
+        audio
+          .play()
+          .catch((err) =>
+            console.error("Error playing notification sound:", err)
+          );
       });
 
       try {
         await conn.start();
-        console.log('Connected to SignalR');
+        console.log("Connected to SignalR");
         setConnection(conn);
 
         // Lấy danh sách cuộc trò chuyện
         fetchConversations();
       } catch (err) {
-        console.error('SignalR connection error:', err);
-        message.error('Không thể kết nối với server chat');
+        console.error("SignalR connection error:", err);
+        message.error("Không thể kết nối với server chat");
       } finally {
         setLoading(false);
       }
@@ -95,7 +120,9 @@ const ChatWindow: React.FC = () => {
     return () => {
       clearInterval(intervalId);
       if (connection) {
-        connection.stop().catch(err => console.error('SignalR disconnect error:', err));
+        connection
+          .stop()
+          .catch((err) => console.error("SignalR disconnect error:", err));
       }
     };
   }, [selectedUserId]); // Thêm selectedUserId vào dependencies
@@ -108,14 +135,14 @@ const ChatWindow: React.FC = () => {
         setConversations(res.data);
       }
     } catch (error) {
-      console.error('Error fetching conversations:', error);
-      message.error('Không thể tải danh sách cuộc trò chuyện');
+      console.error("Error fetching conversations:", error);
+      message.error("Không thể tải danh sách cuộc trò chuyện");
     }
   };
 
   // Tự động scroll đến tin nhắn mới nhất
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
   // Khi chọn một người dùng để chat
@@ -123,20 +150,20 @@ const ChatWindow: React.FC = () => {
     setSelectedUserId(userId);
     setLoading(true);
     setMessages([]);
-  
+
     try {
       // Lấy chatId dựa vào userId
       const chatIdRes = await chatApi.getChatId(userId);
       const chatId = chatIdRes.data?.chatId;
       if (!chatId) throw new Error("Không tìm thấy chatId");
-  
+
       setChatId(chatId);
-  
+
       // Lấy tin nhắn
       const res = await chatApi.getConversationByChatId(chatId);
       if (res.data) {
         setMessages(res.data);
-  
+
         // Tham gia SignalR
         if (connection) {
           try {
@@ -146,7 +173,7 @@ const ChatWindow: React.FC = () => {
             console.error("Error joining chat:", err);
           }
         }
-  
+
         // Đánh dấu đã đọc
         await chatApi.markAsRead(userId);
         fetchConversations();
@@ -158,7 +185,7 @@ const ChatWindow: React.FC = () => {
       setLoading(false);
     }
   };
-  
+
   // Gửi tin nhắn
   const handleSendMessage = async () => {
     if (!newMessage.trim() || !selectedUserId) return;
@@ -169,17 +196,17 @@ const ChatWindow: React.FC = () => {
       const messageToSend = {
         receiverId: selectedUserId,
         Content: newMessage,
-        chatId: chatId || undefined
+        chatId: chatId || undefined,
       };
 
-      console.log('Sending message:', messageToSend);
+      console.log("Sending message:", messageToSend);
 
       const res = await chatApi.sendMessage(messageToSend);
 
       if (res?.data) {
         // Thêm tin nhắn vào danh sách
         const newMsg = res.data;
-        setMessages(prev => [...prev, newMsg]);
+        setMessages((prev) => [...prev, newMsg]);
 
         // Cập nhật chatId nếu là tin nhắn đầu tiên
         if (!chatId && newMsg.chatId) {
@@ -188,22 +215,22 @@ const ChatWindow: React.FC = () => {
           // Tham gia vào chat qua SignalR
           if (connection) {
             try {
-              await connection.invoke('JoinChat', newMsg.chatId);
-              console.log('Joined new chat:', newMsg.chatId);
+              await connection.invoke("JoinChat", newMsg.chatId);
+              console.log("Joined new chat:", newMsg.chatId);
             } catch (err) {
-              console.error('Error joining new chat:', err);
+              console.error("Error joining new chat:", err);
             }
           }
         }
 
-        setNewMessage('');
+        setNewMessage("");
 
         // Cập nhật lại danh sách cuộc trò chuyện
         fetchConversations();
       }
     } catch (err) {
-      console.error('Error sending message:', err);
-      message.error('Không thể gửi tin nhắn');
+      console.error("Error sending message:", err);
+      message.error("Không thể gửi tin nhắn");
     } finally {
       setSending(false);
     }
@@ -211,7 +238,7 @@ const ChatWindow: React.FC = () => {
 
   // Xử lý khi nhấn Enter
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSendMessage();
     }
@@ -224,16 +251,22 @@ const ChatWindow: React.FC = () => {
     const isToday = date.toDateString() === now.toDateString();
 
     if (isToday) {
-      return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      return date.toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
     } else {
-      return date.toLocaleDateString([], { day: '2-digit', month: '2-digit' }) + ' ' +
-        date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      return (
+        date.toLocaleDateString([], { day: "2-digit", month: "2-digit" }) +
+        " " +
+        date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+      );
     }
   };
 
-  // Render time for the conversation list
+  // time cho chhat
   const renderLastMessageTime = (timestamp?: string): string => {
-    if (!timestamp) return '';
+    if (!timestamp) return "";
 
     const date = new Date(timestamp);
     const now = new Date();
@@ -241,28 +274,31 @@ const ChatWindow: React.FC = () => {
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
 
     if (days === 0) {
-      return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      return date.toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
     } else if (days === 1) {
-      return 'Hôm qua';
+      return "Hôm qua";
     } else if (days < 7) {
-      const dayNames = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
+      const dayNames = ["CN", "T2", "T3", "T4", "T5", "T6", "T7"];
       return dayNames[date.getDay()];
     } else {
-      return date.toLocaleDateString([], { day: '2-digit', month: '2-digit' });
+      return date.toLocaleDateString([], { day: "2-digit", month: "2-digit" });
     }
   };
 
   // Toggle sound notifications
   const toggleSound = () => {
     setSoundEnabled(!soundEnabled);
-    localStorage.setItem('chat_sound_enabled', (!soundEnabled).toString());
+    localStorage.setItem("chat_sound_enabled", (!soundEnabled).toString());
   };
 
   // Load sound preference
   useEffect(() => {
-    const savedPreference = localStorage.getItem('chat_sound_enabled');
+    const savedPreference = localStorage.getItem("chat_sound_enabled");
     if (savedPreference !== null) {
-      setSoundEnabled(savedPreference === 'true');
+      setSoundEnabled(savedPreference === "true");
     }
   }, []);
 
@@ -291,23 +327,28 @@ const ChatWindow: React.FC = () => {
               <li
                 key={c.userId}
                 onClick={() => handleSelectUser(c.userId)}
-                className={c.userId === selectedUserId ? 'active' : ''}
+                className={c.userId === selectedUserId ? "active" : ""}
               >
                 <div className="conversation-item">
-                  <Badge dot={Boolean(c.unreadCount && c.unreadCount > 0)} color="red">
+                  <Badge
+                    dot={Boolean(c.unreadCount && c.unreadCount > 0)}
+                    color="red"
+                  >
                     <Avatar icon={<UserOutlined />} />
                   </Badge>
                   <div className="conversation-info">
                     <div className="name-row">
                       <div className="name">{c.userName}</div>
                       {c.lastMessageTime && (
-                        <div className="time">{renderLastMessageTime(c.lastMessageTime)}</div>
+                        <div className="time">
+                          {renderLastMessageTime(c.lastMessageTime)}
+                        </div>
                       )}
                     </div>
                     {c.lastMessage && (
                       <div className="last-message">
                         {c.lastMessage.length > 30
-                          ? c.lastMessage.substring(0, 30) + '...'
+                          ? c.lastMessage.substring(0, 30) + "..."
                           : c.lastMessage}
                       </div>
                     )}
@@ -327,60 +368,66 @@ const ChatWindow: React.FC = () => {
           <>
             <div className="chat-header">
               <h3>
-                {conversations.find(c => c.userId === selectedUserId)?.userName || 'Khách hàng'}
+                {conversations.find((c) => c.userId === selectedUserId)
+                  ?.userName || "Khách hàng"}
               </h3>
             </div>
 
             <div className="messages">
-  {loading ? (
-    <div className="loading-container">
-      <Spin tip="Đang tải tin nhắn..." />
-    </div>
-  ) : messages.length === 0 ? (
-    <div className="empty-message">
-      <Empty description="Chưa có tin nhắn nào. Hãy bắt đầu cuộc trò chuyện!" />
-    </div>
-  ) : (
-    <>
-      {[...messages]
-        .sort((a, b) => new Date(a.sentAt || '').getTime() - new Date(b.sentAt || '').getTime())
-        .map((msg, idx, sortedMessages) => {
-          const isAdmin = msg.senderId !== selectedUserId;
-          const prevMsg = sortedMessages[idx - 1];
-          const showTime =
-            idx === 0 ||
-            (prevMsg &&
-              new Date(msg.sentAt || '').getTime() -
-                new Date(prevMsg.sentAt || '').getTime() >
-                5 * 60 * 1000);
-
-          return (
-            <React.Fragment key={msg.id || idx}>
-              {showTime && msg.sentAt && (
-                <div className="time-divider">
-                  <span>{formatTime(msg.sentAt)}</span>
+              {loading ? (
+                <div className="loading-container">
+                  <Spin tip="Đang tải tin nhắn..." />
                 </div>
+              ) : messages.length === 0 ? (
+                <div className="empty-message">
+                  <Empty description="Chưa có tin nhắn nào. Hãy bắt đầu cuộc trò chuyện!" />
+                </div>
+              ) : (
+                <>
+                  {[...messages]
+                    .sort(
+                      (a, b) =>
+                        new Date(a.sentAt || "").getTime() -
+                        new Date(b.sentAt || "").getTime()
+                    )
+                    .map((msg, idx, sortedMessages) => {
+                      const isAdmin = msg.senderId !== selectedUserId;
+                      const prevMsg = sortedMessages[idx - 1];
+                      const showTime =
+                        idx === 0 ||
+                        (prevMsg &&
+                          new Date(msg.sentAt || "").getTime() -
+                            new Date(prevMsg.sentAt || "").getTime() >
+                            5 * 60 * 1000);
+
+                      return (
+                        <React.Fragment key={msg.id || idx}>
+                          {showTime && msg.sentAt && (
+                            <div className="time-divider">
+                              <span>{formatTime(msg.sentAt)}</span>
+                            </div>
+                          )}
+                          <div
+                            className={`message ${isAdmin ? "admin" : "user"}`}
+                          >
+                            <div className="message-content">
+                              <div className="message-text">{msg.content}</div>
+                              <div className="message-time">
+                                {msg.sentAt &&
+                                  new Date(msg.sentAt).toLocaleTimeString([], {
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                  })}
+                              </div>
+                            </div>
+                          </div>
+                        </React.Fragment>
+                      );
+                    })}
+                  <div ref={messagesEndRef} />
+                </>
               )}
-              <div className={`message ${isAdmin ? 'admin' : 'user'}`}>
-                <div className="message-content">
-                  <div className="message-text">{msg.content}</div>
-                  <div className="message-time">
-                    {msg.sentAt &&
-                      new Date(msg.sentAt).toLocaleTimeString([], {
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      })}
-                  </div>
-                </div>
-              </div>
-            </React.Fragment>
-          );
-        })}
-      <div ref={messagesEndRef} />
-    </>
-  )}
-</div>
-
+            </div>
 
             <div className="input-area">
               <Input.TextArea

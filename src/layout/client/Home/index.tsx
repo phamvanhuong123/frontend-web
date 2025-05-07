@@ -25,6 +25,7 @@ import { PaginationResponse, ProductQueryParameters } from "~/types/product";
 import { Carousel } from "antd";
 import { LeftOutlined, RightOutlined } from "@ant-design/icons";
 import ChatBot from "~/components/ChatBot/ChatBot";
+import ChatContainer from "~/components/ChatContainer/ChatContainer";
 
 const Home = () => {
   const [searchTerm, setSearchTerm] =
@@ -557,7 +558,7 @@ const Home = () => {
           height: '500px',
           zIndex: 1000
         }}>
-          <ChatBot />
+          <ChatContainer />
         </div>
       )}
     </>
