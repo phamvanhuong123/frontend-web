@@ -46,8 +46,8 @@ const Home = () => {
     range?: { from?: number; to?: number };
   }>({});
 
-  const [sortBy, setSortBy] = useState<string | null>('Sold');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc' | null>('desc');
+  const [sortBy, setSortBy] = useState<string | null>("Sold");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc" | null>("desc");
 
   const [showMobileFilter, setShowMobileFilter] = useState(false);
   const [showChatBot, setShowChatBot] = useState(false);
@@ -70,11 +70,17 @@ const Home = () => {
         params.categoryId = formFilterValues.category;
       }
 
-      if (formFilterValues.range?.from !== undefined && formFilterValues.range.from !== null) {
+      if (
+        formFilterValues.range?.from !== undefined &&
+        formFilterValues.range.from !== null
+      ) {
         params.minPrice = formFilterValues.range.from;
       }
 
-      if (formFilterValues.range?.to !== undefined && formFilterValues.range.to !== null) {
+      if (
+        formFilterValues.range?.to !== undefined &&
+        formFilterValues.range.to !== null
+      ) {
         params.maxPrice = formFilterValues.range.to;
       }
 
@@ -103,9 +109,9 @@ const Home = () => {
         // Kiểm tra xem res.data có phải là mảng không
         const categories = Array.isArray(res.data)
           ? res.data.map((item: any) => ({
-            label: item.name || item,
-            value: String(item.id || item)
-          }))
+              label: item.name || item,
+              value: String(item.id || item),
+            }))
           : [];
         setListCategory(categories);
       }
@@ -164,12 +170,12 @@ const Home = () => {
   ];
 
   const handleSortChange = (key: string) => {
-    if (key.startsWith('-')) {
+    if (key.startsWith("-")) {
       setSortBy(key.substring(1));
-      setSortOrder('desc');
+      setSortOrder("desc");
     } else {
       setSortBy(key);
-      setSortOrder('asc');
+      setSortOrder("asc");
     }
     setCurrent(1); // Reset về trang đầu tiên khi thay đổi sắp xếp
   };
@@ -303,8 +309,9 @@ const Home = () => {
                       form.resetFields();
                       setFormFilterValues({});
                       setSearchTerm("");
-                      setSortBy('Sold');
-                      setSortOrder('desc');
+                      setSortBy("Sold");
+                      setSortOrder("desc");
+                      fetchProduct();
                     }}
                   />
                 </div>
@@ -342,23 +349,35 @@ const Home = () => {
                             min={0}
                             placeholder="Từ"
                             style={{ width: "100%" }}
-                            formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
-                            parser={(value) => Number(value?.replace(/\$\s?|(,*)/g, "") || 0)}
+                            formatter={(value) =>
+                              `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                            }
+                            parser={(value) =>
+                              Number(value?.replace(/\$\s?|(,*)/g, "") || 0)
+                            }
                           />
                         </Form.Item>
                       </Col>
-                      <Col span={2} style={{ textAlign: 'center' }}>-</Col>
+                      <Col span={2} style={{ textAlign: "center" }}>
+                        -
+                      </Col>
                       <Col span={11}>
                         <Form.Item
                           name={["range", "to"]}
                           rules={[
                             ({ getFieldValue }) => ({
                               validator(_, value) {
-                                const from = getFieldValue(['range', 'from']);
-                                if (!value || !from || Number(value) >= Number(from)) {
+                                const from = getFieldValue(["range", "from"]);
+                                if (
+                                  !value ||
+                                  !from ||
+                                  Number(value) >= Number(from)
+                                ) {
                                   return Promise.resolve();
                                 }
-                                return Promise.reject(new Error('Giá đến phải lớn hơn giá từ'));
+                                return Promise.reject(
+                                  new Error("Giá đến phải lớn hơn giá từ")
+                                );
                               },
                             }),
                           ]}
@@ -367,8 +386,12 @@ const Home = () => {
                             min={0}
                             placeholder="Đến"
                             style={{ width: "100%" }}
-                            formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
-                            parser={(value) => Number(value?.replace(/\$\s?|(,*)/g, "") || "0")}
+                            formatter={(value) =>
+                              `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                            }
+                            parser={(value) =>
+                              Number(value?.replace(/\$\s?|(,*)/g, "") || "0")
+                            }
                           />
                         </Form.Item>
                       </Col>
@@ -394,7 +417,13 @@ const Home = () => {
                   }}
                 >
                   <Tabs
-                    activeKey={sortBy ? (sortOrder === 'desc' ? `-${sortBy}` : sortBy) : items[0].key}
+                    activeKey={
+                      sortBy
+                        ? sortOrder === "desc"
+                          ? `-${sortBy}`
+                          : sortBy
+                        : items[0].key
+                    }
                     items={items}
                     onChange={handleSortChange}
                   />
@@ -412,7 +441,7 @@ const Home = () => {
                         <div className="wrapper">
                           <div className="thumbnail">
                             <img
-                              src={getImageUrl(item.images?.[0]?.url || '')}
+                              src={getImageUrl(item.images?.[0]?.url || "")}
                               alt={item.name}
                             />
                           </div>
@@ -530,19 +559,19 @@ const Home = () => {
         className="chat-button"
         onClick={() => setShowChatBot(!showChatBot)}
         style={{
-          position: 'fixed',
-          bottom: '20px',
-          right: '20px',
-          width: '50px',
-          height: '50px',
-          borderRadius: '50%',
-          background: '#1890ff',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          cursor: 'pointer',
-          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
-          zIndex: 1000
+          position: "fixed",
+          bottom: "20px",
+          right: "20px",
+          width: "50px",
+          height: "50px",
+          borderRadius: "50%",
+          background: "#1890ff",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          cursor: "pointer",
+          boxShadow: "0 2px 8px rgba(0, 0, 0, 0.15)",
+          zIndex: 1000,
         }}
       >
         💬
@@ -550,14 +579,16 @@ const Home = () => {
 
       {/* ChatBot component */}
       {showChatBot && (
-        <div style={{
-          position: 'fixed',
-          bottom: '80px',
-          right: '20px',
-          width: '350px',
-          height: '500px',
-          zIndex: 1000
-        }}>
+        <div
+          style={{
+            position: "fixed",
+            bottom: "80px",
+            right: "20px",
+            width: "350px",
+            height: "500px",
+            zIndex: 1000,
+          }}
+        >
           <ChatContainer />
         </div>
       )}
