@@ -190,7 +190,7 @@ function EditCoupon() {
           <Grid container spacing={2} direction="column">
             <TextField
               fullWidth
-              label="Mã Coupon*"
+              label="Mã Giảm Giá*"
               name="code"
               value={coupon.code}
               onChange={handleChange}

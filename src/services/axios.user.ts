@@ -71,7 +71,3 @@ export const callUpdateAvatar = (fileImg: File) => {
     },
   });
 };
-
-// Lấy thông tin tài khoản người dùng
-
-// Đăng ký tài khoản

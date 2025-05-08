@@ -51,7 +51,7 @@ function ListCoupons() {
           <TableHead>
             <TableRow>
               <TableCell sx={{ fontWeight: 600 }}>
-                <TableSortLabel>Mã Coupon</TableSortLabel>
+                <TableSortLabel>Mã Giảm Giá</TableSortLabel>
               </TableCell>
               <TableCell sx={{ fontWeight: 600 }} align="center">
                 Loại Giảm Giá
@@ -89,7 +89,7 @@ function ListCoupons() {
                 <TableCell align="center">{coupon.usageLimit}</TableCell>
                 <TableCell align="center">
                   <Chip
-                    label={coupon.isActive ? "Active" : "Inactive"}
+                    label={coupon.isActive ? "Hoạt Động" : "Không Hoạt Động"}
                     color={coupon.isActive ? "success" : "error"}
                     variant="outlined"
                   />
@@ -102,7 +102,7 @@ function ListCoupons() {
                       },
                     }}
                   >
-                    <Tooltip title="View details">
+                    <Tooltip title="Xem chi tiết">
                       <IconButton
                         onClick={() => {
                           navigate(`detail/${coupon.id}`);
@@ -111,7 +111,7 @@ function ListCoupons() {
                         <VisibilityOutlinedIcon />
                       </IconButton>
                     </Tooltip>
-                    <Tooltip title="Edit">
+                    <Tooltip title="Chỉnh sửa">
                       <IconButton
                         color="primary"
                         onClick={() => {
@@ -121,7 +121,7 @@ function ListCoupons() {
                         <CreateOutlinedIcon />
                       </IconButton>
                     </Tooltip>
-                    <Tooltip title="Delete">
+                    <Tooltip title="Xóa">
                       <IconButton
                         color="error"
                         onClick={() => {

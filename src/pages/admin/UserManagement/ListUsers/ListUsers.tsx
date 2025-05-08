@@ -83,7 +83,7 @@ function ListUsers() {
                 <TableCell align="center">{formatRole(user.role)}</TableCell>
                 <TableCell align="center">
                   <Chip
-                    label={user.isActive ? "Active" : "Inactive"}
+                    label={user.isActive ? "Hoạt Động" : "Không Hoạt Động"}
                     color={user.isActive ? "success" : "error"}
                     variant="outlined"
                   />
@@ -96,7 +96,7 @@ function ListUsers() {
                       },
                     }}
                   >
-                    <Tooltip title="View details">
+                    <Tooltip title="Xem chi tiết">
                       <IconButton  onClick={() => { navigate(`detail/${user.id}`); }}>
                         <VisibilityOutlinedIcon />
                       </IconButton>

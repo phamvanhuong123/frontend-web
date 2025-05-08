@@ -18,47 +18,47 @@ import Avatar from "../Avatar/Avatar";
 const NAVIGATION: Navigation = [
   {
     segment: "admin",
-    title: "Dashboard",
+    title: "Tổng quan",
     icon: <DashboardIcon />,
   },
   {
     segment: "admin/users",
-    title: "Users",
+    title: "Quản lý người dùng",
     icon: <PersonOutlineIcon />,
   },
   {
     segment: "admin/products",
-    title: "Products",
+    title: "Quản lý sản phẩm",
     icon: <ProductionQuantityLimitsIcon />,
   },
   {
     segment: "admin/categories",
-    title: "Categories",
+    title: "Quản lý danh mục",
     icon: <CategoryIcon />,
   },
   {
     segment: "admin/orders",
-    title: "Orders",
+    title: "Quản lý đơn hàng",
     icon: <AddShoppingCartIcon />,
   },
   {
     segment: "admin/chat",
-    title: "Chat",
+    title: "Hỗ trợ khách hàng",
     icon: <ChatIcon />,
   },
   {
     segment: "admin/manufactures",
-    title: "Manufactures",
+    title: "Quản lý nhà sản xuất",
     icon: <FactoryIcon />,
   },
   {
     segment: "admin/posts",
-    title: "Post",
+    title: "Quản lý bài viết",
     icon: <PostAddIcon />,
   },
   {
     segment: "admin/coupons",
-    title: "Coupons",
+    title: "Quản lý mã giảm giá",
     icon: <DiscountIcon />,
   },
 ];
@@ -74,7 +74,7 @@ function CustomAppTitle() {
         fontWeight: 600,
       }}
     >
-      Admin
+      Trang Quản Lý
     </Box>
   );
 }

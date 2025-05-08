@@ -1,5 +1,5 @@
 import instance from "./axios.customize";
-
+const url = "api/v1/ecommerce/chat";
 export const chatApi = {
   // // Lấy cuộc trò chuyện với một người dùng cụ thể
   // getConversation: (userId: string) => {
@@ -26,27 +26,27 @@ export const chatApi = {
     receiverId?: string;
     chatId?: string;
   }) => {
-    return instance.post(`/api/v1/ecommerce/chat/send`, data);
+    return instance.post(`${url}/send`, data);
   },
 
   //Lấy tất cả cuộc trò chuyện của người dùng hiện tại
   getConversations: () => {
-    return instance.get(`/api/v1/ecommerce/chat/conversations`);
+    return instance.get(`${url}/conversations`);
   },
   // Đánh dấu tin nhắn là đã đọc
   markAsRead: (userId: string) => {
-    return instance.post(`/api/v1/ecommerce/chat/mark-read/${userId}`);
+    return instance.post(`${url}/mark-read/${userId}`);
   },
   // Tạo cuộc trò chuyện với nhân viên hỗ trợ
   createStaffChat: () => {
-    return instance.post(`/api/v1/ecommerce/chat/create-staff-chat`);
+    return instance.post(`${url}/create-staff-chat`);
   },
   // Lấy id chat qua id userư
   getChatId: (userId: string) => {
-    return instance.get(`/api/v1/ecommerce/chat/chat-id-with/${userId}`);
+    return instance.get(`${url}/chat-id-with/${userId}`);
   },
   //lấy cuộc trò chuyện dựa vào chat id
   getConversationByChatId: (chatId: string) => {
-    return instance.get(`/api/v1/ecommerce/chat/messages/${chatId}`);
+    return instance.get(`${url}/messages/${chatId}`);
   },
 };

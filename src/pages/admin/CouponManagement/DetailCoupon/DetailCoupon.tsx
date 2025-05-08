@@ -65,7 +65,7 @@ function DetailCoupon() {
       <CardContent>
         <Box sx={{ display: "flex", justifyContent: "space-between", mb: 3 }}>
           <Typography variant="h4" component="h1">
-            Thông tin chi tiết Coupon
+            Thông tin chi tiết mã giảm giá
           </Typography>
           <Button
             variant="outlined"
@@ -89,7 +89,7 @@ function DetailCoupon() {
               <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
                 <DiscountIcon color="primary" sx={{ mr: 2 }} />
                 <Typography variant="body1">
-                  <strong>Mã Coupon:</strong> {coupon.code}
+                  <strong>Mã Giảm Giá:</strong> {coupon.code}
                 </Typography>
               </Box>
               <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
@@ -103,7 +103,7 @@ function DetailCoupon() {
                 <AttachMoneyIcon color="primary" sx={{ mr: 2 }} />
                 <Typography variant="body1">
                   <strong>Giá Trị:</strong>{" "}
-                  {formatDiscountType(coupon.discountType, coupon.value)}
+                  {formatDiscountType(coupon.discountType.toString(), coupon.value)}
                 </Typography>
               </Box>
               <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
@@ -189,7 +189,7 @@ function DetailCoupon() {
             color="primary"
             onClick={() => navigate("/admin/coupons")}
           >
-            Danh sách Coupon
+            Danh sách Mã Giảm Giá
           </Button>
         </Box>
       </CardContent>

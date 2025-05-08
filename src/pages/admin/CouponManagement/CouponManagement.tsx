@@ -38,7 +38,7 @@ function CouponManagement() {
               <TextField
                 size="small"
                 id="filled-search"
-                label="Search"
+                label="Tìm kiếm"
                 type="search"
                 variant="outlined"
                 slotProps={{
@@ -88,9 +88,9 @@ function CouponManagement() {
                   value={status}
                   onChange={handleChange}
                 >
-                  <MenuItem value={"allStatus"}>All Status</MenuItem>
-                  <MenuItem value={"active"}>Active</MenuItem>
-                  <MenuItem value={"inactive"}>Inactive</MenuItem>
+                  <MenuItem value={"allStatus"}>Tất Cả Trạng Thái</MenuItem>
+                  <MenuItem value={"active"}>Hoạt Động</MenuItem>
+                  <MenuItem value={"inactive"}>Không Hoạt Động</MenuItem>
                 </Select>
               </FormControl>
               <Button
@@ -100,9 +100,9 @@ function CouponManagement() {
                   navigate("create");
                 }}
               >
-                Thêm Coupon
+                Thêm Mã Giảm Giá
               </Button>
-              <Button variant="outlined">Reload</Button>
+              <Button variant="outlined">Tải Lại Trang</Button>
             </Box>
           </Box>
 

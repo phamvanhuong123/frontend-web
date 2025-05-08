@@ -34,7 +34,7 @@ function ManufactureManagement() {
                             <TextField
                                 size="small"
                                 id="filled-search"
-                                label="Search"
+                                label="Tìm kiếm"
                                 type="search"
                                 variant="outlined"
                                 slotProps={{
@@ -76,13 +76,13 @@ function ManufactureManagement() {
                                     value={status}
                                     onChange={handleChange}
                                 >
-                                    <MenuItem value={'allStatus'}>All Status</MenuItem>
-                                    <MenuItem value={'active'}>Active</MenuItem>
-                                    <MenuItem value={'inactive'}>Inactive</MenuItem>
+                                    <MenuItem value={'allStatus'}>Tất Cả Trạng Thái</MenuItem>
+                                    <MenuItem value={'active'}>Hoạt Động</MenuItem>
+                                    <MenuItem value={'inactive'}>Không Hoạt Động</MenuItem>
                                 </Select>
                             </FormControl>
                             <Button startIcon={<AddIcon />} variant="contained" onClick={() => { navigate('create') }}>Thêm nhà sản xuất</Button>
-                            <Button variant="outlined">Reload</Button>
+                            <Button variant="outlined">Tải Lại Trang</Button>
                         </Box>
                     </Box>
 
