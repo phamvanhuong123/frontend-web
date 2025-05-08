@@ -15,6 +15,7 @@ import {
 import { Link, useNavigate } from "react-router-dom";
 import { getImageUrl } from "../../../config/config";
 import ProductReviews from "./ProductReviews"; // Import the new component
+import { Flip, toast } from "react-toastify";
 
 interface ViewDetailProps {
   dataProduct: {
@@ -119,10 +120,19 @@ const ViewDetail = ({ dataProduct }: ViewDetailProps) => {
   };
 
   const handleAddToCart = (quantity: number, product: any) => {
+    if (product.quantity === 0) {
+      toast.error("Sản phẩm đã hết hàng", {
+        autoClose: 1000,
+        transition: Flip,
+      });
+      return;
+    }
+
     const productDetail = {
       id: product.id,
       name: product.name,
       price: product.price,
+      quantity: product.quantity,
       image: product.images || [],
     };
 
@@ -136,6 +146,7 @@ const ViewDetail = ({ dataProduct }: ViewDetailProps) => {
       id: product.id,
       name: product.name,
       price: product.price,
+      quantity: product.quantity,
       image: product.images || [],
     };
 
@@ -263,7 +274,9 @@ const ViewDetail = ({ dataProduct }: ViewDetailProps) => {
                             marginRight: 10,
                           }}
                         >
-                          {dataProduct.quantity !== null ? (
+                          {dataProduct.quantity === 0 ? (
+                            <span className="out-of-stock">Hết hàng</span>
+                          ) : dataProduct.quantity !== null ? (
                             <span>{dataProduct.quantity} sản phẩm có sẵn</span>
                           ) : (
                             <span>Không giới hạn số lượng</span>

@@ -42,6 +42,7 @@ const Cart = () => {
       setSelectedRowKeys(cartItems.map((item: any) => item.id));
     }
     setIsAllSelected(!isAllSelected);
+    dispatch(doSetSelectedProductsAction({ products: cartItems }));
   };
 
   const handleRemove = (id: string) => {
@@ -133,6 +134,7 @@ const Cart = () => {
       render: (quantity: number, record: CartItem) => (
         <InputNumber
           min={1}
+          max={record.detail.quantity}
           value={quantity}
           onChange={(value) => handleQuantityChange(record.id, value)}
         />
@@ -166,6 +168,7 @@ const Cart = () => {
       dispatch(doSetSelectedProductsAction({ products: selectedProducts }));
     },
   };
+
   useEffect(() => {
     const selectedItems = cartItems.filter((item) =>
       selectedRowKeys.includes(item.id)

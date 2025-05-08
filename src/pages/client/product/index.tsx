@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
-import ViewDetail from "../../../layout/client/Product/ViewDetail";
-import { productApi } from "../../../services/axios.product";
+import ViewDetail from "~/layout/client/Product/ViewDetail";
+import { productApi } from "~/services/axios.product";
 import { getImageUrl } from "~/config/config";
 
 const ProductPage = () => {
@@ -11,22 +11,20 @@ const ProductPage = () => {
   const params = new URLSearchParams(location.search);
   const slug = params.get("slug");
 
-  
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        
         setLoading(true);
-        
+
         if (!slug) {
           console.error("Không tìm thấy slug sản phẩm");
           setLoading(false);
           return;
         }
-        
+
         console.log("Fetching product with slug:", slug);
         const res = await productApi.callFetchProductBySlug(slug);
-        
+
         if (res && res.data) {
           const raw = res.data;
           raw.items = getImages(raw);
@@ -40,27 +38,26 @@ const ProductPage = () => {
         setLoading(false);
       }
     };
-    
+
     fetchProduct();
-  }, [slug]); 
+  }, [slug]);
 
   const getImages = (raw: any) => {
     interface Image {
       original: string;
       thumbnail: string;
     }
-    
+
     const images: Image[] = [];
     if (raw.images && Array.isArray(raw.images)) {
       raw.images.forEach((image: { id: number; url: string }) => {
         images.push({
           original: getImageUrl(image.url),
           thumbnail: getImageUrl(image.url),
-
         });
       });
     }
-  
+
     return images;
   };
 
