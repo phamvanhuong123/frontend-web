@@ -2,7 +2,7 @@ import { Tag, Table } from "antd";
 import moment from "moment";
 import { useEffect, useState } from "react";
 
-import { FORMAT_DATE_DISPLAY } from "../../../utils/constant";
+import { FORMAT_DATE_DISPLAY } from "~/utils/constant";
 import { useSelector } from "react-redux";
 import { orderApi } from "~/services/axios.order";
 import "./History.css";

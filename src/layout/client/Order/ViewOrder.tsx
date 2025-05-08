@@ -117,6 +117,7 @@ const ViewOrder = ({ setCurrentStep }: ViewOrderProps) => {
                 <div className="quantity">
                   <InputNumber
                     min={1}
+                    max={product?.detail?.quantity}
                     onChange={(value) => handleOnChangeInput(value, product)}
                     value={product.quantity}
                   />

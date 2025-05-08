@@ -91,11 +91,11 @@ export const orderSlice = createSlice({
 
       const isExistIndex = carts.findIndex((c) => c.id === item.id);
       if (isExistIndex > -1) {
-        carts[isExistIndex].quantity = item.quantity;
-        if (
-          carts[isExistIndex].quantity > carts[isExistIndex].detail.quantity
-        ) {
+        if (item.quantity > carts[isExistIndex].detail.quantity) {
           carts[isExistIndex].quantity = carts[isExistIndex].detail.quantity;
+        } else {
+          // Cập nhật số lượng sản phẩm
+          carts[isExistIndex].quantity = item.quantity;
         }
       }
 
