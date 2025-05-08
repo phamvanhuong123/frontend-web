@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Row,
   Col,
@@ -37,7 +37,8 @@ const ProductReviews = ({ productId }: { productId: string }) => {
   const [isPurchased, setIsPurchased] = useState<boolean>(false);
   const currentUser = useSelector((state: any) => state.account?.user);
   const isLoggedIn = !!currentUser?.id;
-  const [change, setChange] = useState(0); // Để trigger useEffect khi cần thiết
+  const connectionRef = useRef<HubConnection | null>(null);
+  const initialLoadCompleteRef = useRef<boolean>(false);
 
   const [initReview, setInitReview] = useState<CreateReviewRequest>({
     userId: currentUser?.id || "",
@@ -66,9 +67,18 @@ const ProductReviews = ({ productId }: { productId: string }) => {
       .withAutomaticReconnect()
       .build();
 
+    // Store connection in ref to access it later
+    connectionRef.current = connection;
+
     connection.on("ReceiveReview", (review: Review) => {
       console.log("Received new review:", review);
-      setReviews((prev) => [review, ...prev]);
+      // Only add the review if it doesn't already exist in the list
+      setReviews((prev) => {
+        if (prev.some((r) => r.id === review.id)) {
+          return prev;
+        }
+        return [review, ...prev];
+      });
     });
 
     connection.on("UpdateReviewStats", ({ averageRating, totalReviews }) => {
@@ -85,9 +95,13 @@ const ProductReviews = ({ productId }: { productId: string }) => {
       .catch((err) => console.error("SignalR connection error:", err));
 
     return () => {
-      connection.invoke("LeaveProductReviews", productId).then(() => {
-        connection.stop();
-      });
+      if (connectionRef.current) {
+        connectionRef.current
+          .invoke("LeaveProductReviews", productId)
+          .then(() => {
+            connectionRef.current?.stop();
+          });
+      }
     };
   }, [productId]);
 
@@ -114,6 +128,7 @@ const ProductReviews = ({ productId }: { productId: string }) => {
         setAverageRating(averageRatingResponse || 0);
         setTotalReviews(totalReviewsResponse || 0);
         setIsPurchased(isPurchasedResponse || false);
+        initialLoadCompleteRef.current = true;
       } catch (error) {
         console.error("Lỗi khi lấy dữ liệu:", error);
         message.error("Không thể tải đánh giá hoặc trạng thái mua hàng.");
@@ -124,24 +139,6 @@ const ProductReviews = ({ productId }: { productId: string }) => {
 
     fetchData();
   }, [productId, currentUser?.id, isLoggedIn]);
-
-  // Xử lý khi có thay đổi trong reviews
-  useEffect(() => {
-    const fetchReviews = async () => {
-      try {
-        setLoading(true);
-        const reviewsResponse = await reviewApi.getByProductId(productId);
-        setReviews(reviewsResponse || []);
-      } catch (error) {
-        console.error("Lỗi khi lấy dữ liệu:", error);
-        message.error("Không thể tải đánh giá.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchReviews();
-  }, [change, productId]);
 
   // Xử lý thay đổi file
   const handleFileChange: UploadProps["onChange"] = ({
@@ -176,11 +173,6 @@ const ProductReviews = ({ productId }: { productId: string }) => {
       imageFile: imageFile,
       videoFile: videoFile,
     }));
-    console.log("Updated initReview:", {
-      ...initReview,
-      imageFile: imageFile,
-      videoFile: videoFile,
-    }); // Debug initReview
   };
 
   // Kiểm tra file trước khi upload
@@ -253,13 +245,10 @@ const ProductReviews = ({ productId }: { productId: string }) => {
         formData.append("VideoFile", initReview.videoFile);
       }
 
-      console.log("FormData entries:"); // Debug FormData
-      for (const [key, value] of formData.entries()) {
-        console.log(`${key}: ${value}`);
-      }
-      // const newReview = await reviewApi.create(formData);
       await reviewApi.create(formData);
       message.success("Đánh giá đã được gửi thành công!");
+
+      // Reset form
       setInitReview({
         userId: currentUser.id,
         productId,
@@ -269,15 +258,6 @@ const ProductReviews = ({ productId }: { productId: string }) => {
         videoFile: undefined,
       });
       setFileList([]);
-      setChange((prev) => prev + 1); // Trigger lại useEffect để lấy dữ liệu mới
-      // Cập nhật danh sách review
-      // setReviews((prev) => [newReview, ...prev]);
-      // setTotalReviews((prev) => prev + 1);
-      // const newTotalStars =
-      //   reviews.reduce((sum, r) => sum + r.stars, 0) + newReview.stars;
-      // setAverageRating(
-      //   totalReviews + 1 > 0 ? newTotalStars / (totalReviews + 1) : 0
-      // );
     } catch (error: any) {
       console.error("Lỗi khi gửi đánh giá:", error);
       const errorMessage =
