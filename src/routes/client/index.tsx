@@ -7,7 +7,10 @@ import PaymentResponse from "~/layout/client/Order/PaymentResponse";
 import Cart from "~/layout/client/cart/cart";
 import OrderDetails from "~/layout/client/Order/OrderDetails";
 import Vouchers from "~/layout/client/Voucher";
-
+import Guide from "~/layout/client/Guide";
+import Contact from "~/layout/client/Contact";
+import PrivacyPolicy from "~/layout/client/PrivacyPolicy";
+import ReturnPolicy from "~/layout/client/ReturnPolicy";
 const clientRoutes = {
   path: "/",
   element: <LayoutClient />,
@@ -20,6 +23,10 @@ const clientRoutes = {
     { path: "orders/payment/response", element: <PaymentResponse /> },
     { path: "cart", element: <Cart /> },
     { path: "vouchers", element: <Vouchers /> },
+    { path: "guide", element: <Guide /> },
+    { path: "return-policy", element: <ReturnPolicy /> },
+    { path: "privacy-policy", element: <PrivacyPolicy /> },
+    { path: "contact", element: <Contact /> },
   ],
 };
 
