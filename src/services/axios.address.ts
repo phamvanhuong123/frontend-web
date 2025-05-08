@@ -25,22 +25,20 @@ export const addressApi = {
   },
   //api tinh
   getProvinces(): Promise<Province[]> {
-    return axios
-      .get("https://provinces.open-api.vn/api/p/")
-      .then((res) => res.data);
+    return axios.get(url + "/provinces").then((res) => res.data);
   },
 
   // api huyen
   getDistrictsByProvince(provinceCode: string): Promise<District[]> {
     return axios
-      .get(`https://provinces.open-api.vn/api/p/${provinceCode}?depth=2`)
+      .get(url + "/provinces/" + provinceCode)
       .then((res) => res.data.districts || []);
   },
 
   // api xa
   getWardsByDistrict(districtCode: string): Promise<Ward[]> {
     return axios
-      .get(`https://provinces.open-api.vn/api/d/${districtCode}?depth=2`)
+      .get(`${url}/districts/${districtCode}`)
       .then((res) => res.data.wards || []);
   },
 
