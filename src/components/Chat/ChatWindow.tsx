@@ -14,7 +14,6 @@ import {
 import {
   UserOutlined,
   SendOutlined,
-  SoundOutlined,
   BellOutlined,
   BellFilled,
 } from "@ant-design/icons";
@@ -54,80 +53,6 @@ const ChatWindow: React.FC = () => {
   const [soundEnabled, setSoundEnabled] = useState<boolean>(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Kết nối SignalR và lấy danh sách cuộc trò chuyện
-  useEffect(() => {
-    const connectSignalR = async () => {
-      const conn = new signalR.HubConnectionBuilder()
-        .withUrl(`${import.meta.env.VITE_API_URL}/chathub`, {
-          accessTokenFactory: () => localStorage.getItem("access_token") || "",
-        })
-        .withAutomaticReconnect()
-        .build();
-
-      conn.on("ReceiveMessage", (message: Message) => {
-        console.log("Received message:", message);
-
-        // Cập nhật tin nhắn nếu đang ở trong cuộc trò chuyện này
-        if (
-          selectedUserId &&
-          (message.senderId === selectedUserId ||
-            message.receiverId === selectedUserId)
-        ) {
-          // Đánh dấu tin nhắn là đã đọc nếu đang mở cuộc trò chuyện
-          if (message.senderId === selectedUserId) {
-            chatApi.markAsRead(selectedUserId).catch((err) => {
-              console.error("Error marking message as read:", err);
-            });
-          }
-        }
-
-        // Cập nhật danh sách cuộc trò chuyện và số tin nhắn chưa đọc
-        fetchConversations();
-
-        // Phát âm thông báo khi có tin nhắn mới
-        if (soundEnabled) {
-          const audio = new Audio("/message-sound.mp3");
-          audio
-            .play()
-            .catch((err) =>
-              console.error("Error playing notification sound:", err)
-            );
-        }
-      });
-
-      try {
-        await conn.start();
-        console.log("Connected to SignalR");
-        setConnection(conn);
-
-        // Lấy danh sách cuộc trò chuyện
-        fetchConversations();
-      } catch (err) {
-        console.error("SignalR connection error:", err);
-        message.error("Không thể kết nối với server chat");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    connectSignalR();
-
-    // Định kỳ làm mới danh sách cuộc trò chuyện
-    const intervalId = setInterval(() => {
-      fetchConversations();
-    }, 30000); // 30 giây
-
-    return () => {
-      clearInterval(intervalId);
-      if (connection) {
-        connection
-          .stop()
-          .catch((err) => console.error("SignalR disconnect error:", err));
-      }
-    };
-  }, [selectedUserId, soundEnabled]); // Thêm soundEnabled vào dependencies
-
-  // Lấy danh sách cuộc trò chuyện từ API
   const fetchConversations = async () => {
     try {
       const res = await chatApi.getConversations();
@@ -140,44 +65,138 @@ const ChatWindow: React.FC = () => {
     }
   };
 
-  // Tự động scroll đến tin nhắn mới nhất
+  useEffect(() => {
+    const connectSignalR = async () => {
+      if (connection) return;
+
+      const conn = new signalR.HubConnectionBuilder()
+        .withUrl(`${import.meta.env.VITE_API_URL}/chathub`, {
+          accessTokenFactory: () => localStorage.getItem("access_token") || "",
+        })
+        .withAutomaticReconnect()
+        .build();
+
+      conn.on("ReceiveMessage", (message: Message) => {
+        if (
+          selectedUserId &&
+          ((message.senderId === selectedUserId &&
+            message.receiverId !== message.senderId) ||
+            (message.receiverId === selectedUserId &&
+              message.senderId !== selectedUserId))
+        ) {
+          setMessages((prevMessages) => {
+            const messageExists = prevMessages.some((m) => m.id === message.id);
+            if (messageExists) {
+              return prevMessages;
+            }
+            return [...prevMessages, message];
+          });
+
+          if (message.senderId === selectedUserId) {
+            chatApi.markAsRead(selectedUserId).catch((err) => {
+              console.error("Lỗi không thể đọc:", err);
+            });
+          }
+        }
+
+        fetchConversations();
+
+        // if (soundEnabled) {
+        //   try {
+        //     const audio = new Audio("/message-sound.mp3");
+        //     audio.play().catch((err) =>
+        //       console.error("Error playing notification sound:", err)
+        //     );
+        //   } catch (err) {
+        //     console.error("Error with audio notification:", err);
+        //   }
+        // }
+      });
+
+      conn.onclose((error) => {
+        console.log("SignalR connection closed", error);
+        setTimeout(connectSignalR, 5000);
+      });
+
+      try {
+        await conn.start();
+        console.log("Connected to SignalR");
+        setConnection(conn);
+
+        if (chatId) {
+          try {
+            await conn.invoke("JoinChat", chatId);
+            console.log("Joined chat:", chatId);
+          } catch (err) {
+            console.error("Lỗi:", err);
+          }
+        }
+
+        fetchConversations();
+      } catch (err) {
+        console.error("SignalR Lỗi:", err);
+        message.error("Không thể kết nối với server chat");
+        setTimeout(connectSignalR, 5000);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    connectSignalR();
+
+    const intervalId = setInterval(() => {
+      fetchConversations();
+    }, 30000);
+
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (connection && chatId) {
+      connection.invoke("JoinChat", chatId).catch((err) => {
+        console.error("Lỗi:", err);
+      });
+    }
+  }, [connection, chatId]);
+
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Khi chọn một người dùng để chat
+  const fetchMessages = async (chatId: string) => {
+    try {
+      const res = await chatApi.getConversationByChatId(chatId);
+      if (res.data) {
+        setMessages(res.data);
+      }
+    } catch (error) {
+      console.error("Error fetching messages:", error);
+      message.error("Không thể tải tin nhắn");
+    }
+  };
+
   const handleSelectUser = async (userId: string) => {
     setSelectedUserId(userId);
     setLoading(true);
     setMessages([]);
 
     try {
-      // Lấy chatId dựa vào userId
       const chatIdRes = await chatApi.getChatId(userId);
-      const chatId = chatIdRes.data?.chatId;
-      if (!chatId) throw new Error("Không tìm thấy chatId");
+      const newChatId = chatIdRes.data?.chatId;
 
-      setChatId(chatId);
-
-      // Lấy tin nhắn
-      const res = await chatApi.getConversationByChatId(chatId);
-      if (res.data) {
-        setMessages(res.data);
-
-        // Tham gia SignalR
-        if (connection) {
-          try {
-            await connection.invoke("JoinChat", chatId);
-            console.log("Joined chat:", chatId);
-          } catch (err) {
-            console.error("Error joining chat:", err);
-          }
-        }
-
-        // Đánh dấu đã đọc
-        await chatApi.markAsRead(userId);
-        fetchConversations();
+      if (!newChatId) {
+        throw new Error("Không tìm thấy chatId");
       }
+
+      setChatId(newChatId);
+
+      await fetchMessages(newChatId);
+
+      await chatApi.markAsRead(userId);
+
+      fetchConversations();
     } catch (error) {
       console.error("Error fetching conversation:", error);
       message.error("Không thể tải tin nhắn");
@@ -186,11 +205,17 @@ const ChatWindow: React.FC = () => {
     }
   };
 
-  // Gửi tin nhắn
   const handleSendMessage = async () => {
     if (!newMessage.trim() || !selectedUserId) return;
 
     setSending(true);
+
+    const tempMessage: Message = {
+      senderId: "me",
+      receiverId: selectedUserId,
+      content: newMessage,
+      sentAt: new Date().toISOString(),
+    };
 
     try {
       const messageToSend = {
@@ -199,42 +224,36 @@ const ChatWindow: React.FC = () => {
         chatId: chatId || undefined,
       };
 
-      console.log("Sending message:", messageToSend);
+      setMessages((prevMessages) => [...prevMessages, tempMessage]);
 
       const res = await chatApi.sendMessage(messageToSend);
 
       if (res?.data) {
-        // Không thêm tin nhắn vào list - chờ SignalR nhận sự kiện và xử lý
+        setMessages((prevMessages) => {
+          const filteredMessages = prevMessages.filter((m) => m !== tempMessage);
+          return [...filteredMessages, res.data];
+        });
 
-        // Cập nhật chatId nếu là tin nhắn đầu tiên
         if (!chatId && res.data.chatId) {
           setChatId(res.data.chatId);
-
-          // Tham gia vào chat qua SignalR
-          if (connection) {
-            try {
-              await connection.invoke("JoinChat", res.data.chatId);
-              console.log("Joined new chat:", res.data.chatId);
-            } catch (err) {
-              console.error("Error joining new chat:", err);
-            }
-          }
         }
 
         setNewMessage("");
 
-        // Cập nhật lại danh sách cuộc trò chuyện
         fetchConversations();
       }
     } catch (err) {
-      console.error("Error sending message:", err);
+      console.error("Không thể gửi tin nhắn", err);
       message.error("Không thể gửi tin nhắn");
+
+      setMessages((prevMessages) =>
+        prevMessages.filter((m) => m !== tempMessage)
+      );
     } finally {
       setSending(false);
     }
   };
 
-  // Xử lý khi nhấn Enter
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -242,7 +261,6 @@ const ChatWindow: React.FC = () => {
     }
   };
 
-  // Format timestamp
   const formatTime = (timestamp: string): string => {
     const date = new Date(timestamp);
     const now = new Date();
@@ -262,7 +280,6 @@ const ChatWindow: React.FC = () => {
     }
   };
 
-  // time cho chhat
   const renderLastMessageTime = (timestamp?: string): string => {
     if (!timestamp) return "";
 
@@ -286,13 +303,12 @@ const ChatWindow: React.FC = () => {
     }
   };
 
-  // Toggle sound notifications
   const toggleSound = () => {
-    setSoundEnabled(!soundEnabled);
-    localStorage.setItem("chat_sound_enabled", (!soundEnabled).toString());
+    const newSoundState = !soundEnabled;
+    setSoundEnabled(newSoundState);
+    localStorage.setItem("chat_sound_enabled", newSoundState.toString());
   };
 
-  // Load sound preference
   useEffect(() => {
     const savedPreference = localStorage.getItem("chat_sound_enabled");
     if (savedPreference !== null) {
