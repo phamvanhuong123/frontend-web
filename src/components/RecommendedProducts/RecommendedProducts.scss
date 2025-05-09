@@ -1,0 +1,142 @@
+/* src/components/RecommendedProducts/RecommendedProducts.css */
+
+.recommended-products-container {
+    margin-top: 16px; /* Adjust as needed */
+    margin-bottom: 16px; /* Adjust as needed */
+  }
+  
+  .recommended-products-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+  
+  .recommended-products-title {
+    font-size: 1.5rem; /* Adjust font size */
+    font-weight: bold;
+    position: relative;
+    padding-bottom: 8px; /* Space for underline */
+  }
+  
+  .recommended-products-title::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 60px; /* Adjust width */
+    height: 3px;
+    background-color: #1890ff; /* Ant Design primary color, adjust if using a theme */
+  }
+  
+  .product-wrapper {
+    border: 1px solid #e8e8e8; /* Subtle border */
+    border-radius: 4px; /* Optional: subtle rounded corners */
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .product-wrapper:hover {
+    transform: translateY(-4px); /* Lift effect on hover */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow on hover */
+  }
+  
+  .product-thumbnail {
+    position: relative;
+    width: 100%;
+    /* Use padding-top for aspect ratio */
+    padding-top: 70%; /* Adjust aspect ratio (e.g., 1:1 would be 100%) */
+    overflow: hidden;
+  }
+  
+  .product-thumbnail img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+  }
+  
+  .product-wrapper:hover .product-thumbnail img {
+    transform: scale(1.05); /* Slight zoom on hover */
+  }
+  
+  .discount-badge {
+      position: absolute;
+      top: 8px; /* Adjust position */
+      right: 8px; /* Adjust position */
+      background-color: #ff4d4f; /* Ant Design error color */
+      color: white;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: bold;
+      z-index: 1; /* Ensure it's above the image */
+  }
+  
+  
+  .product-content {
+    padding: 12px; /* Adjust padding */
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .product-name {
+    font-size: 1rem; /* Adjust font size */
+    font-weight: 600; /* Semi-bold */
+    margin-bottom: 4px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* Limit to 2 lines */
+    -webkit-box-orient: vertical;
+    height: 3em; /* Approximate height for 2 lines based on font-size/line-height */
+    line-height: 1.5; /* Ensure consistent line height */
+    color: rgba(0, 0, 0, 0.85); /* Ant Design text color */
+  }
+  
+  
+  .product-price {
+    font-size: 1.2rem; /* Adjust font size */
+    font-weight: bold;
+    color: #ff4d4f; /* Ant Design error color for price */
+    margin-top: auto; /* Push price and rating to the bottom */
+    margin-bottom: 4px;
+  }
+  
+  .product-price .old-price {
+    font-size: 0.9rem; /* Adjust size for old price */
+    color: rgba(0, 0, 0, 0.45); /* Ant Design secondary text color */
+    text-decoration: line-through;
+    margin-left: 8px;
+  }
+  
+  .product-rating {
+    display: flex;
+    align-items: center;
+    font-size: 0.9rem; /* Adjust font size */
+    color: rgba(0, 0, 0, 0.45); /* Ant Design secondary text color */
+  }
+  
+  .product-rating .ant-rate {
+    margin-right: 8px;
+    font-size: 12px; /* Adjust rate star size */
+  }
+  
+  /* Skeleton styling */
+  .skeleton-wrapper {
+      border: 1px solid #e8e8e8;
+      border-radius: 4px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      padding: 12px; /* Match product content padding */
+  }

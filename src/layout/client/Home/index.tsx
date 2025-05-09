@@ -24,8 +24,8 @@ import MobileFilter from "./MobileFilter";
 import { PaginationResponse, ProductQueryParameters } from "~/types/product";
 import { Carousel } from "antd";
 import { LeftOutlined, RightOutlined } from "@ant-design/icons";
-import ChatBot from "~/components/ChatBot/ChatBot";
 import ChatContainer from "~/components/ChatContainer/ChatContainer";
+import RecommendedProducts from "../../../components/RecommendedProducts/RecommendedProducts";
 
 const Home = () => {
   const [searchTerm, setSearchTerm] =
@@ -190,6 +190,11 @@ const Home = () => {
 
   const handleRedirectProduct = (product: any) => {
     const name = product.name ?? "";
+    const id = product.id ?? "";
+
+    //
+    productApi.trackProductClick(id);
+
 
     const slug = removeVietnameseTones(name)
       .toLowerCase()
@@ -496,6 +501,10 @@ const Home = () => {
             onFinish={onFinish}
             form={form}
           />
+
+          {/* Sản phẩm gợi ý */}
+          <RecommendedProducts limit={4} title="Có thể bạn sẽ thích" />
+
           <div style={{ padding: "40px 0" }}>
             <h2 style={{ fontSize: 24, fontWeight: 600, marginBottom: 24 }}>
               📰 Tin Tức Mới Nhất

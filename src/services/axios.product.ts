@@ -70,6 +70,15 @@ export const productApi = {
       }
     );
   },
+  // Thêm phương thức để lấy sản phẩm gợi ý
+  getRecommendedProducts: (topN = 5) => {
+    return axios.get(`${BASE_URL}/recommended?topN=${topN}`);
+  },
+  // Thêm phương thức để theo dõi click vào sản phẩm
+  trackProductClick: (productId: string) => {
+    debugger
+    return axios.post(`${BASE_URL}/track-click`, { productId });
+},
 };
 
 // Lấy danh sách danh mục sản phẩm

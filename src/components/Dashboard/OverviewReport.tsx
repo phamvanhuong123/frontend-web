@@ -70,7 +70,7 @@ const OverviewReport = () => {
             title: 'Tổng đơn hàng',
             value: overviewData?.totalOrders || 0,
             icon: <ShoppingCartOutlined style={{ fontSize: '28px', color: '#1890ff' }} />,
-            formatter: (value: number) => value,
+            formatter: (value: number) => value.toString(),
             backgroundColor: '#e6f7ff',
             textColor: '#1890ff'
         },
@@ -149,7 +149,7 @@ const OverviewReport = () => {
                                         <Typography variant="h4" sx={{ color: card.textColor, fontWeight: 500 }}>
                                             <CountUp
                                                 end={card.value}
-                                                formattingFn={card.formatter}
+                                                formattingFn={card.formatter as (n: number) => string}
                                                 duration={2}
                                             />
                                         </Typography>
