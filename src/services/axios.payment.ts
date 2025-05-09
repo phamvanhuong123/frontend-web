@@ -5,8 +5,8 @@ const URL = "api/v1/ecommerce/payment";
 
 export const paymentApi = {
   // Thêm order
-  createOrder(order: any) {
-    return axios.post(URL, order);
+  createPayment(orderCode: string) {
+    return axios.post(`${URL}/${orderCode}`);
   },
   // Tạo đơn hàng VNPay
   createVnPayPayment(order: any) {

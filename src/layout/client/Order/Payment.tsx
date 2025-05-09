@@ -454,6 +454,7 @@ const Payment: React.FC<PaymentProps> = ({ setCurrentStep }) => {
         for (const item of orderItems) {
           await productApi.updateProductQuantity(item.productId, item.quantity); // Số lượng cần giảm
         }
+        await paymentApi.createPayment(orderCode);
       }
       if (res?.data) {
         message.success("Đặt hàng thành công!");

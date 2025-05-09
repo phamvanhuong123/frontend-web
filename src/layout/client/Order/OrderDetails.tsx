@@ -52,7 +52,6 @@ const OrderDetails: React.FC = () => {
         setPayment(payment);
       } catch (err) {
         console.error(err);
-        message.error("Không thể tải thông tin đơn hàng");
         setError("Không thể tải thông tin đơn hàng");
       } finally {
         setLoading(false);
@@ -227,7 +226,7 @@ const OrderDetails: React.FC = () => {
           </Descriptions>
         </>
       )}
-  
+
       <Title level={4}>Danh sách sản phẩm</Title>
       <Table
         columns={columns}

@@ -17,4 +17,13 @@ interface VnPayResponse {
   vnPayTransactionStatus?: string;
 }
 
+export interface CreatePaymentCod {
+  orderCode: string;
+  amount: number;
+  paymentMethod: string;
+  status: string;
+  transactionId: string;
+  paidAt: Date;
+}
+
 export default VnPayResponse;

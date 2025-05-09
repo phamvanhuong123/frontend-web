@@ -6,9 +6,12 @@ import { FORMAT_DATE_DISPLAY } from "~/utils/constant";
 import { useSelector } from "react-redux";
 import { orderApi } from "~/services/axios.order";
 import "./History.css";
+import { useNavigate } from "react-router-dom";
+import Order from "~/types/order";
 const History = () => {
   const [orderHistory, setOrderHistory] = useState([]);
   const user = useSelector((state: any) => state.account.user);
+  const navigate = useNavigate();
   useEffect(() => {
     const fetchHistory = async () => {
       const res = await orderApi.callOrderHistory(user.id);
@@ -47,24 +50,23 @@ const History = () => {
     {
       title: "Chi tiết",
       key: "action",
-      render: (_: any, record: { detail?: object }) => {
-        if (!record.detail || typeof record.detail !== "object") {
+      render: (_: any, record: Order) => {
+        // debugger;
+        if (!record) {
           return <span>Không có dữ liệu</span>;
         }
         return (
-          <pre
+          <a
+            onClick={() => {
+              navigate(`/orders/${record.orderCode}`);
+            }}
             style={{
-              maxWidth: 400,
-              maxHeight: 200,
-              overflow: "auto",
-              backgroundColor: "#f6f6f6",
-              padding: "10px",
-              borderRadius: "6px",
-              fontSize: "13px",
+              color: "#1890ff",
+              cursor: "pointer",
             }}
           >
-            {JSON.stringify(record.detail, null, 2)}
-          </pre>
+            Xem chi tiết
+          </a>
         );
       },
     },
