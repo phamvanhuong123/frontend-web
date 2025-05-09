@@ -1,4 +1,3 @@
-// src/pages/Payment/PaymentResponse.tsx
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Alert, Button, Card, Descriptions, Spin } from "antd";
@@ -7,13 +6,18 @@ import {
   CloseCircleOutlined,
   HomeOutlined,
 } from "@ant-design/icons";
-import axios from "axios";
 import "./PaymentResponse.css";
 import VnPayResponse from "~/types/payment";
 import { paymentApi } from "~/services/axios.payment";
 import { useDispatch, useSelector } from "react-redux";
 import couponApi from "~/services/axios.coupon";
-import { doDeleteVoucherSelectedAction } from "~/redux/order/orderSlice";
+import {
+  CartItem,
+  doDeleteVoucherSelectedAction,
+} from "~/redux/order/orderSlice";
+import { productApi } from "~/services/axios.product";
+import { notification } from "antd";
+import Coupon from "~/types/coupon";
 
 const PaymentResponse = () => {
   const location = useLocation();
@@ -24,7 +28,10 @@ const PaymentResponse = () => {
   const [error, setError] = useState<string | null>(null);
   const selectedVoucher = useSelector(
     (state: any) => state.order.selectedCoupon
-  );
+  ) as Coupon;
+  const selectedProducts = useSelector(
+    (state: any) => state.order.selectedProducts
+  ) as CartItem[];
 
   useEffect(() => {
     const queryParams = new URLSearchParams(location.search);
@@ -36,20 +43,16 @@ const PaymentResponse = () => {
       return;
     }
 
+    const uniqueProducts = Array.from(
+      new Map(selectedProducts.map((p) => [p.detail.id, p])).values()
+    );
+
     // Gửi request đến backend để xác thực
     const verifyPayment = async () => {
       try {
         const res = await paymentApi.ProcessPaymentResponse(
           Object.fromEntries(queryParams)
         );
-        if (
-          selectedVoucher &&
-          queryParams.get("vnp_TransactionStatus") == "00"
-        ) {
-          // Nếu thanh toán thành công và có voucher đã chọn, xóa voucher đã chọn
-          await couponApi.useAndDelete(selectedVoucher.id);
-          dispatch(doDeleteVoucherSelectedAction());
-        }
         setResponse({
           success: res.success,
           paymentMethod: queryParams.get("vnp_CardType") || "",
@@ -61,8 +64,40 @@ const PaymentResponse = () => {
           vnPayTransactionStatus:
             queryParams.get("vnp_TransactionStatus") || "",
         });
+
+        // Handle voucher and inventory updates if payment is successful
+        if (queryParams.get("vnp_TransactionStatus") === "00") {
+          // Update voucher if used
+          if (selectedVoucher) {
+            await couponApi.useAndDelete(selectedVoucher.id);
+            dispatch(doDeleteVoucherSelectedAction());
+          }
+
+          // Update product quantities
+          for (const product of uniqueProducts) {
+            console.log(
+              `Updating product ${product.id} with quantity ${product.quantity}`
+            );
+            try {
+              await productApi.updateProductQuantity(
+                product.detail.id,
+                product.quantity
+              );
+            } catch (err) {
+              console.error(
+                `Failed to update quantity for product ${product.detail.id}`,
+                err
+              );
+              notification.error({
+                message: "Lỗi cập nhật kho",
+                description: `Không thể cập nhật số lượng cho sản phẩm ${product.detail.name}`,
+              });
+            }
+          }
+        }
       } catch (err) {
         setError("Xác thực thanh toán thất bại");
+        console.error("Xác thực thanh toán thất bại", err);
       } finally {
         setLoading(false);
       }
@@ -95,18 +130,18 @@ const PaymentResponse = () => {
     <div className="payment-response-container">
       <Card
         title={
-          response?.vnPayTransactionStatus == "00"
+          response?.vnPayTransactionStatus === "00"
             ? "Thanh toán thành công"
             : "Thanh toán thất bại"
         }
         style={{ maxWidth: 800, margin: "20px auto" }}
         headStyle={{
           backgroundColor:
-            response?.vnPayTransactionStatus == "00" ? "#52c41a" : "#f5222d",
+            response?.vnPayTransactionStatus === "00" ? "#52c41a" : "#f5222d",
           color: "white",
         }}
       >
-        {response?.vnPayTransactionStatus == "00" ? (
+        {response?.vnPayTransactionStatus === "00" ? (
           <Alert
             message="Cảm ơn bạn đã thanh toán!"
             type="success"
@@ -146,7 +181,7 @@ const PaymentResponse = () => {
         </Descriptions>
 
         <div style={{ marginTop: 24, textAlign: "center" }}>
-          {response?.vnPayTransactionStatus == "00" ? (
+          {response?.vnPayTransactionStatus === "00" ? (
             <Button
               type="primary"
               onClick={() => navigate(`/orders/${response.orderCode}`)}

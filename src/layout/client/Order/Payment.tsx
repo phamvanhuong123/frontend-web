@@ -39,6 +39,7 @@ import moment from "moment";
 import Coupon from "~/types/coupon";
 import "./Payment.css";
 import Address from "~/types/address";
+import { productApi } from "~/services/axios.product";
 
 const { TextArea } = Input;
 
@@ -445,8 +446,14 @@ const Payment: React.FC<PaymentProps> = ({ setCurrentStep }) => {
         }
       }
       const res = await orderApi.createOrder(orderData);
-      if (paymentMethod !== "vnpay" && selectedVoucher) {
-        await couponApi.useAndDelete(selectedVoucher.id);
+      if (paymentMethod !== "vnpay") {
+        if (selectedVoucher) {
+          await couponApi.useAndDelete(selectedVoucher.id);
+        }
+        console.log("Đăth hàng thành công:", res);
+        for (const item of orderItems) {
+          await productApi.updateProductQuantity(item.productId, item.quantity); // Số lượng cần giảm
+        }
       }
       if (res?.data) {
         message.success("Đặt hàng thành công!");

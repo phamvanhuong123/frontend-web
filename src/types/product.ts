@@ -1,21 +1,20 @@
 interface Product {
-    id: string,
-    name: string,
-    description: string,
-    price: number,
-    isActive: boolean,
-    categoryName: string,
-    manufacturerName: string,
-    discountName: string,
-    quantity: number,
-    storeName: string,
-    images: {
-        id: string,
-        productId: string,
-        url: string
-    }[]
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  isActive: boolean;
+  categoryName: string;
+  manufacturerName: string;
+  discountName: string;
+  quantity: number;
+  storeName: string;
+  images: {
+    id: string;
+    productId: string;
+    url: string;
+  }[];
 }
-
 
 export interface ProductQueryParameters {
   pageIndex: number;
@@ -26,7 +25,7 @@ export interface ProductQueryParameters {
   maxPrice?: number | null;
   isActive?: boolean | null;
   sortBy?: string | null;
-  sortOrder?: 'asc' | 'desc' | null;
+  sortOrder?: "asc" | "desc" | null;
 }
 
 export interface PaginationResponse<T> {
@@ -37,36 +36,40 @@ export interface PaginationResponse<T> {
 }
 
 export interface CreateAProduct {
-    name: string;
-    description?: string;
-    price: number;
-    isActive: boolean;
-    categoryId: string;
-    manufacturerId: string;
-    discountId?: string;
-    quantity: number;
-    storeId: string;
-    images?: {
-        id: string,
-        productId: string,
-        url: string
-    }[]
+  name: string;
+  description?: string;
+  price: number;
+  isActive: boolean;
+  categoryId: string;
+  manufacturerId: string;
+  discountId?: string;
+  quantity: number;
+  storeId: string;
+  images?: {
+    id: string;
+    productId: string;
+    url: string;
+  }[];
 }
 
 export interface DetailAProduct {
+  id: string;
+  name: string;
+  description?: string;
+  price: number;
+  isActive: boolean;
+  categoryName: string;
+  manufacturerName: string;
+  discountName: string;
+  images: {
     id: string;
-    name: string;
-    description?: string;
-    price: number;
-    isActive: boolean;
-    categoryName: string;         
-    manufacturerName: string;
-    discountName: string;
-    images: {
-        id: string;
-        productId: string;
-        url: string;
-    }[];
+    productId: string;
+    url: string;
+  }[];
 }
 
-export default Product
+export interface UpdateAProduct {
+  quantity: number;
+}
+
+export default Product;

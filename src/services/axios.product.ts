@@ -2,6 +2,7 @@ import axios from "./axios.customize";
 import Product, {
   DetailAProduct,
   ProductQueryParameters,
+  UpdateAProduct,
 } from "~/types/product";
 
 const BASE_URL = "/api/v1/ecommerce";
@@ -60,6 +61,14 @@ export const productApi = {
       console.log(`${key}:`, value);
     }
     return await axios.post<Product>(`${BASE_URL}/products/${id}`, formData);
+  },
+  updateProductQuantity: async (id: string, quantity: number) => {
+    return await axios.post<UpdateAProduct>(
+      `${BASE_URL}/products/buy-quantity/${id}`,
+      {
+        quantity,
+      }
+    );
   },
 };
 

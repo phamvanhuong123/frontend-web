@@ -2,11 +2,11 @@ import ViewOrder from "../../../layout/client/Order/ViewOrder";
 import { Breadcrumb, Button, Result, Steps } from "antd";
 import "./order.scss";
 import { useState } from "react";
-import Payment from "../../../layout/client/Order/Payment";
+import Payment from "~/layout/client/Order/Payment";
 import { SmileOutlined, HomeOutlined } from "@ant-design/icons";
 import { Link, useNavigate } from "react-router-dom";
 
-const OrderPage  = () => {
+const OrderPage = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const navigate = useNavigate();
 
