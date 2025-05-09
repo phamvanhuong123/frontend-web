@@ -82,7 +82,7 @@ const RecommendedProducts = ({
                 <div className="product-wrapper" onClick={() => handleRedirectProduct(product)}>
                     <div className="product-thumbnail">
                         <img
-                            src={getImageUrl(product.images?.[0]?.url || '')}
+                            src={getImageUrl(product.images?.[0].url || '')}
                             alt={product.name}
                             onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
                                 e.currentTarget.src = "/placeholder-image.jpg";

@@ -13,19 +13,11 @@ interface Product {
     id: string;
     productId: string;
     url: string;
-  }[];
-}
+    }[];
+};
+
 
 export interface ProductQueryParameters {
-    pageIndex: number;
-    pageSize: number;
-    searchTerm?: string | null;
-    categoryId?: string | null;
-    minPrice?: number | null;
-    maxPrice?: number | null;
-    isActive?: boolean | null;
-    sortBy?: string | null;
-    sortOrder?: 'asc' | 'desc' | null;
   pageIndex: number;
   pageSize: number;
   searchTerm?: string | null;
@@ -38,10 +30,10 @@ export interface ProductQueryParameters {
 }
 
 export interface PaginationResponse<T> {
-    pageIndex: number;
-    pageSize: number;
-    totalCount: number;
-    items: T[];
+  pageIndex: number;
+  pageSize: number;
+  totalCount: number;
+  items: T[];
 }
 
 export interface CreateAProduct {
@@ -73,17 +65,15 @@ export interface DetailAProduct {
   images: {
     id: string;
     name: string;
-    description?: string;
-    price: number;
-    isActive: boolean;
-    categoryName: string;
-    manufacturerName: string;
-    discountName: string;
-    images: {
-        id: string;
-        productId: string;
-        url: string;
-    }[];
+    url: string;
+  }[];
+  quantity: number;
+  storeName: string;
+  createdAt: string;
+  updatedAt: string;
+  sold: number;
+  rating: number;
+  totalReviews: number;
 }
 
 export interface ProductDto {
@@ -105,12 +95,6 @@ export interface ProductDto {
     createdAt?: string;
     updatedAt?: string;
     sold?: number;
-}
-
-export default Product
-    productId: string;
-    url: string;
-  }[];
 }
 
 export interface UpdateAProduct {
