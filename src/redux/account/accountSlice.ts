@@ -14,7 +14,7 @@ interface IAccountState {
   accessToken: string;
   user: IUser | null;
   isAuthenticated: boolean;
-  tempAvatar?: string; // Thêm trường tempAvatar để lưu avatar tạm thời khi upload
+  tempAvatar?: File; // Thêm trường tempAvatar để lưu avatar tạm thời khi upload
 }
 
 const initialState: IAccountState = {
@@ -43,7 +43,7 @@ export const accountSlice = createSlice({
       state.isAuthenticated = true;
       localStorage.setItem("access_token", action.payload.accessToken);
     },
-    
+
     doLogoutAction: (state) => {
       return {
         ...state,
@@ -54,10 +54,7 @@ export const accountSlice = createSlice({
         tempAvatar: undefined,
       };
     },
-    doUploadAvatarAction: (
-      state,
-      action: PayloadAction<{ avatar: string }>
-    ) => {
+    doUploadAvatarAction: (state, action: PayloadAction<{ avatar: File }>) => {
       state.tempAvatar = action.payload.avatar; // Lưu avatar tạm thời
     },
     doUpdateUserInfoAction: (
@@ -73,8 +70,8 @@ export const accountSlice = createSlice({
         state.user.phoneNumber = action.payload.phoneNumber;
 
         // Nếu có avatar trong payload hoặc có tempAvatar thì cập nhật
-        if (action.payload.avatar || state.tempAvatar) {
-          state.user.avatar = action.payload.avatar || state.tempAvatar;
+        if (action.payload.avatar) {
+          state.user.avatar = action.payload.avatar;
           state.tempAvatar = undefined; // Reset tempAvatar sau khi cập nhật
         }
       }

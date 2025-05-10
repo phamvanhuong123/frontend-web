@@ -38,36 +38,16 @@ export const userApi = {
   },
   // Đăng nhập
 
-  callUpdateUserInfo(
-    _id: string,
-    phone: string,
-    fullName: string,
-    avatar: string
-  ) {
-    return axios.put(`${url}/${_id}`, {
-      _id,
-      phone,
-      fullName,
-      avatar,
-    });
+  callUpdateUserInfo(formData: FormData) {
+    return axios.put(`${url}/update-info`, formData);
   },
   //lấy thông tin tài khoản người dùng
   callFetchAccount() {
     return axios.get(`${url}`);
   },
-};
-
-// Cập nhật avatar
-export const callUpdateAvatar = (fileImg: File) => {
-  const bodyFormData = new FormData();
-  bodyFormData.append("fileImg", fileImg);
-  return axios({
-    method: "post",
-    url: `${url}/file/upload`,
-    data: bodyFormData,
-    headers: {
-      "Content-Type": "multipart/form-data",
-      "upload-type": "avatar",
-    },
-  });
+  callUpdateAvatar(fileImg: File) {
+    return axios.put(`${url}/update-avatar`, {
+      fileImg,
+    });
+  },
 };
