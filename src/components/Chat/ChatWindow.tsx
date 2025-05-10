@@ -228,20 +228,20 @@ const ChatWindow: React.FC = () => {
 
       const res = await chatApi.sendMessage(messageToSend);
 
-      if (res?.data) {
-        setMessages((prevMessages) => {
-          const filteredMessages = prevMessages.filter((m) => m !== tempMessage);
-          return [...filteredMessages, res.data];
-        });
+      // if (res?.data) {
+      //   setMessages((prevMessages) => {
+      //     const filteredMessages = prevMessages.filter((m) => m !== tempMessage);
+      //     return [...filteredMessages, res.data];
+      //   });
 
-        if (!chatId && res.data.chatId) {
-          setChatId(res.data.chatId);
-        }
+      //   if (!chatId && res.data.chatId) {
+      //     setChatId(res.data.chatId);
+      //   }
 
         setNewMessage("");
 
-        fetchConversations();
-      }
+      //   fetchConversations();
+      // }
     } catch (err) {
       console.error("Không thể gửi tin nhắn", err);
       message.error("Không thể gửi tin nhắn");

@@ -203,7 +203,7 @@ const ChatBot = ({ onNewMessage }: ChatBotProps) => {
         }
 
         const messageToSend = newMessage.trim();
-        setNewMessage(""); // Reset input immediately for better UX
+        setNewMessage("");
 
         try {
             const messageData = {
@@ -220,7 +220,7 @@ const ChatBot = ({ onNewMessage }: ChatBotProps) => {
         } catch (error) {
             console.error("Error sending message:", error);
             message.error("Không thể gửi tin nhắn");
-            setNewMessage(messageToSend); // Restore message if failed
+            setNewMessage(messageToSend);
         }
     };
 
