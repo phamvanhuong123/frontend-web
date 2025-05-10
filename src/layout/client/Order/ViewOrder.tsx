@@ -23,6 +23,7 @@ const ViewOrder = ({ setCurrentStep }: ViewOrderProps) => {
 
   const [totalPrice, setTotalPrice] = useState(0);
   const [checkedProductIds, setCheckedProductIds] = useState<string[]>([]);
+  const [isAllChecked, setIsAllChecked] = useState(false); // Trạng thái chọn tất cả
 
   const dispatch = useDispatch();
 
@@ -41,7 +42,11 @@ const ViewOrder = ({ setCurrentStep }: ViewOrderProps) => {
 
   useEffect(() => {
     setCheckedProductIds(selectedProducts.map((item) => item.id));
-  }, [selectedProducts]);
+    setIsAllChecked(
+      carts.length > 0 &&
+        carts.every((item) => checkedProductIds.includes(item.id))
+    ); // Cập nhật trạng thái chọn tất cả
+  }, [selectedProducts, carts, checkedProductIds]);
 
   const handleOnChangeInput = (value: number | null, product: CartItem) => {
     if (!value || value < 1) return;
@@ -53,7 +58,6 @@ const ViewOrder = ({ setCurrentStep }: ViewOrderProps) => {
           id: product.id,
         })
       );
-      // set lại số lượng sản phẩm đã chọn
       const updatedProducts = selectedProducts.map((item) => {
         if (item.id === product.id) {
           return {
@@ -87,9 +91,30 @@ const ViewOrder = ({ setCurrentStep }: ViewOrderProps) => {
     }
   };
 
+  const handleToggleAll = (e: any) => {
+    const checked = e.target.checked;
+    setIsAllChecked(checked);
+    if (checked) {
+      const allProductIds = carts.map((item) => item.id);
+      setCheckedProductIds(allProductIds);
+      dispatch(doSetSelectedProductsAction({ products: [...carts] }));
+    } else {
+      setCheckedProductIds([]);
+      dispatch(doSetSelectedProductsAction({ products: [] }));
+    }
+  };
+
   return (
     <Row gutter={[20, 20]}>
       <Col md={18} xs={24}>
+        {/* Thêm checkbox "Chọn tất cả" */}
+        {carts.length > 0 && (
+          <div style={{ marginBottom: 10 }}>
+            <Checkbox checked={isAllChecked} onChange={handleToggleAll}>
+              Chọn tất cả
+            </Checkbox>
+          </div>
+        )}
         {carts?.map((product: any, index: number) => {
           const currentProductPrice = product?.detail?.price ?? 0;
           return (
@@ -101,10 +126,12 @@ const ViewOrder = ({ setCurrentStep }: ViewOrderProps) => {
                   onChange={() => handleToggleCheck(product)}
                   style={{ marginRight: 8 }}
                 />
-                <img
-                  src={getImageUrl(product?.detail?.image?.[0]?.url)}
-                  alt="product Thumbnail"
-                />
+                <div className="image-container">
+                  <img
+                    src={getImageUrl(product?.detail?.image?.[0]?.url)}
+                    alt="product Thumbnail"
+                  />
+                </div>
                 <div className="title">{product?.detail?.name}</div>
                 <div className="price">
                   {new Intl.NumberFormat("vi-VN", {
