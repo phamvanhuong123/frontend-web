@@ -50,10 +50,12 @@ const LoginPage = () => {
   const REDIRECT_URI = `${import.meta.env.VITE_REDIRECT_URI}/login`;
 
   const handleGoogleLogin = () => {
+    debugger
     setIsGoogleLoading(true);
     const loginUrl = `${GOOGLE_LOGIN_URL}?redirect_uri=${encodeURIComponent(REDIRECT_URI)}`;
     window.location.href = loginUrl;
   };
+
 
   const onFinish = async (values: { email: string; password: string }) => {
     const { email, password } = values;
@@ -95,21 +97,8 @@ const LoginPage = () => {
           </p>
         </div>
 
-        <div className="login-social">
-          <Button
-            className="google-login-btn"
-            onClick={handleGoogleLogin}
-            loading={isGoogleLoading}
-            icon={<GoogleOutlined />}
-            size="large"
-          >
-            Đăng nhập với Google
-          </Button>
-        </div>
 
-        <div className="login-divider">
-          <span>hoặc đăng nhập với email</span>
-        </div>
+   
 
         <Form
           name="login-form"
@@ -162,6 +151,22 @@ const LoginPage = () => {
             </Button>
           </Form.Item>
         </Form>
+
+        <div className="login-divider">
+          <span>hoặc đăng nhập với email</span>
+        </div>
+        
+        <div className="login-social">
+          <Button
+            className="google-login-btn"
+            onClick={handleGoogleLogin}
+            loading={isGoogleLoading}
+            icon={<GoogleOutlined />}
+            size="large"
+          >
+            Đăng nhập với Google
+          </Button>
+        </div>
 
         <div className="login-footer">
           <p>
