@@ -348,7 +348,7 @@ const ProductReviews = ({ productId }: { productId: string }) => {
 
                 <div style={{ marginBottom: 16 }}>
                   <label style={{ display: "block", marginBottom: 8 }}>
-                    Tải lên ảnh/video
+                    Tải lên ảnh
                   </label>
                   <Upload
                     listType="picture-card"
@@ -365,8 +365,7 @@ const ProductReviews = ({ productId }: { productId: string }) => {
                     )}
                   </Upload>
                   <div className="upload-hint">
-                    Bạn có thể tải lên một ảnh và một video (tối đa 10MB mỗi
-                    file)
+                    Bạn có thể tải lên một ảnh (tối đa 10MB mỗi file)
                   </div>
                 </div>
 
