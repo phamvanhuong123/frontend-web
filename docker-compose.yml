@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   app:
@@ -11,7 +11,7 @@ services:
       - ./src:/app/src
     environment:
       - NODE_ENV=production
-    command: ["npm", "start"]
+    command: ["serve", "-s", "build", "-l", "0.0.0.0:3000"]
 
 networks:
   default:

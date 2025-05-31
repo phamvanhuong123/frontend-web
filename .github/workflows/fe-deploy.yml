@@ -1,0 +1,24 @@
+on:
+  push:
+    branches: [production]
+
+jobs:
+  deploy-fe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy FE
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          port: 22
+          script: |
+            cd /services/frontend-web
+            git fetch origin
+            git checkout production
+            git pull
+            npm install
+            npm run build
+            docker compose down
+            docker compose up -d --build
