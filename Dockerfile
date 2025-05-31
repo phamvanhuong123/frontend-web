@@ -1,12 +1,15 @@
-FROM node:16
+FROM node:18-alpine
 
 WORKDIR /app
 
-COPY package.json package-lock.json ./
+COPY package*.json ./
 RUN npm install
 
+# Copy the rest of the code (not strictly necessary with volumes, but good practice)
 COPY . .
 
-RUN npm run build
+# Expose the port
+EXPOSE 3000
 
-CMD ["npx", "vite", "--host", "0.0.0.0", "--port", "3000"]
+# CMD will be overridden by docker-compose command
+CMD ["npm", "run", "start"]
