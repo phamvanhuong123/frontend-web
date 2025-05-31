@@ -11,6 +11,8 @@ services:
       - ./src:/app/src
     environment:
       - NODE_ENV=production
+      - HOST=0.0.0.0
+      - PORT=3000
     command: ["vite", "--host", "0.0.0.0", "--port", "3000"]
 
 networks:

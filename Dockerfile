@@ -20,4 +20,4 @@ RUN npm install -g serve
 EXPOSE 3000
 
 # Start the application
-CMD ["serve", "-s", "dist", "-l", "3000"]
+CMD ["vite", "--host", "0.0.0.0", "--port", "3000"]
