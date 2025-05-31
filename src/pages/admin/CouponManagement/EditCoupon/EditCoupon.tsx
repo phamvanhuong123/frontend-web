@@ -17,8 +17,8 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import Coupon from "~/types/coupon";
 
 const discountTypes = [
-  { value: "PERCENTAGE", label: "PERCENTAGE" },
-  { value: "FIXED_AMOUNT", label: "FIXED_AMOUNT" },
+  { value: "PERCENTAGE", label: "PHẦN TRĂM" },
+  { value: "FIXED_AMOUNT", label: "CỐ ĐỊNH" },
 ];
 
 function EditCoupon() {

@@ -134,7 +134,6 @@ const ChatBot = ({ onNewMessage }: ChatBotProps) => {
                     return prevMessages;
                 }
                 if (message.chatId === chatId) {
-                    // Notify parent about new message if it's not from current user
                     if (message.senderId !== user?.id && onNewMessage) {
                         onNewMessage();
                     }

@@ -50,7 +50,6 @@ const LoginPage = () => {
   const REDIRECT_URI = `${import.meta.env.VITE_REDIRECT_URI}/login`;
 
   const handleGoogleLogin = () => {
-    debugger
     setIsGoogleLoading(true);
     const loginUrl = `${GOOGLE_LOGIN_URL}?redirect_uri=${encodeURIComponent(REDIRECT_URI)}`;
     window.location.href = loginUrl;
@@ -62,7 +61,7 @@ const LoginPage = () => {
     setIsSubmit(true);
     try {
       const res = await authApi.callLogin(email, password);
-      debugger;
+      // debugger
       if (res?.data) {
         localStorage.setItem("access_token", res.data.accessToken);
         dispatch(

@@ -13,6 +13,7 @@ import { Card, CardContent, CardHeader, Box, Typography, CircularProgress } from
 import { DatePicker, Space } from 'antd';
 import { dashboardApi } from '../../services/axios.dashboard';
 import moment from 'moment';
+import dayjs from 'dayjs';
 
 const { RangePicker } = DatePicker;
 
@@ -95,12 +96,12 @@ const RevenueChart = () => {
                 action={
                     <Space direction="horizontal">
                         <RangePicker
-                            format="DD/MM/YYYY"
                             defaultValue={[
-                                moment(dateRange[0]),
-                                moment(dateRange[1])
+                                dayjs(dateRange[0]),
+                                dayjs(dateRange[1])
                             ]}
                             onChange={handleDateChange}
+                            // onChange={handleDateChange}
                         />
                     </Space>
                 }

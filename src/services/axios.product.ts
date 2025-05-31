@@ -76,7 +76,7 @@ export const productApi = {
   },
   // Thêm phương thức để theo dõi click vào sản phẩm
   trackProductClick: (productId: string) => {
-    debugger
+    //debugger
     return axios.post(`${BASE_URL}/track-click`, { productId });
 },
 };
