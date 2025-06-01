@@ -15,6 +15,9 @@ jobs:
           port: 22
           script: |
             cd /services/frontend-web
+            if [ ! -d .git ]; then
+              git clone https://github.com/phamvanhuong123/frontend-web.git .
+            fi
             git fetch origin
             git checkout production
             git pull

@@ -1,6 +1,8 @@
 import axios from "axios";
 import { store } from "../redux/store";
 
+console.log("Axios base URL:", import.meta.env.VITE_API_URL);
+
 const instance = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
 });

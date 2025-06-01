@@ -13,8 +13,10 @@ services:
       - NODE_ENV=production
       - HOST=0.0.0.0
       - PORT=3000
-      - VITE_API_URL=
+      - VITE_API_URL=${VITE_API_URL}
     command: ["npm", "run", "start"]
+    env_file:
+      - .env
 
   nginx:
     image: nginx:latest
