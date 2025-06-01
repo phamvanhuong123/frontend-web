@@ -3,7 +3,7 @@ import { Mutex } from "async-mutex";
 
 const mutex = new Mutex();
 
-const baseUrl = import.meta.env.VITE_BACKEND_URL;
+const baseUrl = import.meta.env.VITE_API_URL;
 
 const instance = axios.create({
     baseURL: baseUrl,
