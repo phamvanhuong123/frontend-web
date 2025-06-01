@@ -1,3 +1,5 @@
+name: Deploy Frontend to VPS
+
 on:
   push:
     branches: [production]
@@ -5,19 +7,17 @@ on:
 jobs:
   deploy-fe:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Deploy FE
+      - name: SSH Deploy to VPS
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
-          password: ${{ secrets.PASSWORD }}
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 22
           script: |
-            cd /services/frontend-web
-            if [ ! -d .git ]; then
-              git clone https://github.com/phamvanhuong123/frontend-web.git .
-            fi
+            cd /services/frontend-web || git clone https://github.com/nguyenKhangvn/frontend-web.git /services/frontend-web && cd /services/frontend-web
             git fetch origin
             git checkout production
             git pull
