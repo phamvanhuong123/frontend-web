@@ -9,9 +9,9 @@ jobs:
       - name: Deploy FE
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
-          password: ${{ secrets.PASSWORD }}
+          # host: ${{ secrets.HOST }}
+          # username: ${{ secrets.USERNAME }}
+          # password: ${{ secrets.PASSWORD }}
           port: 22
           script: |
             cd /services/frontend-web

@@ -2,22 +2,14 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-# Copy package files and install dependencies
-COPY package.json package-lock.json ./
+COPY package*.json ./
 RUN npm install
 
-# Copy all files
+# Copy the rest of the code (not strictly necessary with volumes, but good practice)
 COPY . .
-
-# Build the application (without type checking if needed)
-# RUN npm run build
-RUN npm run build || echo "Build completed with warnings"
-
-# Install a simple HTTP server to serve the static files
-RUN npm install -g serve
 
 # Expose the port
 EXPOSE 3000
 
-# Start the application
-CMD ["serve", "-s", "dist", "-l", "3000"]
+# CMD will be overridden by docker-compose command
+CMD ["npm", "run", "start"]
