@@ -22,12 +22,12 @@ import Category from "~/types/category";
 import { useNavigate } from "react-router-dom";
 import DeleteCategory from "../DeleteCategory/DeleteCategory";
 
-
-
 function ListCategory() {
   const navigate = useNavigate();
   const [categories, setCategories] = useState<Category[]>([]);
-  const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({});
+  const [expandedCategories, setExpandedCategories] = useState<
+    Record<string, boolean>
+  >({});
   const [loading, setLoading] = useState<boolean>(true);
   //diaglog delete category
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -40,9 +40,9 @@ function ListCategory() {
     try {
       setLoading(true);
       const response = await categoryApi.getAll();
-      
-      const categoriesData: Category[] = response || []; 
-      
+
+      const categoriesData: Category[] = response || [];
+
       // Kiểm tra nếu không phải mảng
       if (!Array.isArray(categoriesData)) {
         throw new Error("Expected array but got: " + typeof categoriesData);
@@ -50,28 +50,31 @@ function ListCategory() {
 
       const categoryMap = new Map<string, Category>();
       const rootCategories: Category[] = [];
-      
+
       // Tạo map và xác định danh mục gốc
-      categoriesData.forEach(category => {
-        categoryMap.set(category.id, { 
-          ...category, 
-          subCategories: [] 
+      categoriesData.forEach((category) => {
+        categoryMap.set(category.id, {
+          ...category,
+          subCategories: [],
         });
-        
+
         if (!category.parentCategoryId) {
           rootCategories.push(categoryMap.get(category.id)!);
         }
       });
-      
+
       // Thêm danh mục con vào danh mục cha
-      categoriesData.forEach(category => {
-        if (category.parentCategoryId && categoryMap.has(category.parentCategoryId)) {
-          categoryMap.get(category.parentCategoryId)!.subCategories!.push(
-            categoryMap.get(category.id)!
-          );
+      categoriesData.forEach((category) => {
+        if (
+          category.parentCategoryId &&
+          categoryMap.has(category.parentCategoryId)
+        ) {
+          categoryMap
+            .get(category.parentCategoryId)!
+            .subCategories!.push(categoryMap.get(category.id)!);
         }
       });
-      
+
       setCategories(rootCategories);
     } catch (error) {
       console.error("Failed to fetch categories:", error);
@@ -85,14 +88,15 @@ function ListCategory() {
   }, []);
 
   const toggleCategoryExpand = (categoryId: string) => {
-    setExpandedCategories(prev => ({
+    setExpandedCategories((prev) => ({
       ...prev,
-      [categoryId]: !prev[categoryId]
+      [categoryId]: !prev[categoryId],
     }));
   };
 
   const renderCategoryRow = (category: Category, level: number = 0) => {
-    const hasSubCategories = category.subCategories && category.subCategories.length > 0;
+    const hasSubCategories =
+      category.subCategories && category.subCategories.length > 0;
     const isExpanded = expandedCategories[category.id];
 
     return (
@@ -106,18 +110,25 @@ function ListCategory() {
                 onClick={() => toggleCategoryExpand(category.id)}
                 sx={{ marginRight: 1 }}
               >
-                {isExpanded ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+                {isExpanded ? (
+                  <KeyboardArrowUpIcon />
+                ) : (
+                  <KeyboardArrowDownIcon />
+                )}
               </IconButton>
             ) : (
-              <Box component="span" sx={{ width: 40, display: 'inline-block' }} />
+              <Box
+                component="span"
+                sx={{ width: 40, display: "inline-block" }}
+              />
             )}
             {level > 0 && (
-              <SubdirectoryArrowRightIcon 
-                sx={{ 
-                  verticalAlign: 'middle', 
+              <SubdirectoryArrowRightIcon
+                sx={{
+                  verticalAlign: "middle",
                   marginRight: 1,
-                  color: 'text.secondary'
-                }} 
+                  color: "text.secondary",
+                }}
               />
             )}
             {category.name}
@@ -125,7 +136,7 @@ function ListCategory() {
           <TableCell>
             <Tooltip title={category.description}>
               <span>
-                {category.description.length > 30
+                {category?.description?.length > 30
                   ? `${category.description.substring(0, 30)}...`
                   : category.description}
               </span>
@@ -164,42 +175,56 @@ function ListCategory() {
           <TableCell align="center">
             <Box
               sx={{
-                display: 'flex',
-                justifyContent: 'center',
+                display: "flex",
+                justifyContent: "center",
                 "& .MuiIconButton-root": {
                   borderRadius: 2,
                 },
               }}
             >
               <Tooltip title="Xem chi tiết">
-                <IconButton onClick={() => { navigate(`detail/${category.id}`); }}>
+                <IconButton
+                  onClick={() => {
+                    navigate(`detail/${category.id}`);
+                  }}
+                >
                   <VisibilityOutlinedIcon />
                 </IconButton>
               </Tooltip>
               <Tooltip title="Chỉnh sửa">
-                <IconButton color="primary" onClick={() => { navigate(`edit/${category.id}`); }}>
+                <IconButton
+                  color="primary"
+                  onClick={() => {
+                    navigate(`edit/${category.id}`);
+                  }}
+                >
                   <CreateOutlinedIcon />
                 </IconButton>
               </Tooltip>
               <Tooltip title="Thêm danh mục con">
-                <IconButton color="success" onClick={()=>{navigate('create')}}>
+                <IconButton
+                  color="success"
+                  onClick={() => {
+                    navigate("create");
+                  }}
+                >
                   <AddCircleOutlineIcon />
                 </IconButton>
               </Tooltip>
-             <Tooltip title="Xóa">
-              <IconButton 
-                color="error" 
-                onClick={() => {
-                  setCategoryToDelete({
-                    id: category.id,
-                    name: category.name
-                  });
-                  setDeleteDialogOpen(true);
-                }}
-              >
-                <DeleteIcon />
-              </IconButton>
-            </Tooltip>
+              <Tooltip title="Xóa">
+                <IconButton
+                  color="error"
+                  onClick={() => {
+                    setCategoryToDelete({
+                      id: category.id,
+                      name: category.name,
+                    });
+                    setDeleteDialogOpen(true);
+                  }}
+                >
+                  <DeleteIcon />
+                </IconButton>
+              </Tooltip>
             </Box>
           </TableCell>
         </TableRow>
@@ -208,10 +233,15 @@ function ListCategory() {
           <TableRow>
             <TableCell style={{ padding: 0 }} colSpan={6}>
               <Collapse in={isExpanded} timeout="auto" unmountOnExit>
-                <TableContainer component={Paper} sx={{ backgroundColor: '#f9f9f9' }}>
+                <TableContainer
+                  component={Paper}
+                  sx={{ backgroundColor: "#f9f9f9" }}
+                >
                   <Table size="small" aria-label="subcategories">
                     <TableBody>
-                      {category.subCategories!.map(subCat => renderCategoryRow(subCat, level + 1))}
+                      {category.subCategories!.map((subCat) =>
+                        renderCategoryRow(subCat, level + 1)
+                      )}
                     </TableBody>
                   </Table>
                 </TableContainer>
@@ -224,7 +254,7 @@ function ListCategory() {
   };
 
   if (loading) {
-    return <Box sx={{ p: 3, textAlign: 'center' }}>Đang tải danh mục...</Box>;
+    return <Box sx={{ p: 3, textAlign: "center" }}>Đang tải danh mục...</Box>;
   }
 
   return (
@@ -233,19 +263,23 @@ function ListCategory() {
         <Table sx={{ minWidth: 800 }} aria-label="category table">
           <TableHead>
             <TableRow>
-              <TableCell sx={{ fontWeight: 600, width: '30%' }}>
+              <TableCell sx={{ fontWeight: 600, width: "30%" }}>
                 <TableSortLabel>Tên danh mục</TableSortLabel>
               </TableCell>
-              <TableCell sx={{ fontWeight: 600, width: '25%' }}>Mô tả</TableCell>
+              <TableCell sx={{ fontWeight: 600, width: "25%" }}>
+                Mô tả
+              </TableCell>
               {/*<TableCell sx={{ fontWeight: 600, width: '15%' }} align="center">Danh mục cha</TableCell>
                <TableCell sx={{ fontWeight: 600, width: '10%' }} align="center">Số sản phẩm</TableCell>
               <TableCell sx={{ fontWeight: 600, width: '10%' }} align="center">Số danh mục con</TableCell> */}
-              <TableCell sx={{ fontWeight: 600, width: '10%' }} align="center">Thao tác</TableCell>
+              <TableCell sx={{ fontWeight: 600, width: "10%" }} align="center">
+                Thao tác
+              </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {categories.length > 0 ? (
-              categories.map(category => renderCategoryRow(category))
+              categories.map((category) => renderCategoryRow(category))
             ) : (
               <TableRow>
                 <TableCell colSpan={3} align="center">
@@ -256,7 +290,7 @@ function ListCategory() {
           </TableBody>
         </Table>
       </TableContainer>
-  
+
       {/* Dialog delete category */}
       {categoryToDelete && (
         <DeleteCategory
@@ -265,7 +299,7 @@ function ListCategory() {
           categoryId={categoryToDelete.id}
           categoryName={categoryToDelete.name}
           onDeleteSuccess={() => {
-            fetchCategories(); 
+            fetchCategories();
           }}
         />
       )}
